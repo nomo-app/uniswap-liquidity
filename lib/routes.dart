@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_router/router/entities/route.dart';
 import 'package:route_gen/anotations.dart';
-import 'package:uniswap_liquidity/pages/home_screen.dart';
+import 'package:uniswap_liquidity/pages/home/home_screen.dart';
 
 part "routes.g.dart";
 

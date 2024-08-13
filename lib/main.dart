@@ -5,11 +5,25 @@ import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_ui_kit/app/nomo_app.dart';
 import 'package:uniswap_liquidity/routes.dart';
 import 'package:uniswap_liquidity/theme.dart';
+import 'package:webon_kit_dart/webon_kit_dart.dart';
 
 final appRouter = AppRouter();
 
-void main() {
+void main() async {
   usePathUrlStrategy();
+  final String address;
+
+  try {
+    if (WebonKitDart.isFallBackMode()) {
+      print('Fallback mode is active');
+    }
+
+    address = await WebonKitDart.getEvmAddress();
+    print('EVM address: $address');
+  } catch (e) {
+    print(e);
+  }
+
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -19,8 +33,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return NomoNavigator(
