@@ -28,6 +28,12 @@ class ImageEntity {
 
 abstract class ImageRepository {
   static Future<ImageEntity> getImage(TokenEntity token) async {
+    if (token is EthBasedTokenEntity &&
+        token.contractAddress.toLowerCase() ==
+            "0x74DC1C4ec10abE9F5C8A3EabF1A90b97cDc3Ead8".toLowerCase()) {
+      token = zeniqCoin;
+    }
+
     final endpoint =
         '$PRICE_ENDPOINT/info/image/${token is EthBasedTokenEntity ? '${token.contractAddress}/${chaindIdMap[token.chainID]}' : PriceRepository.getAssetName(token)}';
     try {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
+import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
@@ -92,6 +93,9 @@ class PairNotifier extends _$PairNotifier {
     if (token0 == null || token1 == null) {
       throw Exception('Error fetching token data');
     }
+
+    ref.read(assetNotifierProvider).addToken(token0);
+    ref.read(assetNotifierProvider).addToken(token1);
 
     return Pair(
       token0: token0,
