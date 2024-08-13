@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uniswap_liquidity/utils/image_repository.dart';
 import 'package:uniswap_liquidity/utils/logger.dart';
