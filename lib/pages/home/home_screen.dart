@@ -26,6 +26,7 @@ class HomeScreen extends HookConsumerWidget {
       ),
       child: Shimmer(
         child: NomoRouteBody(
+          padding: const EdgeInsets.all(16),
           backgroundColor: context.theme.colors.background1,
           child: pairsProvider.when(
             data: (pairs) => ListView.builder(
@@ -41,12 +42,19 @@ class HomeScreen extends HookConsumerWidget {
               style: context.typography.h2,
               color: context.theme.colors.error,
             ),
-            loading: () => ShimmerLoading(
-              isLoading: true,
-              child: Container(
-                width: 100,
-                color: Colors.white,
-              ),
+            loading: () => ListView.separated(
+              separatorBuilder: (context, index) => const SizedBox(height: 8),
+              itemCount: 5,
+              itemBuilder: (context, index) {
+                return ShimmerLoading(
+                  isLoading: true,
+                  child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    color: Colors.white,
+                  ),
+                );
+              },
             ),
           ),
         ),

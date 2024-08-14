@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
+import 'package:uniswap_liquidity/utils/logger.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
@@ -97,11 +98,39 @@ class PairNotifier extends _$PairNotifier {
     ref.read(assetNotifierProvider).addToken(token0);
     ref.read(assetNotifierProvider).addToken(token1);
 
+    EthBasedTokenEntity wToken;
+    EthBasedTokenEntity token;
+    BigInt reserveWZENIQ;
+    BigInt reserveToken;
+
+    if (token0.symbol == "WZENIQ") {
+      wToken = token0;
+      token = token1;
+      reserveToken = reserves.$2;
+      reserveWZENIQ = reserves.$1;
+    } else {
+      wToken = token1;
+      token = token0;
+      reserveToken = reserves.$1;
+      reserveWZENIQ = reserves.$2;
+    }
+
+    double? tvl;
+    try {
+      tvl = await _calculateTVL(
+          wtoken: wToken,
+          token1: token,
+          reserveWZENIQ: reserveWZENIQ,
+          reserveToken: reserveToken);
+    } catch (e) {
+      Logger.logError(e, hint: 'Error calculating TVL');
+    }
     return Pair(
       token0: token0,
       token1: token1,
       contract: pair,
       reserves: reserves,
+      tvl: tvl,
     );
   }
 
@@ -120,6 +149,25 @@ class PairNotifier extends _$PairNotifier {
     }
     return pairsData;
   }
+
+//Todo: Implement this function the right way. Need to get the ratio of the reserves
+  Future<double?> _calculateTVL({
+    required EthBasedTokenEntity wtoken,
+    required EthBasedTokenEntity token1,
+    required BigInt reserveWZENIQ,
+    required BigInt reserveToken,
+  }) async {
+    final zeniqPrice =
+        await ref.read(assetNotifierProvider).fetchSingelPrice(wtoken);
+    final amountWZENIQ =
+        Amount.from(value: reserveWZENIQ.toInt(), decimals: wtoken.decimals);
+    final amountToken =
+        Amount.from(value: reserveToken.toInt(), decimals: token1.decimals);
+    final wzeniqValue = amountWZENIQ.displayDouble * zeniqPrice;
+    final tokenValue = amountToken.displayDouble * zeniqPrice;
+    final tvl = wzeniqValue + tokenValue;
+    return tvl;
+  }
 }
 
 class Pair {
@@ -127,10 +175,13 @@ class Pair {
   EthBasedTokenEntity token1;
   UniswapV2Pair contract;
   (BigInt, BigInt) reserves;
+  double? tvl;
 
-  Pair(
-      {required this.token0,
-      required this.token1,
-      required this.contract,
-      required this.reserves});
+  Pair({
+    required this.token0,
+    required this.token1,
+    required this.contract,
+    required this.reserves,
+    this.tvl,
+  });
 }

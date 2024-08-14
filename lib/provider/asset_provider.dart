@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uniswap_liquidity/utils/image_repository.dart';
@@ -26,12 +25,11 @@ class AssetNotifier {
   Currency get currency => currencyNotifier.value;
 
   final Map<TokenEntity, ValueNotifier<AsyncValue<Amount>>> _balances = {};
-  final Map<TokenEntity, ValueNotifier<AsyncValue<PriceState>>> _prices = {};
+  // final Map<TokenEntity, ValueNotifier<AsyncValue<PriceState>>> _prices = {};
   final Map<TokenEntity, ValueNotifier<AsyncValue<ImageEntity>>> _images = {};
 
   void addPreviewToken(TokenEntity token) {
     _balances[token] = ValueNotifier(AsyncValue.loading());
-    _prices[token] = ValueNotifier(AsyncValue.loading());
     _images[token] = ValueNotifier(AsyncValue.loading());
 
     fetchBalanceForToken(token);
@@ -43,27 +41,27 @@ class AssetNotifier {
 
     fetchBalanceForToken(token);
     fetchImageForToken(token);
-    fetchPriceForToken(token);
+    // fetchPriceForToken(token);
   }
 
   AssetNotifier(this.address, this.tokens) {
     for (final token in tokens) {
       _balances[token] = ValueNotifier(AsyncValue.loading());
-      _prices[token] = ValueNotifier(AsyncValue.loading());
+      // _prices[token] = ValueNotifier(AsyncValue.loading());
       _images[token] = ValueNotifier(AsyncValue.loading());
     }
 
-    currencyNotifier.addListener(() {
-      fetchAllPrices();
-    });
+    // currencyNotifier.addListener(() {
+    //   fetchAllPrices();
+    // });
 
     fetchAllBalances();
-    fetchAllPrices();
+    // fetchAllPrices();
     fetchAllImages();
 
     Timer.periodic(_fetchInterval, (_) {
       fetchAllBalances();
-      fetchAllPrices();
+      // fetchAllPrices();
       fetchAllImages();
     });
   }
@@ -122,42 +120,44 @@ class AssetNotifier {
     }
   }
 
-  Future<void> fetchAllPrices() async {
-    final results =
-        await PriceRepository.fetchAll(currency: currency, tokens: tokens);
-
-    for (final token in tokens) {
-      var priceEntity = results.firstWhereOrNull((pe) => pe.matchToken(token));
-
-      if (priceEntity == null || priceEntity.isPending) {
-        _prices[token]!.value =
-            AsyncValue.error("Price not available", StackTrace.current);
-        continue;
-      }
-
-      _prices[token]!.value = AsyncValue.data(
-        PriceState(currency: currency, price: priceEntity.price),
-      );
-    }
+  Future<double> fetchSingelPrice(TokenEntity token) async {
+    final result = await PriceRepository.fetchSingle(token, currency);
+    return result;
   }
 
-  Future<void> fetchPriceForToken(TokenEntity token) async {
-    try {
-      final result = await PriceRepository.fetchSingle(token, currency);
-      _prices[token]!.value = AsyncValue.data(
-        PriceState(currency: currency, price: result),
-      );
-    } catch (e, s) {
-      _prices[token]!.value = AsyncValue.error(e, s);
-    }
-  }
+  // Future<void> fetchAllPrices() async {
+  //   final results =
+  //       await PriceRepository.fetchAll(currency: currency, tokens: tokens);
+
+  //   for (final token in tokens) {
+
+  //     var priceEntity = results.firstWhereOrNull((pe) => pe.matchToken(token));
+
+  //     if (priceEntity == null || priceEntity.isPending) {
+  //       // _prices[token]!.value =
+  //           AsyncValue.error("Price not available", StackTrace.current);
+  //       continue;
+  //     }
+
+  //     _prices[token]!.value = AsyncValue.data(
+  //       PriceState(currency: currency, price: priceEntity.price),
+  //     );
+  //   }
+  // }
+
+  // Future<void> fetchPriceForToken(TokenEntity token) async {
+  //   try {
+  //     final result = await PriceRepository.fetchSingle(token, currency);
+  //     _prices[token]!.value = AsyncValue.data(
+  //       PriceState(currency: currency, price: result),
+  //     );
+  //   } catch (e, s) {
+  //     _prices[token]!.value = AsyncValue.error(e, s);
+  //   }
+  // }
 
   ValueNotifier<AsyncValue<Amount>> notifierForToken(TokenEntity token) =>
       _balances[token]!;
-
-  ValueNotifier<AsyncValue<PriceState>> priceNotifierForToken(
-          TokenEntity token) =>
-      _prices[token]!;
 
   ValueNotifier<AsyncValue<ImageEntity>>? imageNotifierForToken(
           TokenEntity token) =>

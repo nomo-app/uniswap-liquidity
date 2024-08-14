@@ -177,9 +177,7 @@ abstract class PriceRepository {
     if (token == avinocZSC) {
       token = avinocETH; // workaround for a price-service bug
     }
-    final endpoint = token is EthBasedTokenEntity && token != tupanToken
-        ? "$PRICE_ENDPOINT/currentprice/${token.contractAddress}/${currency.name}/${chaindIdMap[token.chainID]!}"
-        : "$PRICE_ENDPOINT/currentprice/${getAssetName(token)}/${currency.name}";
+    final endpoint = "$PRICE_ENDPOINT/currentprice/ZENIQ/${currency.name}";
 
     try {
       final price = await (_fetchSingle(
@@ -267,7 +265,8 @@ abstract class PriceRepository {
     if (token == zeniqCoin ||
         token == zeniqSmart ||
         token == zeniqETHToken ||
-        token == zeniqBSCToken) {
+        token == zeniqBSCToken ||
+        token == wrappedZeniqSmart) {
       symbol = zeniqCoin.name;
     } else if (token == usdcToken) {
       symbol = "usd-coin";
