@@ -5,9 +5,12 @@ import 'package:nomo_ui_kit/components/input/textInput/nomo_input.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
+import 'package:walletkit_dart/walletkit_dart.dart';
 
 class LiquidityInputField extends HookConsumerWidget {
-  const LiquidityInputField({super.key});
+  final EthBasedTokenEntity? token;
+
+  const LiquidityInputField({super.key, required this.token});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
@@ -51,7 +54,7 @@ class LiquidityInputField extends HookConsumerWidget {
                 ),
                 8.hSpacing,
                 NomoText(
-                  "WZENIQ",
+                  token?.symbol ?? "nav",
                   style: context.typography.b2,
                 ),
               ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
+import 'package:uniswap_liquidity/provider/selected_pool_provider.dart';
 import 'package:uniswap_liquidity/widgets/liquidity_input_field.dart';
 
 class AddLiquidityBox extends ConsumerWidget {
@@ -9,9 +10,12 @@ class AddLiquidityBox extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final pair = ref.watch(selectedPoolProvider);
     return Column(
       children: [
-        LiquidityInputField(),
+        LiquidityInputField(
+          token: pair?.tokeWZeniq,
+        ),
         12.vSpacing,
         Icon(
           Icons.add_circle_outline_outlined,
@@ -19,7 +23,9 @@ class AddLiquidityBox extends ConsumerWidget {
           size: 32,
         ),
         12.vSpacing,
-        LiquidityInputField(),
+        LiquidityInputField(
+          token: pair?.token,
+        ),
       ],
     );
   }
