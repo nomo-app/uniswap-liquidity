@@ -25,9 +25,8 @@ class PoolOverview extends ConsumerWidget {
         final imageToken0 = image0.value;
         final imageToken1 = image1.value;
         return InkWell(
-          onTap: () => NomoNavigator.of(context).push(
-            DetailsScreenRoute(),
-          ),
+          onTap: () =>
+              NomoNavigator.of(context).push(DetailsScreenRoute(pair: pair)),
           child: NomoCard(
             margin: const EdgeInsets.only(
               bottom: 12,
@@ -207,7 +206,7 @@ class PoolOverview extends ConsumerWidget {
                 IconButton(
                   color: context.theme.colors.foreground1,
                   onPressed: () => NomoNavigator.of(context).push(
-                    DetailsScreenRoute(),
+                    DetailsScreenRoute(pair: pair),
                   ),
                   icon: Icon(
                     Icons.arrow_forward_ios,

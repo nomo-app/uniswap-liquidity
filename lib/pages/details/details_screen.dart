@@ -5,9 +5,13 @@ import 'package:nomo_ui_kit/components/app/routebody/nomo_route_body.dart';
 import 'package:nomo_ui_kit/components/app/scaffold/nomo_scaffold.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
+import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/widgets/manage_card.dart';
 
 class DetailsScreen extends HookConsumerWidget {
-  const DetailsScreen({super.key});
+  final Pair? pair;
+
+  const DetailsScreen({this.pair, super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return NomoScaffold(
@@ -15,12 +19,13 @@ class DetailsScreen extends HookConsumerWidget {
         leading: BackButton(
           color: context.theme.colors.foreground1,
         ),
-        title: NomoText("Details"),
+        title: NomoText(
+          "Details",
+          style: context.typography.h2,
+        ),
       ),
       child: NomoRouteBody(
-        child: Container(
-          child: Text("Details Screen"),
-        ),
+        child: ManageCard(),
       ),
     );
   }

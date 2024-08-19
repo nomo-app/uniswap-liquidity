@@ -4,6 +4,7 @@ import 'package:nomo_router/router/entities/route.dart';
 import 'package:route_gen/anotations.dart';
 import 'package:uniswap_liquidity/pages/details/details_screen.dart';
 import 'package:uniswap_liquidity/pages/home/home_screen.dart';
+import 'package:uniswap_liquidity/provider/pair_provider.dart';
 
 part "routes.g.dart";
 
