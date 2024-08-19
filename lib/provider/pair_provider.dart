@@ -115,9 +115,9 @@ class PairNotifier extends _$PairNotifier {
       reserveWZENIQ = reserves.$2;
     }
 
-    double? tvl;
+    Map<String, dynamic> tvlInfo = {};
     try {
-      tvl = await _calculateTVL(
+      tvlInfo = await _calculateTVL(
           wtoken: wToken,
           token1: token,
           reserveWZENIQ: reserveWZENIQ,
@@ -125,12 +125,20 @@ class PairNotifier extends _$PairNotifier {
     } catch (e) {
       Logger.logError(e, hint: 'Error calculating TVL');
     }
+
     return Pair(
-      token0: token0,
-      token1: token1,
+      volume24h: null,
+      apr: null,
+      fees24h: null,
+      tokeWZeniq: wToken,
+      token: token,
       contract: pair,
       reserves: reserves,
-      tvl: tvl,
+      tvl: tvlInfo["tvl"],
+      zeniqValue: tvlInfo["zeniqValue"],
+      tokenValue: tvlInfo["tokenValue"],
+      tokenPrice: tvlInfo["tokenPrice"],
+      zeniqPrice: tvlInfo["zeniqPrice"],
     );
   }
 
@@ -150,8 +158,7 @@ class PairNotifier extends _$PairNotifier {
     return pairsData;
   }
 
-//Todo: Implement this function the right way. Need to get the ratio of the reserves
-  Future<double?> _calculateTVL({
+  Future<Map<String, dynamic>> _calculateTVL({
     required EthBasedTokenEntity wtoken,
     required EthBasedTokenEntity token1,
     required BigInt reserveWZENIQ,
@@ -163,25 +170,65 @@ class PairNotifier extends _$PairNotifier {
         Amount.from(value: reserveWZENIQ.toInt(), decimals: wtoken.decimals);
     final amountToken =
         Amount.from(value: reserveToken.toInt(), decimals: token1.decimals);
-    final wzeniqValue = amountWZENIQ.displayDouble * zeniqPrice;
-    final tokenValue = amountToken.displayDouble * zeniqPrice;
-    final tvl = wzeniqValue + tokenValue;
-    return tvl;
+
+    final priceToken1 =
+        zeniqPrice * (amountWZENIQ.displayDouble / amountToken.displayDouble);
+    final valueWZENIQ = amountWZENIQ.displayDouble * zeniqPrice;
+    final valueToken1 = amountToken.displayDouble * priceToken1;
+    final tvl = valueToken1 + valueWZENIQ;
+
+    final tvlInfo = {
+      'tvl': tvl,
+      'zeniqValue': valueWZENIQ,
+      'tokenValue': valueToken1,
+      'tokenPrice': priceToken1,
+      'zeniqPrice': zeniqPrice,
+    };
+
+    return tvlInfo;
   }
 }
 
-class Pair {
-  EthBasedTokenEntity token0;
-  EthBasedTokenEntity token1;
+class Pair extends PairInformation {
+  EthBasedTokenEntity tokeWZeniq;
+  EthBasedTokenEntity token;
   UniswapV2Pair contract;
   (BigInt, BigInt) reserves;
-  double? tvl;
 
   Pair({
-    required this.token0,
-    required this.token1,
+    required this.tokeWZeniq,
+    required super.volume24h,
+    required super.fees24h,
+    required super.apr,
+    required this.token,
     required this.contract,
     required this.reserves,
-    this.tvl,
+    required super.tvl,
+    required super.zeniqValue,
+    required super.tokenValue,
+    required super.tokenPrice,
+    required super.zeniqPrice,
+  });
+}
+
+abstract class PairInformation {
+  final double tvl;
+  final double? volume24h;
+  final double? fees24h;
+  final double? apr;
+  final double zeniqPrice;
+  final double tokenPrice;
+  final double tokenValue;
+  final double zeniqValue;
+
+  PairInformation({
+    required this.tvl,
+    required this.volume24h,
+    required this.fees24h,
+    required this.apr,
+    required this.zeniqValue,
+    required this.tokenValue,
+    required this.tokenPrice,
+    required this.zeniqPrice,
   });
 }

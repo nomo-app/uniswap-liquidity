@@ -15,6 +15,7 @@ class AppRouter extends NomoAppRouter {
       : super(
           {
             HomeScreenRoute.path: ([a]) => HomeScreenRoute(),
+            DetailsScreenRoute.path: ([a]) => DetailsScreenRoute(),
           },
           _routes.expanded.where((r) => r is! NestedNavigator).toList(),
           _routes.expanded.whereType<NestedNavigator>().toList(),
@@ -45,4 +46,17 @@ class HomeScreenRoute extends AppRoute implements HomeScreenArguments {
           page: HomeScreen(),
         );
   static String path = '/';
+}
+
+class DetailsScreenArguments {
+  const DetailsScreenArguments();
+}
+
+class DetailsScreenRoute extends AppRoute implements DetailsScreenArguments {
+  DetailsScreenRoute()
+      : super(
+          name: '/details',
+          page: DetailsScreen(),
+        );
+  static String path = '/details';
 }

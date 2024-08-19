@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_ui_kit/components/card/nomo_card.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/routes.dart';
 
 class PoolOverview extends ConsumerWidget {
   final Pair pair;
@@ -14,138 +16,205 @@ class PoolOverview extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final image0 =
-        ref.read(assetNotifierProvider).imageNotifierForToken(pair.token0)!;
+        ref.read(assetNotifierProvider).imageNotifierForToken(pair.tokeWZeniq)!;
     final image1 =
-        ref.read(assetNotifierProvider).imageNotifierForToken(pair.token1)!;
+        ref.read(assetNotifierProvider).imageNotifierForToken(pair.token)!;
     return ListenableBuilder(
       listenable: Listenable.merge([image0, image1]),
       builder: (context, child) {
         final imageToken0 = image0.value;
         final imageToken1 = image1.value;
-        return NomoCard(
-          margin: const EdgeInsets.only(
-            bottom: 12,
+        return InkWell(
+          onTap: () => NomoNavigator.of(context).push(
+            DetailsScreenRoute(),
           ),
-          padding: const EdgeInsets.symmetric(
-            vertical: 12,
-            horizontal: 12,
-          ),
-          borderRadius: BorderRadius.circular(8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 74,
-                height: 42,
-                child: Stack(
-                  children: [
-                    imageToken0.when(
-                      data: (data) => Positioned(
-                        left: 0,
-                        child: ClipOval(
-                          child: Image.network(
-                            data.small,
-                            width: 42,
-                            height: 42,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      error: (error, stackTrace) => Text(
-                        error.toString(),
-                      ),
-                      loading: () => CircularProgressIndicator(),
-                    ),
-                    imageToken1.when(
-                      data: (data) => Positioned(
-                        left: 30,
-                        child: ClipOval(
-                          child: Image.network(
-                            data.small,
-                            width: 42,
-                            height: 42,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      error: (error, stackTrace) => Text(
-                        error.toString(),
-                      ),
-                      loading: () => CircularProgressIndicator(),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+          child: NomoCard(
+            margin: const EdgeInsets.only(
+              bottom: 12,
+            ),
+            padding: const EdgeInsets.symmetric(
+              vertical: 12,
+              horizontal: 12,
+            ),
+            borderRadius: BorderRadius.circular(8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 74,
+                  height: 42,
+                  child: Stack(
                     children: [
-                      NomoText(
-                        pair.token0.symbol,
-                        style: context.typography.b1,
+                      imageToken0.when(
+                        data: (data) => Positioned(
+                          left: 0,
+                          child: ClipOval(
+                            child: Image.network(
+                              data.small,
+                              width: 42,
+                              height: 42,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        error: (error, stackTrace) => Text(
+                          error.toString(),
+                        ),
+                        loading: () => CircularProgressIndicator(),
                       ),
-                      NomoText(
-                        " / ",
-                        style: context.typography.b1,
-                        opacity: 0.7,
-                      ),
-                      NomoText(
-                        pair.token1.symbol,
-                        style: context.typography.b1,
+                      imageToken1.when(
+                        data: (data) => Positioned(
+                          left: 30,
+                          child: ClipOval(
+                            child: Image.network(
+                              data.small,
+                              width: 42,
+                              height: 42,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        error: (error, stackTrace) => Text(
+                          error.toString(),
+                        ),
+                        loading: () => CircularProgressIndicator(),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Container(
-                        width: 42,
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: context.theme.colors.primary,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: NomoText(
-                            "V2",
-                            style: context.typography.b1,
-                          ),
-                        ),
-                      ),
-                      6.hSpacing,
-                      Container(
-                        width: 46,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 4,
-                          horizontal: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: context.theme.colors.background3,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: NomoText(
-                            "0.3%",
-                            style: context.typography.b1,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-              if (pair.tvl != null) const Spacer(),
-              if (pair.tvl != null)
-                NomoText(
-                  "TVL: \$${pair.tvl!.toString()}",
-                  style: context.typography.b1,
                 ),
-              NomoText(
-                  "Reserve ${pair.reserves.$1.toString()} ${pair.token1.symbol}"),
-              NomoText("Reserve ${pair.reserves.$2.toString()} WZENIQ"),
-            ],
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 240,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          NomoText(
+                            pair.tokeWZeniq.symbol,
+                            style: context.typography.b1,
+                          ),
+                          NomoText(
+                            " / ",
+                            style: context.typography.b1,
+                            opacity: 0.7,
+                          ),
+                          NomoText(
+                            pair.token.symbol,
+                            style: context.typography.b1,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Container(
+                            width: 42,
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: context.theme.colors.primary,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: NomoText(
+                                "V2",
+                                style: context.typography.b1,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          6.hSpacing,
+                          Container(
+                            width: 46,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 4,
+                              horizontal: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: context.theme.colors.background3,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: NomoText(
+                                "0.3%",
+                                style: context.typography.b1,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                32.hSpacing,
+                SizedBox(
+                  width: 100,
+                  child: NomoText(
+                    pair.tvl.toStringAsFixed(7),
+                    style: context.typography.b2,
+                  ),
+                ),
+                32.hSpacing,
+                SizedBox(
+                  width: 50,
+                  child: NomoText(
+                    pair.apr?.toStringAsFixed(2) ?? "0.00%",
+                    style: context.typography.b2,
+                  ),
+                ),
+                32.hSpacing,
+                SizedBox(
+                  width: 50,
+                  child: NomoText(
+                    pair.volume24h?.toStringAsFixed(7) ?? "0.00",
+                    style: context.typography.b2,
+                  ),
+                ),
+                32.hSpacing,
+                SizedBox(
+                  width: 50,
+                  child: NomoText(
+                    pair.fees24h?.toStringAsFixed(7) ?? "0.00",
+                    style: context.typography.b2,
+                  ),
+                ),
+                32.hSpacing,
+                SizedBox(
+                  width: 100,
+                  child: NomoText(
+                    pair.tokenPrice.toStringAsFixed(7),
+                    style: context.typography.b2,
+                  ),
+                ),
+                32.hSpacing,
+                SizedBox(
+                  width: 100,
+                  child: NomoText(
+                    pair.zeniqValue.toStringAsFixed(7),
+                    style: context.typography.b2,
+                  ),
+                ),
+                32.hSpacing,
+                SizedBox(
+                  width: 100,
+                  child: NomoText(
+                    pair.tokenValue.toStringAsFixed(7),
+                    style: context.typography.b2,
+                  ),
+                ),
+                Spacer(),
+                IconButton(
+                  color: context.theme.colors.foreground1,
+                  onPressed: () => NomoNavigator.of(context).push(
+                    DetailsScreenRoute(),
+                  ),
+                  icon: Icon(
+                    Icons.arrow_forward_ios,
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
