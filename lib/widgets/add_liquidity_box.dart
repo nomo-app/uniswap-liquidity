@@ -25,7 +25,7 @@ class AddLiquidityBox extends HookConsumerWidget {
           balance: zeniqBalance,
           errorNotifier: formStateNotifier.zeniqErrorNotifier,
           valueNotifier: formStateNotifier.zeniqNotifier,
-          fiatBlance: pool.fiatZeniqBalance!,
+          fiatBlance: pool.fiatZeniqBalance,
         ),
         12.vSpacing,
         Icon(
@@ -39,7 +39,7 @@ class AddLiquidityBox extends HookConsumerWidget {
           balance: pool.balanceToken ?? Amount.zero,
           errorNotifier: formStateNotifier.tokenErrorNotifier,
           valueNotifier: formStateNotifier.tokenNotifier,
-          fiatBlance: pool.fiatBlanceToken!,
+          fiatBlance: pool.fiatBlanceToken,
         ),
       ],
     );
