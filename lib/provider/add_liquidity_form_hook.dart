@@ -26,9 +26,20 @@ class AddLiquidityFormController {
   }
 
   void _calculateTokenFromZeniq() {
-    final zeniqInput = double.tryParse(zeniqNotifier.value) ?? 0;
+    final zeniqInput = zeniqNotifier.value;
+
+    if (zeniqInput.isEmpty) {
+      tokenNotifier.removeListener(_calculateZeniqFromToken);
+      tokenNotifier.value = "";
+      tokenNotifier.addListener(_calculateZeniqFromToken);
+      _validateInputs();
+      return;
+    }
+
+    final zeniqInputDouble = double.tryParse(zeniqInput) ?? 0;
     final zeniqInputBigInt =
-        BigInt.from((zeniqInput * pow(10, zeniqDecimals)).floor());
+        BigInt.from((zeniqInputDouble * pow(10, zeniqDecimals)).floor());
+
     if (zeniqInputBigInt > BigInt.zero && reserveA > BigInt.zero) {
       final calculatedTokenBigInt = (zeniqInputBigInt * reserveB) ~/ reserveA;
       final calculatedToken =
@@ -36,14 +47,30 @@ class AddLiquidityFormController {
       tokenNotifier.removeListener(_calculateZeniqFromToken);
       tokenNotifier.value = calculatedToken.toStringAsFixed(tokenDecimals);
       tokenNotifier.addListener(_calculateZeniqFromToken);
+    } else {
+      tokenNotifier.removeListener(_calculateZeniqFromToken);
+      tokenNotifier.value = "";
+      tokenNotifier.addListener(_calculateZeniqFromToken);
     }
+
     _validateInputs();
   }
 
   void _calculateZeniqFromToken() {
-    final tokenInput = double.tryParse(tokenNotifier.value) ?? 0;
+    final tokenInput = tokenNotifier.value;
+
+    if (tokenInput.isEmpty) {
+      zeniqNotifier.removeListener(_calculateTokenFromZeniq);
+      zeniqNotifier.value = "";
+      zeniqNotifier.addListener(_calculateTokenFromZeniq);
+      _validateInputs();
+      return;
+    }
+
+    final tokenInputDouble = double.tryParse(tokenInput) ?? 0;
     final tokenInputBigInt =
-        BigInt.from((tokenInput * pow(10, tokenDecimals)).floor());
+        BigInt.from((tokenInputDouble * pow(10, tokenDecimals)).floor());
+
     if (tokenInputBigInt > BigInt.zero && reserveB > BigInt.zero) {
       final calculatedZeniqBigInt = (tokenInputBigInt * reserveA) ~/ reserveB;
       final calculatedZeniq =
@@ -51,7 +78,12 @@ class AddLiquidityFormController {
       zeniqNotifier.removeListener(_calculateTokenFromZeniq);
       zeniqNotifier.value = calculatedZeniq.toStringAsFixed(zeniqDecimals);
       zeniqNotifier.addListener(_calculateTokenFromZeniq);
+    } else {
+      zeniqNotifier.removeListener(_calculateTokenFromZeniq);
+      zeniqNotifier.value = "";
+      zeniqNotifier.addListener(_calculateTokenFromZeniq);
     }
+
     _validateInputs();
   }
 
