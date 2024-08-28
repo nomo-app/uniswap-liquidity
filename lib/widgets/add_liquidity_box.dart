@@ -15,8 +15,8 @@ class AddLiquidityBox extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pool = ref.watch(selectedPoolProvider);
 
-    final formStateNotifier = useAddLiquidityForm(
-        zeniqBalance.displayDouble, pool!.balanceToken!.displayDouble);
+    final formStateNotifier =
+        useAddLiquidityForm(zeniqBalance.displayDouble, pool!);
 
     return Column(
       children: [

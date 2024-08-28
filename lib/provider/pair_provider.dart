@@ -100,19 +100,17 @@ class PairNotifier extends _$PairNotifier {
 
     EthBasedTokenEntity wToken;
     EthBasedTokenEntity token;
-    BigInt reserveWZENIQ;
-    BigInt reserveToken;
+
+    (BigInt, BigInt) orderedReserves;
 
     if (token0.symbol == "WZENIQ") {
       wToken = token0;
       token = token1;
-      reserveToken = reserves.$2;
-      reserveWZENIQ = reserves.$1;
+      orderedReserves = (reserves.$1, reserves.$2);
     } else {
       wToken = token1;
       token = token0;
-      reserveToken = reserves.$1;
-      reserveWZENIQ = reserves.$2;
+      orderedReserves = (reserves.$2, reserves.$1);
     }
 
     Map<String, dynamic> tvlInfo = {};
@@ -120,8 +118,8 @@ class PairNotifier extends _$PairNotifier {
       tvlInfo = await _calculateTVL(
         wtoken: wToken,
         token1: token,
-        reserveWZENIQ: reserveWZENIQ,
-        reserveToken: reserveToken,
+        reserveWZENIQ: orderedReserves.$1,
+        reserveToken: orderedReserves.$2,
       );
     } catch (e) {
       Logger.logError(e, hint: 'Error calculating data');
@@ -134,7 +132,7 @@ class PairNotifier extends _$PairNotifier {
       tokeWZeniq: wToken,
       token: token,
       contract: pair,
-      reserves: reserves,
+      reserves: orderedReserves,
       tvl: tvlInfo["tvl"],
       zeniqValue: tvlInfo["zeniqValue"],
       tokenValue: tvlInfo["tokenValue"],
