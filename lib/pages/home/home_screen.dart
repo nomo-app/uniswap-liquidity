@@ -21,7 +21,7 @@ class HomeScreen extends HookConsumerWidget {
       appBar: NomoAppBar(
         title: NomoText(
           "Pools",
-          style: context.typography.h2,
+          style: context.typography.h1,
         ),
       ),
       child: Shimmer(

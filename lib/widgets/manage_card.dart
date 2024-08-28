@@ -13,36 +13,28 @@ class ManageCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final position = useState("Add");
-    // final pool = ref.watch(selectedPoolProvider);
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 600),
-      child: NomoCard(
-        margin: EdgeInsets.only(top: 32),
-        elevation: 0,
-        border: Border.all(
-          color: context.theme.colors.onDisabled,
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(8),
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            ManageButtons(
-              initalValue: position.value,
-              onChanged: (value) {
-                position.value = value;
-              },
-            ),
-            12.vSpacing,
-            if (position.value == "Add") ...[
-              AddLiquidityBox(),
-            ],
+    return NomoCard(
+      margin: EdgeInsets.only(top: 32),
+      elevation: 0,
+      borderRadius: BorderRadius.circular(8),
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          ManageButtons(
+            initalValue: position.value,
+            onChanged: (value) {
+              position.value = value;
+            },
+          ),
+          32.vSpacing,
+          if (position.value == "Add") ...[
+            AddLiquidityBox(),
           ],
-        ),
+        ],
       ),
     );
   }

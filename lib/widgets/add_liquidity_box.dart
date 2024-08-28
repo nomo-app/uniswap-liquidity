@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/main.dart';
@@ -40,6 +41,16 @@ class AddLiquidityBox extends HookConsumerWidget {
           errorNotifier: formStateNotifier.tokenErrorNotifier,
           valueNotifier: formStateNotifier.tokenNotifier,
           fiatBlance: pool.fiatBlanceToken,
+        ),
+        32.vSpacing,
+        PrimaryNomoButton(
+          height: 52,
+          expandToConstraints: true,
+          onPressed: () {
+            // formStateNotifier.addLiquidity();
+          },
+          text: "Add Liquidity",
+          textStyle: context.typography.b2,
         ),
       ],
     );
