@@ -3,6 +3,17 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'dart:math';
 
+enum LiquidityInputFieldError {
+  insufficientBalance("Insufficient balance");
+
+  final String displayName;
+
+  const LiquidityInputFieldError(this.displayName);
+
+  @override
+  String toString() => name;
+}
+
 class AddLiquidityFormController {
   final ValueNotifier<String> zeniqNotifier;
   final ValueNotifier<String> tokenNotifier;
@@ -91,10 +102,12 @@ class AddLiquidityFormController {
     final zeniqInput = double.tryParse(zeniqNotifier.value) ?? 0;
     final tokenInput = double.tryParse(tokenNotifier.value) ?? 0;
 
-    zeniqErrorNotifier.value =
-        (zeniqInput > zeniqBalance) ? "Insufficient balance" : null;
-    tokenErrorNotifier.value =
-        (tokenInput > tokenBalance) ? "Insufficient balance" : null;
+    zeniqErrorNotifier.value = (zeniqInput > zeniqBalance)
+        ? LiquidityInputFieldError.insufficientBalance.displayName
+        : null;
+    tokenErrorNotifier.value = (tokenInput > tokenBalance)
+        ? LiquidityInputFieldError.insufficientBalance.displayName
+        : null;
   }
 }
 

@@ -48,13 +48,7 @@ class LiquidityInputField extends HookConsumerWidget {
               BorderSide(color: context.theme.colors.surface),
             ),
             inputFormatters: [
-              FilteringTextInputFormatter.allow(
-                RegExp(
-                  r'^\d+([.,]?\d{0,' +
-                      // (token?.decimals ?? 18).toString() +
-                      r'})',
-                ),
-              ),
+              CustomNumberInputFormatter(decimals: 7),
             ],
             background: context.theme.colors.surface,
             placeHolder: "0.0",
@@ -106,5 +100,35 @@ class LiquidityInputField extends HookConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+class CustomNumberInputFormatter extends TextInputFormatter {
+  final int decimals;
+
+  CustomNumberInputFormatter({required this.decimals});
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.isEmpty) {
+      return newValue;
+    }
+
+    if (newValue.text.startsWith('00')) {
+      return oldValue;
+    }
+
+    final regex = RegExp(
+      r'^\d*([.,]?\d{0,' + decimals.toString() + r'})?$',
+    );
+
+    if (regex.hasMatch(newValue.text)) {
+      return newValue;
+    }
+
+    return oldValue;
   }
 }
