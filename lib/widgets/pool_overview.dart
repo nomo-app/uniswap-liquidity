@@ -20,14 +20,21 @@ class PoolOverview extends ConsumerWidget {
         ref.read(assetNotifierProvider).imageNotifierForToken(pair.tokeWZeniq)!;
     final image1 =
         ref.read(assetNotifierProvider).imageNotifierForToken(pair.token)!;
+
     return ListenableBuilder(
       listenable: Listenable.merge([image0, image1]),
       builder: (context, child) {
         final imageToken0 = image0.value;
         final imageToken1 = image1.value;
+
         return InkWell(
           onTap: () {
-            ref.read(selectedPoolProvider.notifier).addPool(pair);
+            Future.delayed(
+              const Duration(milliseconds: 100),
+              () {
+                ref.read(selectedPoolProvider.notifier).addPool(pair);
+              },
+            );
             NomoNavigator.of(context).push(DetailsScreenRoute(pair: pair));
           },
           child: NomoCard(
@@ -209,7 +216,12 @@ class PoolOverview extends ConsumerWidget {
                 IconButton(
                   color: context.theme.colors.foreground1,
                   onPressed: () {
-                    ref.read(selectedPoolProvider.notifier).addPool(pair);
+                    Future.delayed(
+                      const Duration(milliseconds: 100),
+                      () {
+                        ref.read(selectedPoolProvider.notifier).addPool(pair);
+                      },
+                    );
                     NomoNavigator.of(context).push(
                       DetailsScreenRoute(pair: pair),
                     );

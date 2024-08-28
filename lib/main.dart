@@ -5,13 +5,16 @@ import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_ui_kit/app/nomo_app.dart';
 import 'package:uniswap_liquidity/routes.dart';
 import 'package:uniswap_liquidity/theme.dart';
+import 'package:uniswap_liquidity/utils/rpc.dart';
+import 'package:walletkit_dart/walletkit_dart.dart';
 import 'package:webon_kit_dart/webon_kit_dart.dart';
 
 final appRouter = AppRouter();
+var address = "";
+Amount zeniqBalance = Amount.zero;
 
 void main() async {
   usePathUrlStrategy();
-  final String address;
 
   try {
     if (WebonKitDart.isFallBackMode()) {
@@ -19,6 +22,7 @@ void main() async {
     }
 
     address = await WebonKitDart.getEvmAddress();
+    zeniqBalance = await rpc.fetchTokenBalance(address, zeniqETHToken);
     print('EVM address: $address');
   } catch (e) {
     print(e);

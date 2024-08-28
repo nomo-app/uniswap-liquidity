@@ -9,8 +9,16 @@ import 'package:walletkit_dart/walletkit_dart.dart';
 
 class LiquidityInputField extends HookConsumerWidget {
   final EthBasedTokenEntity? token;
-
-  const LiquidityInputField({super.key, required this.token});
+  final Amount balance;
+  final ValueNotifier<String?> errorNotifier;
+  final ValueNotifier<String> valueNotifier;
+  const LiquidityInputField({
+    super.key,
+    required this.token,
+    required this.balance,
+    required this.errorNotifier,
+    required this.valueNotifier,
+  });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
@@ -27,6 +35,14 @@ class LiquidityInputField extends HookConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           NomoInput(
+            errorBorder: Border.fromBorderSide(
+              BorderSide(color: context.theme.colors.error),
+            ),
+            borderRadius: BorderRadius.circular(8),
+            errorNotifier: errorNotifier,
+            errorColor: Colors.red,
+            valueNotifier: valueNotifier,
+            maxLines: 1,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             selectedBorder: Border.fromBorderSide(
               BorderSide(color: context.theme.colors.surface),
@@ -81,7 +97,7 @@ class LiquidityInputField extends HookConsumerWidget {
                 ),
                 8.hSpacing,
                 NomoText(
-                  "\$0.00",
+                  balance.displayValue,
                   style: context.typography.b1,
                 ),
               ],

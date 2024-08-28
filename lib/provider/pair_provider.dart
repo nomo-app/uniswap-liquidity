@@ -118,12 +118,13 @@ class PairNotifier extends _$PairNotifier {
     Map<String, dynamic> tvlInfo = {};
     try {
       tvlInfo = await _calculateTVL(
-          wtoken: wToken,
-          token1: token,
-          reserveWZENIQ: reserveWZENIQ,
-          reserveToken: reserveToken);
+        wtoken: wToken,
+        token1: token,
+        reserveWZENIQ: reserveWZENIQ,
+        reserveToken: reserveToken,
+      );
     } catch (e) {
-      Logger.logError(e, hint: 'Error calculating TVL');
+      Logger.logError(e, hint: 'Error calculating data');
     }
 
     return Pair(
@@ -139,6 +140,7 @@ class PairNotifier extends _$PairNotifier {
       tokenValue: tvlInfo["tokenValue"],
       tokenPrice: tvlInfo["tokenPrice"],
       zeniqPrice: tvlInfo["zeniqPrice"],
+      balanceToken: null,
     );
   }
 
@@ -208,7 +210,40 @@ class Pair extends PairInformation {
     required super.tokenValue,
     required super.tokenPrice,
     required super.zeniqPrice,
+    required super.balanceToken,
   });
+
+  copyWith({
+    EthBasedTokenEntity? tokeWZeniq,
+    EthBasedTokenEntity? token,
+    UniswapV2Pair? contract,
+    (BigInt, BigInt)? reserves,
+    double? tvl,
+    double? volume24h,
+    double? fees24h,
+    double? apr,
+    double? zeniqValue,
+    double? tokenValue,
+    double? tokenPrice,
+    double? zeniqPrice,
+    Amount? balanceToken,
+  }) {
+    return Pair(
+      tokeWZeniq: tokeWZeniq ?? this.tokeWZeniq,
+      token: token ?? this.token,
+      contract: contract ?? this.contract,
+      reserves: reserves ?? this.reserves,
+      tvl: tvl ?? this.tvl,
+      volume24h: volume24h ?? this.volume24h,
+      fees24h: fees24h ?? this.fees24h,
+      apr: apr ?? this.apr,
+      zeniqValue: zeniqValue ?? this.zeniqValue,
+      tokenValue: tokenValue ?? this.tokenValue,
+      tokenPrice: tokenPrice ?? this.tokenPrice,
+      zeniqPrice: zeniqPrice ?? this.zeniqPrice,
+      balanceToken: balanceToken ?? this.balanceToken,
+    );
+  }
 }
 
 abstract class PairInformation {
@@ -220,6 +255,7 @@ abstract class PairInformation {
   final double tokenPrice;
   final double tokenValue;
   final double zeniqValue;
+  final Amount? balanceToken;
 
   PairInformation({
     required this.tvl,
@@ -230,5 +266,6 @@ abstract class PairInformation {
     required this.tokenValue,
     required this.tokenPrice,
     required this.zeniqPrice,
+    required this.balanceToken,
   });
 }

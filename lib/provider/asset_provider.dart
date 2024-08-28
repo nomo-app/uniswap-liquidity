@@ -24,29 +24,29 @@ class AssetNotifier {
 
   Currency get currency => currencyNotifier.value;
 
-  final Map<TokenEntity, ValueNotifier<AsyncValue<Amount>>> _balances = {};
+  // final Map<TokenEntity, ValueNotifier<AsyncValue<Amount>>> _balances = {};
   // final Map<TokenEntity, ValueNotifier<AsyncValue<PriceState>>> _prices = {};
   final Map<TokenEntity, ValueNotifier<AsyncValue<ImageEntity>>> _images = {};
 
   void addPreviewToken(TokenEntity token) {
-    _balances[token] = ValueNotifier(AsyncValue.loading());
+    // _balances[token] = ValueNotifier(AsyncValue.loading());
     _images[token] = ValueNotifier(AsyncValue.loading());
 
-    fetchBalanceForToken(token);
+    // fetchBalanceForToken(token);
     fetchImageForToken(token);
   }
 
   void addToken(TokenEntity token) {
     tokens.add(token);
 
-    fetchBalanceForToken(token);
+    // fetchBalanceForToken(token);
     fetchImageForToken(token);
     // fetchPriceForToken(token);
   }
 
   AssetNotifier(this.address, this.tokens) {
     for (final token in tokens) {
-      _balances[token] = ValueNotifier(AsyncValue.loading());
+      // _balances[token] = ValueNotifier(AsyncValue.loading());
       // _prices[token] = ValueNotifier(AsyncValue.loading());
       _images[token] = ValueNotifier(AsyncValue.loading());
     }
@@ -55,12 +55,12 @@ class AssetNotifier {
     //   fetchAllPrices();
     // });
 
-    fetchAllBalances();
+    // fetchAllBalances();
     // fetchAllPrices();
     fetchAllImages();
 
     Timer.periodic(_fetchInterval, (_) {
-      fetchAllBalances();
+      // fetchAllBalances();
       // fetchAllPrices();
       fetchAllImages();
     });
@@ -105,20 +105,18 @@ class AssetNotifier {
     }
   }
 
-  Future<void> fetchAllBalances() async =>
-      await Future.wait(tokens.map(fetchBalanceForToken));
+  // Future<void> fetchAllBalances() async =>
+  //     await Future.wait(tokens.map(fetchBalanceForToken));
 
-  Future<void> fetchBalanceForToken(TokenEntity token) async {
-    try {
-      final balance = await (token.isERC20
-          ? rpc.fetchTokenBalance(address, token.asEthBased!)
-          : rpc.fetchBalance(address: address));
+  // Future<void> fetchBalanceForToken(TokenEntity token) async {
+  //   try {
+  //     final balance = await rpc.fetchTokenBalance(address, token.asEthBased!);
 
-      _balances[token]!.value = AsyncValue.data(balance);
-    } catch (e, s) {
-      _balances[token]!.value = AsyncValue.error(e, s);
-    }
-  }
+  //     _balances[token]!.value = AsyncValue.data(balance);
+  //   } catch (e, s) {
+  //     _balances[token]!.value = AsyncValue.error(e, s);
+  //   }
+  // }
 
   Future<double> fetchSingelPrice(TokenEntity token) async {
     final result = await PriceRepository.fetchSingle(token, currency);
@@ -156,8 +154,8 @@ class AssetNotifier {
   //   }
   // }
 
-  ValueNotifier<AsyncValue<Amount>> notifierForToken(TokenEntity token) =>
-      _balances[token]!;
+  // ValueNotifier<AsyncValue<Amount>> notifierForToken(TokenEntity token) =>
+  //     _balances[token]!;
 
   ValueNotifier<AsyncValue<ImageEntity>>? imageNotifierForToken(
           TokenEntity token) =>
