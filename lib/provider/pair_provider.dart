@@ -139,6 +139,8 @@ class PairNotifier extends _$PairNotifier {
       tokenPrice: tvlInfo["tokenPrice"],
       zeniqPrice: tvlInfo["zeniqPrice"],
       balanceToken: null,
+      fiatBlanceToken: null,
+      fiatZeniqBalance: null,
     );
   }
 
@@ -209,6 +211,8 @@ class Pair extends PairInformation {
     required super.tokenPrice,
     required super.zeniqPrice,
     required super.balanceToken,
+    required super.fiatBlanceToken,
+    required super.fiatZeniqBalance,
   });
 
   copyWith({
@@ -225,6 +229,8 @@ class Pair extends PairInformation {
     double? tokenPrice,
     double? zeniqPrice,
     Amount? balanceToken,
+    double? fiatBlanceToken,
+    double? fiatZeniqBalance,
   }) {
     return Pair(
       tokeWZeniq: tokeWZeniq ?? this.tokeWZeniq,
@@ -240,6 +246,8 @@ class Pair extends PairInformation {
       tokenPrice: tokenPrice ?? this.tokenPrice,
       zeniqPrice: zeniqPrice ?? this.zeniqPrice,
       balanceToken: balanceToken ?? this.balanceToken,
+      fiatBlanceToken: fiatBlanceToken ?? this.fiatBlanceToken,
+      fiatZeniqBalance: fiatZeniqBalance ?? this.fiatZeniqBalance,
     );
   }
 }
@@ -254,6 +262,8 @@ abstract class PairInformation {
   final double tokenValue;
   final double zeniqValue;
   final Amount? balanceToken;
+  final double? fiatBlanceToken;
+  final double? fiatZeniqBalance;
 
   PairInformation({
     required this.tvl,
@@ -265,5 +275,7 @@ abstract class PairInformation {
     required this.tokenPrice,
     required this.zeniqPrice,
     required this.balanceToken,
+    required this.fiatBlanceToken,
+    required this.fiatZeniqBalance,
   });
 }

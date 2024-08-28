@@ -12,12 +12,14 @@ class LiquidityInputField extends HookConsumerWidget {
   final Amount balance;
   final ValueNotifier<String?> errorNotifier;
   final ValueNotifier<String> valueNotifier;
+  final double fiatBlance;
   const LiquidityInputField({
     super.key,
     required this.token,
     required this.balance,
     required this.errorNotifier,
     required this.valueNotifier,
+    required this.fiatBlance,
   });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -81,7 +83,7 @@ class LiquidityInputField extends HookConsumerWidget {
             child: Row(
               children: [
                 NomoText(
-                  "\$0.00",
+                  "\$${fiatBlance.toStringAsFixed(2)}",
                   style: context.typography.b1,
                 ),
                 const Spacer(),

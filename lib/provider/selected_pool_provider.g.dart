@@ -6,7 +6,7 @@ part of 'selected_pool_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$selectedPoolHash() => r'515ad432164446c2b9832ae9513d086eb37d7fdd';
+String _$selectedPoolHash() => r'4934b413532b3762ea2abf6b20b0894f2e90a523';
 
 /// See also [SelectedPool].
 @ProviderFor(SelectedPool)
