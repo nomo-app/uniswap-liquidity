@@ -8,6 +8,7 @@ import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/add_liquidity_form_hook.dart';
 import 'package:uniswap_liquidity/provider/selected_pool_provider.dart';
+import 'package:uniswap_liquidity/widgets/add_liquidity_info.dart';
 import 'package:uniswap_liquidity/widgets/adjust_slippage_dialog.dart';
 import 'package:uniswap_liquidity/widgets/liquidity_input_field.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
@@ -67,17 +68,25 @@ class AddLiquidityBox extends HookConsumerWidget {
         ValueListenableBuilder(
           valueListenable: formStateNotifier.canAddLiquidity,
           builder: (context, canAddLiquidity, child) {
-            return PrimaryNomoButton(
-              enabled: canAddLiquidity,
-              type: canAddLiquidity ? ActionType.def : ActionType.disabled,
-              height: 52,
-              expandToConstraints: true,
-              onPressed: () {
-                print("Add Liquidity pressed");
-                // formStateNotifier.addLiquidity();
-              },
-              text: "Add Liquidity",
-              textStyle: context.typography.b2,
+            return Column(
+              children: [
+                if (canAddLiquidity) ...[
+                  ADDLiqiuidityInfo(),
+                  32.vSpacing,
+                ],
+                PrimaryNomoButton(
+                  enabled: canAddLiquidity,
+                  type: canAddLiquidity ? ActionType.def : ActionType.disabled,
+                  height: 52,
+                  expandToConstraints: true,
+                  onPressed: () {
+                    print("Add Liquidity pressed");
+                    // formStateNotifier.addLiquidity();
+                  },
+                  text: "Add Liquidity",
+                  textStyle: context.typography.b2,
+                ),
+              ],
             );
           },
         ),
