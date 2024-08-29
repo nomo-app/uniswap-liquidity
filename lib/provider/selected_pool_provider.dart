@@ -10,10 +10,10 @@ part 'selected_pool_provider.g.dart';
 @riverpod
 class SelectedPool extends _$SelectedPool {
   @override
-  Pair? build() => null;
+  ({Pair? pair, String slippage}) build() => (pair: null, slippage: "0.5");
 
   Future<void> addPool(Pair pair) async {
-    state = pair;
+    state = (pair: pair, slippage: state.slippage);
     print('SelectedPool: Setting initial state - ${pair.token.symbol}');
 
     try {
@@ -24,14 +24,17 @@ class SelectedPool extends _$SelectedPool {
 
       final fiatBalanceZeniq = zeniqBalance.displayDouble * zeniqPrice;
       final fiatBalanceToken = tokenBalance.displayDouble * tokenPrice;
-
-      state = pair.copyWith(
-        balanceToken: tokenBalance,
-        fiatZeniqBalance: fiatBalanceZeniq,
-        fiatBlanceToken: fiatBalanceToken,
+      state = (
+        pair: pair.copyWith(
+          balanceToken: tokenBalance,
+          fiatZeniqBalance: fiatBalanceZeniq,
+          fiatBlanceToken: fiatBalanceToken,
+        ),
+        slippage: state.slippage
       );
+
       print(
-          'SelectedPool: Updated state with balance - ${state?.balanceToken}');
+          'SelectedPool: Updated state with balance - ${state.pair!.balanceToken}');
     } catch (e) {
       print('SelectedPool: Error updating pool - $e');
     }
@@ -40,20 +43,25 @@ class SelectedPool extends _$SelectedPool {
   Future<double> _getZeniqPrice() async {
     final price = await ref
         .read(assetNotifierProvider)
-        .fetchSingelPrice(state!.tokeWZeniq);
+        .fetchSingelPrice(state.pair!.tokeWZeniq);
 
     return price;
   }
 
   double _getTokenPrice(double zeniqPrice) {
     final amountWZENIQ = Amount.from(
-        value: state!.reserves.$1.toInt(),
-        decimals: state!.tokeWZeniq.decimals);
+        value: state.pair!.reserves.$1.toInt(),
+        decimals: state.pair!.tokeWZeniq.decimals);
     final amountToken = Amount.from(
-        value: state!.reserves.$2.toInt(), decimals: state!.token.decimals);
+        value: state.pair!.reserves.$2.toInt(),
+        decimals: state.pair!.token.decimals);
     final priceToken1 =
         zeniqPrice * (amountWZENIQ.displayDouble / amountToken.displayDouble);
 
     return priceToken1;
+  }
+
+  void updateSlippage(String value) {
+    state = (pair: state.pair, slippage: value);
   }
 }

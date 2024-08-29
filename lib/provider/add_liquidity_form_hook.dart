@@ -19,6 +19,7 @@ class AddLiquidityFormController {
   final ValueNotifier<String> tokenNotifier;
   final ValueNotifier<String?> zeniqErrorNotifier;
   final ValueNotifier<String?> tokenErrorNotifier;
+  final ValueNotifier<bool> canAddLiquidity;
   final BigInt reserveA;
   final BigInt reserveB;
   final int zeniqDecimals;
@@ -30,6 +31,7 @@ class AddLiquidityFormController {
       this.reserveA, this.reserveB, this.zeniqDecimals, this.tokenDecimals)
       : zeniqNotifier = ValueNotifier(""),
         tokenNotifier = ValueNotifier(""),
+        canAddLiquidity = ValueNotifier(false),
         zeniqErrorNotifier = ValueNotifier(null),
         tokenErrorNotifier = ValueNotifier(null) {
     zeniqNotifier.addListener(_calculateTokenFromZeniq);
@@ -56,7 +58,7 @@ class AddLiquidityFormController {
       final calculatedToken =
           calculatedTokenBigInt.toDouble() / pow(10, tokenDecimals);
       tokenNotifier.removeListener(_calculateZeniqFromToken);
-      tokenNotifier.value = calculatedToken.toStringAsFixed(tokenDecimals);
+      tokenNotifier.value = calculatedToken.toStringAsFixed(7);
       tokenNotifier.addListener(_calculateZeniqFromToken);
     } else {
       tokenNotifier.removeListener(_calculateZeniqFromToken);
@@ -87,7 +89,7 @@ class AddLiquidityFormController {
       final calculatedZeniq =
           calculatedZeniqBigInt.toDouble() / pow(10, zeniqDecimals);
       zeniqNotifier.removeListener(_calculateTokenFromZeniq);
-      zeniqNotifier.value = calculatedZeniq.toStringAsFixed(zeniqDecimals);
+      zeniqNotifier.value = calculatedZeniq.toStringAsFixed(7);
       zeniqNotifier.addListener(_calculateTokenFromZeniq);
     } else {
       zeniqNotifier.removeListener(_calculateTokenFromZeniq);
@@ -99,15 +101,32 @@ class AddLiquidityFormController {
   }
 
   void _validateInputs() {
+    bool isValid = true;
+
+    if (zeniqNotifier.value.isEmpty || tokenNotifier.value.isEmpty) {
+      isValid = false;
+    }
+
     final zeniqInput = double.tryParse(zeniqNotifier.value) ?? 0;
     final tokenInput = double.tryParse(tokenNotifier.value) ?? 0;
 
-    zeniqErrorNotifier.value = (zeniqInput > zeniqBalance)
-        ? LiquidityInputFieldError.insufficientBalance.displayName
-        : null;
-    tokenErrorNotifier.value = (tokenInput > tokenBalance)
-        ? LiquidityInputFieldError.insufficientBalance.displayName
-        : null;
+    if (zeniqInput > zeniqBalance) {
+      zeniqErrorNotifier.value =
+          LiquidityInputFieldError.insufficientBalance.displayName;
+      isValid = false;
+    } else {
+      zeniqErrorNotifier.value = null;
+    }
+
+    if (tokenInput > tokenBalance) {
+      tokenErrorNotifier.value =
+          LiquidityInputFieldError.insufficientBalance.displayName;
+      isValid = false;
+    } else {
+      tokenErrorNotifier.value = null;
+    }
+
+    canAddLiquidity.value = isValid;
   }
 }
 

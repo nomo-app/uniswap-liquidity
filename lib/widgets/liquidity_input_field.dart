@@ -27,6 +27,8 @@ class LiquidityInputField extends HookConsumerWidget {
     final tokenImage =
         ref.read(assetNotifierProvider).imageNotifierForToken(token!)!;
 
+    final assetNotifier = ref.watch(assetNotifierProvider).currencyNotifier;
+
     return ListenableBuilder(
         listenable: tokenImage,
         builder: (context, child) {
@@ -101,9 +103,12 @@ class LiquidityInputField extends HookConsumerWidget {
                   ),
                   child: Row(
                     children: [
-                      NomoText(
-                        "\$${fiatBlance?.toStringAsFixed(2) ?? "0.00"}",
-                        style: context.typography.b1,
+                      ValueListenableBuilder(
+                        valueListenable: assetNotifier,
+                        builder: (context, value, child) => NomoText(
+                          "${value.symbol} ${fiatBlance?.toStringAsFixed(2) ?? "0.00"}",
+                          style: context.typography.b1,
+                        ),
                       ),
                       const Spacer(),
                       Icon(

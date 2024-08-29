@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/utils/image_repository.dart';
 import 'package:uniswap_liquidity/utils/logger.dart';
 import 'package:uniswap_liquidity/utils/price_repository.dart';
@@ -164,5 +165,5 @@ class AssetNotifier {
 
 @Riverpod(keepAlive: true)
 AssetNotifier assetNotifier(AssetNotifierRef ref) {
-  return AssetNotifier('0xA7Fa4bB0bba164F999E8C7B83C9da96A3bE44616', []);
+  return AssetNotifier(address, []);
 }
