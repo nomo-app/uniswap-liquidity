@@ -136,7 +136,7 @@ AddLiquidityFormController useAddLiquidityForm(double zeniqBalance, Pair pool) {
   useEffect(() {
     controller.value = AddLiquidityFormController(
         zeniqBalance,
-        pool.balanceToken!.displayDouble,
+        pool.balanceToken?.displayDouble ?? 0,
         pool.reserves.$1,
         pool.reserves.$2,
         pool.tokeWZeniq.decimals,

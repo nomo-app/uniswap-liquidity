@@ -10,58 +10,66 @@ part 'selected_pool_provider.g.dart';
 @riverpod
 class SelectedPool extends _$SelectedPool {
   @override
-  ({Pair? pair, String slippage}) build() => (pair: null, slippage: "0.5");
+  Future<Pair> build(Pair pair) async {
+    return _addPair(pair);
+  }
 
-  Future<void> addPool(Pair pair) async {
-    state = (pair: pair, slippage: state.slippage);
-    print('SelectedPool: Setting initial state - ${pair.token.symbol}');
-
+  Future<Pair> _addPair(Pair pair) async {
     try {
       final tokenBalance = await rpc.fetchTokenBalance(address, pair.token);
       print('SelectedPool: Fetched balance - $tokenBalance');
-      final zeniqPrice = await _getZeniqPrice();
-      final tokenPrice = _getTokenPrice(zeniqPrice);
+      final zeniqPrice = await _getZeniqPrice(pair.tokeWZeniq);
+      final tokenPrice = _getTokenPrice(pair, zeniqPrice);
 
       final fiatBalanceZeniq = zeniqBalance.displayDouble * zeniqPrice;
       final fiatBalanceToken = tokenBalance.displayDouble * tokenPrice;
-      state = (
-        pair: pair.copyWith(
-          balanceToken: tokenBalance,
-          fiatZeniqBalance: fiatBalanceZeniq,
-          fiatBlanceToken: fiatBalanceToken,
-        ),
-        slippage: state.slippage
-      );
 
-      print(
-          'SelectedPool: Updated state with balance - ${state.pair!.balanceToken}');
+      state = AsyncValue.data(pair.copyWith(
+        balanceToken: tokenBalance,
+        fiatZeniqBalance: fiatBalanceZeniq,
+        fiatBlanceToken: fiatBalanceToken,
+      ));
+
+      return pair.copyWith(
+        balanceToken: tokenBalance,
+        fiatZeniqBalance: fiatBalanceZeniq,
+        fiatBlanceToken: fiatBalanceToken,
+      );
     } catch (e) {
       print('SelectedPool: Error updating pool - $e');
     }
+    return pair;
   }
 
-  Future<double> _getZeniqPrice() async {
-    final price = await ref
-        .read(assetNotifierProvider)
-        .fetchSingelPrice(state.pair!.tokeWZeniq);
+  Future<double> _getZeniqPrice(EthBasedTokenEntity tokeWZeniq) async {
+    final price =
+        await ref.read(assetNotifierProvider).fetchSingelPrice(tokeWZeniq);
 
     return price;
   }
 
-  double _getTokenPrice(double zeniqPrice) {
+  Future<void> currencyChanged()async{
+    final pair = state.value;
+    if(pair != null){
+      final zeniqPrice = await _getZeniqPrice(pair.tokeWZeniq);
+      final tokenPrice = _getTokenPrice(pair, zeniqPrice);
+      final fiatBalanceZeniq = zeniqBalance.displayDouble * zeniqPrice;
+      final fiatBalanceToken = pair.balanceToken!.displayDouble * tokenPrice;
+      state = AsyncValue.data(pair.copyWith(
+        fiatZeniqBalance: fiatBalanceZeniq,
+        fiatBlanceToken: fiatBalanceToken,
+      ));
+    }
+  }
+
+  double _getTokenPrice(Pair pair, double zeniqPrice) {
     final amountWZENIQ = Amount.from(
-        value: state.pair!.reserves.$1.toInt(),
-        decimals: state.pair!.tokeWZeniq.decimals);
+        value: pair.reserves.$1.toInt(), decimals: pair.tokeWZeniq.decimals);
     final amountToken = Amount.from(
-        value: state.pair!.reserves.$2.toInt(),
-        decimals: state.pair!.token.decimals);
+        value: pair.reserves.$2.toInt(), decimals: pair.token.decimals);
     final priceToken1 =
         zeniqPrice * (amountWZENIQ.displayDouble / amountToken.displayDouble);
 
     return priceToken1;
-  }
-
-  void updateSlippage(String value) {
-    state = (pair: state.pair, slippage: value);
   }
 }

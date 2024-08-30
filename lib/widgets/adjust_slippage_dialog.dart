@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
 import 'package:nomo_ui_kit/components/dialog/nomo_dialog.dart';
@@ -11,26 +10,21 @@ import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
+import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'package:uniswap_liquidity/provider/selected_pool_provider.dart';
 import 'package:uniswap_liquidity/utils/price_repository.dart';
 import 'package:uniswap_liquidity/widgets/liquidity_input_field.dart';
 
 class SlippageDialog extends HookConsumerWidget {
-  const SlippageDialog({super.key});
+  final Pair pair;
+  final ValueNotifier<String> slippageNotifier;
+
+  const SlippageDialog(
+      {required this.pair, required this.slippageNotifier, super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final assetNotifier = ref.watch(assetNotifierProvider);
-    final pair = ref.watch(selectedPoolProvider);
-    final slippageProvider = useState(pair.slippage);
-    useEffect(() {
-      void listener() {
-        final newSlippage = slippageProvider.value;
-        ref.read(selectedPoolProvider.notifier).updateSlippage(newSlippage);
-      }
-
-      slippageProvider.addListener(listener);
-      return () => slippageProvider.removeListener(listener);
-    }, [slippageProvider]);
+    final slippageProvider = slippageNotifier;
 
     return NomoDialog(
       maxWidth: 480,
@@ -70,6 +64,11 @@ class SlippageDialog extends HookConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   iconColor: context.colors.foreground1,
                   height: 48,
+                  onChanged: (value) {
+                    final notifier =
+                        ref.read(selectedPoolProvider(pair).notifier);
+                    // notifier.currencyChanged();
+                  },
                   items: [
                     for (final currency in Currency.values)
                       NomoDropDownItemString(

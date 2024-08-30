@@ -7,7 +7,6 @@ import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
-import 'package:uniswap_liquidity/provider/selected_pool_provider.dart';
 import 'package:uniswap_liquidity/routes.dart';
 
 class PoolOverview extends ConsumerWidget {
@@ -29,12 +28,6 @@ class PoolOverview extends ConsumerWidget {
 
         return InkWell(
           onTap: () {
-            Future.delayed(
-              const Duration(milliseconds: 100),
-              () {
-                ref.read(selectedPoolProvider.notifier).addPool(pair);
-              },
-            );
             NomoNavigator.of(context).push(DetailsScreenRoute(pair: pair));
           },
           child: NomoCard(
@@ -216,15 +209,8 @@ class PoolOverview extends ConsumerWidget {
                 IconButton(
                   color: context.theme.colors.foreground1,
                   onPressed: () {
-                    Future.delayed(
-                      const Duration(milliseconds: 100),
-                      () {
-                        ref.read(selectedPoolProvider.notifier).addPool(pair);
-                      },
-                    );
-                    NomoNavigator.of(context).push(
-                      DetailsScreenRoute(pair: pair),
-                    );
+                    NomoNavigator.of(context)
+                        .push(DetailsScreenRoute(pair: pair));
                   },
                   icon: Icon(
                     Icons.arrow_forward_ios,

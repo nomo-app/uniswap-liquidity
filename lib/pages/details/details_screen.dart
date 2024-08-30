@@ -11,11 +11,12 @@ import 'package:uniswap_liquidity/widgets/manage_card.dart';
 
 class DetailsScreen extends HookConsumerWidget {
   final Pair? pair;
-  const DetailsScreen({this.pair, super.key});
+  const DetailsScreen({this.pair, super.key})
+      : assert(pair != null, 'pair must not be null');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(selectedPoolProvider);
+    final selectedPool = ref.watch(selectedPoolProvider(pair!));
     return NomoScaffold(
       appBar: NomoAppBar(
         leading: BackButton(
@@ -28,9 +29,13 @@ class DetailsScreen extends HookConsumerWidget {
       ),
       child: NomoRouteBody(
         maxContentWidth: 600,
-        children: const [
-          ManageCard(),
-        ],
+        child: selectedPool.when(
+          data: (pair) => ManageCard(selectedPool: pair),
+          error: (error, stackTrace) => NomoText(error.toString()),
+          loading: () => Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
       ),
     );
   }

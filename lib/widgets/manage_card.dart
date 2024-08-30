@@ -3,11 +3,14 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/components/card/nomo_card.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
+import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'package:uniswap_liquidity/widgets/add_liquidity_box.dart';
 import 'package:uniswap_liquidity/widgets/manage_buttons.dart';
 
 class ManageCard extends HookConsumerWidget {
-  const ManageCard({super.key});
+  final Pair selectedPool;
+
+  const ManageCard({required this.selectedPool, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,7 +34,7 @@ class ManageCard extends HookConsumerWidget {
           ),
           32.vSpacing,
           if (position.value == "Add") ...[
-            AddLiquidityBox(),
+            AddLiquidityBox(selectedPool: selectedPool),
           ],
         ],
       ),

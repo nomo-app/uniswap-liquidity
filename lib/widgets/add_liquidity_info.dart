@@ -3,14 +3,17 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/components/divider/nomo_divider.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
-import 'package:uniswap_liquidity/provider/selected_pool_provider.dart';
+import 'package:uniswap_liquidity/provider/pair_provider.dart';
 
 class ADDLiqiuidityInfo extends ConsumerWidget {
-  const ADDLiqiuidityInfo({super.key});
+  final Pair pair;
+  final String slippage;
+
+  const ADDLiqiuidityInfo(
+      {required this.pair, required this.slippage, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final pairProvider = ref.watch(selectedPoolProvider);
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -30,7 +33,7 @@ class ADDLiqiuidityInfo extends ConsumerWidget {
                 style: context.typography.b1,
               ),
               NomoText(
-                pairProvider.pair?.volume24h?.toString() ?? "nav",
+                pair.volume24h?.toString() ?? "nav",
                 style: context.typography.b1,
               ),
             ],
@@ -46,7 +49,8 @@ class ADDLiqiuidityInfo extends ConsumerWidget {
                 style: context.typography.b1,
               ),
               NomoText(
-                "${pairProvider.slippage}%",
+                slippage,
+                // "${pairProvider.slippage}%",
                 style: context.typography.b1,
               ),
             ],
@@ -62,7 +66,7 @@ class ADDLiqiuidityInfo extends ConsumerWidget {
                 style: context.typography.b1,
               ),
               NomoText(
-                pairProvider.pair?.fees24h?.toString() ?? "nav",
+                pair.fees24h?.toString() ?? "nav",
                 style: context.typography.b1,
               ),
             ],
