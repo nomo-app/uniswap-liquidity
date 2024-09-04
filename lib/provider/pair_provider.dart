@@ -30,8 +30,9 @@ class PairNotifier extends _$PairNotifier {
       }
 
       return pairs;
-    } catch (e) {
+    } catch (e, s) {
       print('Error fetching all pairs: $e');
+      state = AsyncValue.error(e, s);
       return [];
     }
   }

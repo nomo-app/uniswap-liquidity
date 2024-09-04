@@ -157,54 +157,54 @@ class PoolOverview extends ConsumerWidget {
                     style: context.typography.b2,
                   ),
                 ),
-                32.hSpacing,
-                SizedBox(
-                  width: 50,
-                  child: NomoText(
-                    pair.apr?.toStringAsFixed(2) ?? "0.00%",
-                    style: context.typography.b2,
-                  ),
-                ),
-                32.hSpacing,
-                SizedBox(
-                  width: 50,
-                  child: NomoText(
-                    pair.volume24h?.toStringAsFixed(7) ?? "0.00",
-                    style: context.typography.b2,
-                  ),
-                ),
-                32.hSpacing,
-                SizedBox(
-                  width: 50,
-                  child: NomoText(
-                    pair.fees24h?.toStringAsFixed(7) ?? "0.00",
-                    style: context.typography.b2,
-                  ),
-                ),
-                32.hSpacing,
-                SizedBox(
-                  width: 100,
-                  child: NomoText(
-                    pair.tokenPrice.toStringAsFixed(7),
-                    style: context.typography.b2,
-                  ),
-                ),
-                32.hSpacing,
-                SizedBox(
-                  width: 100,
-                  child: NomoText(
-                    pair.zeniqValue.toStringAsFixed(7),
-                    style: context.typography.b2,
-                  ),
-                ),
-                32.hSpacing,
-                SizedBox(
-                  width: 100,
-                  child: NomoText(
-                    pair.tokenValue.toStringAsFixed(7),
-                    style: context.typography.b2,
-                  ),
-                ),
+                // 32.hSpacing,
+                // SizedBox(
+                //   width: 50,
+                //   child: NomoText(
+                //     pair.apr?.toStringAsFixed(2) ?? "0.00%",
+                //     style: context.typography.b2,
+                //   ),
+                // ),
+                // 32.hSpacing,
+                // SizedBox(
+                //   width: 50,
+                //   child: NomoText(
+                //     pair.volume24h?.toStringAsFixed(7) ?? "0.00",
+                //     style: context.typography.b2,
+                //   ),
+                // ),
+                // 32.hSpacing,
+                // SizedBox(
+                //   width: 50,
+                //   child: NomoText(
+                //     pair.fees24h?.toStringAsFixed(7) ?? "0.00",
+                //     style: context.typography.b2,
+                //   ),
+                // ),
+                // 32.hSpacing,
+                // SizedBox(
+                //   width: 100,
+                //   child: NomoText(
+                //     pair.tokenPrice.toStringAsFixed(7),
+                //     style: context.typography.b2,
+                //   ),
+                // ),
+                // 32.hSpacing,
+                // SizedBox(
+                //   width: 100,
+                //   child: NomoText(
+                //     pair.zeniqValue.toStringAsFixed(7),
+                //     style: context.typography.b2,
+                //   ),
+                // ),
+                // 32.hSpacing,
+                // SizedBox(
+                //   width: 100,
+                //   child: NomoText(
+                //     pair.tokenValue.toStringAsFixed(7),
+                //     style: context.typography.b2,
+                //   ),
+                // ),
                 Spacer(),
                 IconButton(
                   color: context.theme.colors.foreground1,

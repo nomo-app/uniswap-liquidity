@@ -4,6 +4,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
 import 'package:nomo_ui_kit/components/buttons/secondary/nomo_secondary_button.dart';
+import 'package:nomo_ui_kit/components/dialog/nomo_dialog.dart';
+import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/main.dart';
@@ -23,8 +25,8 @@ class AddLiquidityBox extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final formStateNotifier =
         useAddLiquidityForm(zeniqBalance.displayDouble, selectedPool);
-
     final slippage = useState("0.5");
+    final liquidityProvider = ref.watch(liquidityNotifierProvider);
 
     return Column(
       children: [
@@ -41,7 +43,9 @@ class AddLiquidityBox extends HookConsumerWidget {
             text: "Slippage tolerance",
             onPressed: () {
               NomoNavigator.of(context).showModal(
-                  builder: (context) => SlippageDialog(pair: selectedPool, slippageNotifier: slippage), context: context);
+                  builder: (context) => SlippageDialog(
+                      pair: selectedPool, slippageNotifier: slippage),
+                  context: context);
             },
           ),
         ),
@@ -74,36 +78,71 @@ class AddLiquidityBox extends HookConsumerWidget {
             return Column(
               children: [
                 if (canAddLiquidity) ...[
-                  ADDLiqiuidityInfo(pair: selectedPool, slippage: slippage.value),
+                  ADDLiqiuidityInfo(
+                      pair: selectedPool, slippage: slippage.value),
                   32.vSpacing,
                 ],
                 PrimaryNomoButton(
-                  enabled: canAddLiquidity,
-                  type: canAddLiquidity ? ActionType.def : ActionType.disabled,
+                  enabled: canAddLiquidity &&
+                      (liquidityProvider != LiquidityState.loading ||
+                          liquidityProvider != LiquidityState.error),
+                  type: canAddLiquidity
+                      ? ActionType.def
+                      : liquidityProvider == LiquidityState.loading
+                          ? ActionType.loading
+                          : ActionType.disabled,
                   height: 52,
                   expandToConstraints: true,
-                  onPressed: () {
-                    print("Add Liquidity pressed");
-
-                    final val = ref.read(
-                      liquidityNotifierProvider(
-                        Liquidity(
-                            pair: selectedPool,
-                            slippage: "selectedPool",
-                            zeniqValue: formStateNotifier.zeniqNotifier.value,
-                            tokenValue: formStateNotifier.tokenNotifier.value),
-                      ),
+                  onPressed: () async {
+                    final liquidity = Liquidity(
+                      pair: selectedPool,
+                      slippage: slippage.value,
+                      zeniqValue: formStateNotifier.zeniqNotifier.value,
+                      tokenValue: formStateNotifier.tokenNotifier.value,
                     );
+                    final txHash = await ref
+                        .read(liquidityNotifierProvider.notifier)
+                        .addLiquidity(liquidity);
+                    if (txHash != null) {
+                      print("Liquidity added: $txHash");
 
-                    if (val.hasValue) {
-                      print(val.value);
+                      showDialog(
+                          // ignore: use_build_context_synchronously
+                          context: context,
+                          builder: (context) {
+                            return NomoDialog(
+                              title: "Liquidity added",
+                              content: Column(
+                                children: [
+                                  NomoText("Liquidity added successfully",
+                                      style: context.typography.b3),
+                                  16.vSpacing,
+                                  NomoText("Transaction hash: $txHash",
+                                      style: context.typography.b3),
+                                ],
+                              ),
+                              actions: [
+                                PrimaryNomoButton(
+                                  expandToConstraints: true,
+                                  height: 52,
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text("OK"),
+                                ),
+                              ],
+                            );
+                          });
                     }
-
-                    // formStateNotifier.addLiquidity();
                   },
                   text: "Add Liquidity",
                   textStyle: context.typography.b2,
                 ),
+                if (liquidityProvider == LiquidityState.error) ...[
+                  16.vSpacing,
+                  NomoText("Error adding liquidity",
+                      color: Colors.red, style: context.typography.b3),
+                ],
               ],
             );
           },

@@ -54,54 +54,54 @@ class HomeScreen extends HookConsumerWidget {
                         style: context.typography.b2,
                       ),
                     ),
-                    32.hSpacing,
-                    SizedBox(
-                      width: 100,
-                      child: NomoText(
-                        "APR",
-                        style: context.typography.b2,
-                      ),
-                    ),
-                    32.hSpacing,
-                    SizedBox(
-                      width: 100,
-                      child: NomoText(
-                        "Volume 24h",
-                        style: context.typography.b2,
-                      ),
-                    ),
-                    32.hSpacing,
-                    SizedBox(
-                      width: 100,
-                      child: NomoText(
-                        "Fees 24h",
-                        style: context.typography.b2,
-                      ),
-                    ),
-                    32.hSpacing,
-                    SizedBox(
-                      width: 100,
-                      child: NomoText(
-                        "Token Price",
-                        style: context.typography.b2,
-                      ),
-                    ),
-                    32.hSpacing,
-                    SizedBox(
-                      width: 100,
-                      child: NomoText(
-                        "Zeniq Value Locked",
-                        style: context.typography.b2,
-                      ),
-                    ),
-                    32.hSpacing,
-                    SizedBox(
-                      width: 100,
-                      child: NomoText(
-                        "Token Value Locked",
-                        style: context.typography.b2,
-                      ),
-                    ),
+                    // 32.hSpacing,
+                    // SizedBox(
+                    //   width: 100,
+                    //   child: NomoText(
+                    //     "APR",
+                    //     style: context.typography.b2,
+                    //   ),
+                    // ),
+                    // 32.hSpacing,
+                    // SizedBox(
+                    //   width: 100,
+                    //   child: NomoText(
+                    //     "Volume 24h",
+                    //     style: context.typography.b2,
+                    //   ),
+                    // ),
+                    // 32.hSpacing,
+                    // SizedBox(
+                    //   width: 100,
+                    //   child: NomoText(
+                    //     "Fees 24h",
+                    //     style: context.typography.b2,
+                    //   ),
+                    // ),
+                    // 32.hSpacing,
+                    // SizedBox(
+                    //   width: 100,
+                    //   child: NomoText(
+                    //     "Token Price",
+                    //     style: context.typography.b2,
+                    //   ),
+                    // ),
+                    // 32.hSpacing,
+                    // SizedBox(
+                    //   width: 100,
+                    //   child: NomoText(
+                    //     "Zeniq Value Locked",
+                    //     style: context.typography.b2,
+                    //   ),
+                    // ),
+                    // 32.hSpacing,
+                    // SizedBox(
+                    //   width: 100,
+                    //   child: NomoText(
+                    //     "Token Value Locked",
+                    //     style: context.typography.b2,
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
