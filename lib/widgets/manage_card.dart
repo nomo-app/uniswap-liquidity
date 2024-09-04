@@ -16,27 +16,29 @@ class ManageCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final position = useState("Add");
 
-    return NomoCard(
-      margin: EdgeInsets.only(top: 32),
-      elevation: 0,
-      borderRadius: BorderRadius.circular(8),
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          ManageButtons(
-            initalValue: position.value,
-            onChanged: (value) {
-              position.value = value;
-            },
-          ),
-          32.vSpacing,
-          if (position.value == "Add") ...[
-            AddLiquidityBox(selectedPool: selectedPool),
+    return SingleChildScrollView(
+      child: NomoCard(
+        margin: EdgeInsets.only(top: 32),
+        elevation: 0,
+        borderRadius: BorderRadius.circular(8),
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            ManageButtons(
+              initalValue: position.value,
+              onChanged: (value) {
+                position.value = value;
+              },
+            ),
+            32.vSpacing,
+            if (position.value == "Add") ...[
+              AddLiquidityBox(selectedPool: selectedPool),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

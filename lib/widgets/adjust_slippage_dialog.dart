@@ -64,7 +64,7 @@ class SlippageDialog extends HookConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   iconColor: context.colors.foreground1,
                   height: 48,
-                  onChanged: (value) {
+                  onChanged: (_) {
                     ref.invalidate(selectedPoolProvider);
                   },
                   items: [
