@@ -24,19 +24,23 @@ class SelectedPool extends _$SelectedPool {
       final fiatBalanceZeniq = zeniqBalance.displayDouble * zeniqPrice;
       final fiatBalanceToken = tokenBalance.displayDouble * tokenPrice;
 
+      final updatedPair = pair.copyWith(
+        balanceToken: tokenBalance,
+        fiatZeniqBalance: fiatBalanceZeniq,
+        fiatBlanceToken: fiatBalanceToken,
+      );
+
       state = AsyncValue.data(pair.copyWith(
         balanceToken: tokenBalance,
         fiatZeniqBalance: fiatBalanceZeniq,
         fiatBlanceToken: fiatBalanceToken,
       ));
 
-      return pair.copyWith(
-        balanceToken: tokenBalance,
-        fiatZeniqBalance: fiatBalanceZeniq,
-        fiatBlanceToken: fiatBalanceToken,
-      );
+      state = AsyncValue.data(updatedPair);
+      return updatedPair;
     } catch (e) {
       print('SelectedPool: Error updating pool - $e');
+      state = AsyncError(e, StackTrace.current);
     }
     return pair;
   }
@@ -46,20 +50,6 @@ class SelectedPool extends _$SelectedPool {
         await ref.read(assetNotifierProvider).fetchSingelPrice(tokeWZeniq);
 
     return price;
-  }
-
-  Future<void> currencyChanged()async{
-    final pair = state.value;
-    if(pair != null){
-      final zeniqPrice = await _getZeniqPrice(pair.tokeWZeniq);
-      final tokenPrice = _getTokenPrice(pair, zeniqPrice);
-      final fiatBalanceZeniq = zeniqBalance.displayDouble * zeniqPrice;
-      final fiatBalanceToken = pair.balanceToken!.displayDouble * tokenPrice;
-      state = AsyncValue.data(pair.copyWith(
-        fiatZeniqBalance: fiatBalanceZeniq,
-        fiatBlanceToken: fiatBalanceToken,
-      ));
-    }
   }
 
   double _getTokenPrice(Pair pair, double zeniqPrice) {

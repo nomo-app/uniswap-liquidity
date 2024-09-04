@@ -61,7 +61,7 @@ class LiquidityInputField extends HookConsumerWidget {
                     BorderSide(color: context.theme.colors.surface),
                   ),
                   inputFormatters: [
-                    CustomNumberInputFormatter(decimals: 7),
+                    CustomNumberInputFormatter(decimals: token!.decimals),
                   ],
                   background: context.theme.colors.surface,
                   placeHolder: "0.0",

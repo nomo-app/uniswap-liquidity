@@ -25,44 +25,27 @@ class AssetNotifier {
 
   Currency get currency => currencyNotifier.value;
 
-  // final Map<TokenEntity, ValueNotifier<AsyncValue<Amount>>> _balances = {};
-  // final Map<TokenEntity, ValueNotifier<AsyncValue<PriceState>>> _prices = {};
   final Map<TokenEntity, ValueNotifier<AsyncValue<ImageEntity>>> _images = {};
 
   void addPreviewToken(TokenEntity token) {
-    // _balances[token] = ValueNotifier(AsyncValue.loading());
     _images[token] = ValueNotifier(AsyncValue.loading());
-
-    // fetchBalanceForToken(token);
     fetchImageForToken(token);
   }
 
   void addToken(TokenEntity token) {
     tokens.add(token);
 
-    // fetchBalanceForToken(token);
     fetchImageForToken(token);
-    // fetchPriceForToken(token);
   }
 
   AssetNotifier(this.address, this.tokens) {
     for (final token in tokens) {
-      // _balances[token] = ValueNotifier(AsyncValue.loading());
-      // _prices[token] = ValueNotifier(AsyncValue.loading());
       _images[token] = ValueNotifier(AsyncValue.loading());
     }
 
-    // currencyNotifier.addListener(() {
-    //   fetchAllPrices();
-    // });
-
-    // fetchAllBalances();
-    // fetchAllPrices();
     fetchAllImages();
 
     Timer.periodic(_fetchInterval, (_) {
-      // fetchAllBalances();
-      // fetchAllPrices();
       fetchAllImages();
     });
   }
@@ -106,57 +89,10 @@ class AssetNotifier {
     }
   }
 
-  // Future<void> fetchAllBalances() async =>
-  //     await Future.wait(tokens.map(fetchBalanceForToken));
-
-  // Future<void> fetchBalanceForToken(TokenEntity token) async {
-  //   try {
-  //     final balance = await rpc.fetchTokenBalance(address, token.asEthBased!);
-
-  //     _balances[token]!.value = AsyncValue.data(balance);
-  //   } catch (e, s) {
-  //     _balances[token]!.value = AsyncValue.error(e, s);
-  //   }
-  // }
-
   Future<double> fetchSingelPrice(TokenEntity token) async {
     final result = await PriceRepository.fetchSingle(token, currency);
     return result;
   }
-
-  // Future<void> fetchAllPrices() async {
-  //   final results =
-  //       await PriceRepository.fetchAll(currency: currency, tokens: tokens);
-
-  //   for (final token in tokens) {
-
-  //     var priceEntity = results.firstWhereOrNull((pe) => pe.matchToken(token));
-
-  //     if (priceEntity == null || priceEntity.isPending) {
-  //       // _prices[token]!.value =
-  //           AsyncValue.error("Price not available", StackTrace.current);
-  //       continue;
-  //     }
-
-  //     _prices[token]!.value = AsyncValue.data(
-  //       PriceState(currency: currency, price: priceEntity.price),
-  //     );
-  //   }
-  // }
-
-  // Future<void> fetchPriceForToken(TokenEntity token) async {
-  //   try {
-  //     final result = await PriceRepository.fetchSingle(token, currency);
-  //     _prices[token]!.value = AsyncValue.data(
-  //       PriceState(currency: currency, price: result),
-  //     );
-  //   } catch (e, s) {
-  //     _prices[token]!.value = AsyncValue.error(e, s);
-  //   }
-  // }
-
-  // ValueNotifier<AsyncValue<Amount>> notifierForToken(TokenEntity token) =>
-  //     _balances[token]!;
 
   ValueNotifier<AsyncValue<ImageEntity>>? imageNotifierForToken(
           TokenEntity token) =>

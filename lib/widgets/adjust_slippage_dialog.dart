@@ -65,9 +65,7 @@ class SlippageDialog extends HookConsumerWidget {
                   iconColor: context.colors.foreground1,
                   height: 48,
                   onChanged: (value) {
-                    final notifier =
-                        ref.read(selectedPoolProvider(pair).notifier);
-                    // notifier.currencyChanged();
+                    ref.invalidate(selectedPoolProvider);
                   },
                   items: [
                     for (final currency in Currency.values)
