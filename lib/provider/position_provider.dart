@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
@@ -6,7 +5,7 @@ import 'package:walletkit_dart/walletkit_dart.dart';
 
 part 'position_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class PositionNotifier extends _$PositionNotifier {
   @override
   Future<List<Position>> build() async {
@@ -45,11 +44,11 @@ class PositionNotifier extends _$PositionNotifier {
     state = AsyncValue.data(positions);
   }
 
-  Position? getPosition(Pair pair) {
-    final positions = state.value;
-    if (positions == null) return null;
-    return positions.firstWhereOrNull((element) => element.pair == pair);
-  }
+  // Position? getPosition(Pair pair) {
+  //   final positions = state.value;
+  //   if (positions == null) return null;
+  //   return positions.firstWhereOrNull((element) => element.pair == pair);
+  // }
 }
 
 class Position {
