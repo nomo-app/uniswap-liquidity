@@ -139,6 +139,8 @@ class PairNotifier extends _$PairNotifier {
       tokenValue: tvlInfo["tokenValue"],
       tokenPrice: tvlInfo["tokenPrice"],
       zeniqPrice: tvlInfo["zeniqPrice"],
+      tokenPerZeniq: tvlInfo["tokenPerZeniq"],
+      zeniqPerToken: tvlInfo["zeniqPerToken"],
       balanceToken: null,
       fiatBlanceToken: null,
       fiatZeniqBalance: null,
@@ -180,12 +182,19 @@ class PairNotifier extends _$PairNotifier {
     final valueToken1 = amountToken.displayDouble * priceToken1;
     final tvl = valueToken1 + valueWZENIQ;
 
+    final tokensPerZeniq =
+        amountToken.displayDouble / amountWZENIQ.displayDouble;
+    final zeniqPerToken =
+        amountWZENIQ.displayDouble / amountToken.displayDouble;
+
     final tvlInfo = {
       'tvl': tvl,
       'zeniqValue': valueWZENIQ,
       'tokenValue': valueToken1,
       'tokenPrice': priceToken1,
       'zeniqPrice': zeniqPrice,
+      'tokenPerZeniq': tokensPerZeniq,
+      'zeniqPerToken': zeniqPerToken,
     };
 
     return tvlInfo;
@@ -214,6 +223,8 @@ class Pair extends PairInformation {
     required super.balanceToken,
     required super.fiatBlanceToken,
     required super.fiatZeniqBalance,
+    required super.tokenPerZeniq,
+    required super.zeniqPerToken,
   });
 
   copyWith({
@@ -232,6 +243,8 @@ class Pair extends PairInformation {
     Amount? balanceToken,
     double? fiatBlanceToken,
     double? fiatZeniqBalance,
+    double? tokenPerZeniq,
+    double? zeniqPerToken,
   }) {
     return Pair(
       tokeWZeniq: tokeWZeniq ?? this.tokeWZeniq,
@@ -249,6 +262,8 @@ class Pair extends PairInformation {
       balanceToken: balanceToken ?? this.balanceToken,
       fiatBlanceToken: fiatBlanceToken ?? this.fiatBlanceToken,
       fiatZeniqBalance: fiatZeniqBalance ?? this.fiatZeniqBalance,
+      tokenPerZeniq: tokenPerZeniq ?? this.tokenPerZeniq,
+      zeniqPerToken: zeniqPerToken ?? this.zeniqPerToken,
     );
   }
 }
@@ -265,6 +280,8 @@ abstract class PairInformation {
   final Amount? balanceToken;
   final double? fiatBlanceToken;
   final double? fiatZeniqBalance;
+  final double tokenPerZeniq;
+  final double zeniqPerToken;
 
   PairInformation({
     required this.tvl,
@@ -278,5 +295,7 @@ abstract class PairInformation {
     required this.balanceToken,
     required this.fiatBlanceToken,
     required this.fiatZeniqBalance,
+    required this.tokenPerZeniq,
+    required this.zeniqPerToken,
   });
 }

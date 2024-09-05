@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:nomo_ui_kit/components/card/nomo_card.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'package:uniswap_liquidity/widgets/add_liquidity_box.dart';
@@ -17,11 +16,8 @@ class ManageCard extends HookConsumerWidget {
     final position = useState("Add");
 
     return SingleChildScrollView(
-      child: NomoCard(
-        margin: EdgeInsets.only(top: 32),
-        elevation: 0,
-        borderRadius: BorderRadius.circular(8),
-        padding: const EdgeInsets.all(32),
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

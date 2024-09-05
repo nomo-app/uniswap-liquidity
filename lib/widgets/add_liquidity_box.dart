@@ -55,6 +55,7 @@ class AddLiquidityBox extends HookConsumerWidget {
         // ),
         // 32.vSpacing,
         LiquidityInputField(
+          isZeniq: true,
           token: selectedPool.tokeWZeniq,
           balance: zeniqBalance,
           errorNotifier: formStateNotifier.zeniqErrorNotifier,
@@ -69,13 +70,25 @@ class AddLiquidityBox extends HookConsumerWidget {
         ),
         12.vSpacing,
         LiquidityInputField(
+          isZeniq: false,
           token: selectedPool.token,
           balance: selectedPool.balanceToken ?? Amount.zero,
           errorNotifier: formStateNotifier.tokenErrorNotifier,
           valueNotifier: formStateNotifier.tokenNotifier,
           fiatBlance: selectedPool.fiatBlanceToken,
         ),
-        32.vSpacing,
+        24.vSpacing,
+        ValueListenableBuilder(
+          valueListenable: formStateNotifier.shareOfPool,
+          builder: (context, shareOfPool, child) {
+            return ADDLiqiuidityInfo(
+              pair: selectedPool,
+              shareOfPool: shareOfPool,
+            );
+          },
+        ),
+
+        24.vSpacing,
         ListenableBuilder(
           listenable: Listenable.merge([
             formStateNotifier.needsApproval,
@@ -97,6 +110,7 @@ class AddLiquidityBox extends HookConsumerWidget {
               return Column(
                 children: [
                   PrimaryNomoButton(
+                    borderRadius: BorderRadius.circular(16),
                     enabled: needsApproval != ApprovalState.loading,
                     expandToConstraints: true,
                     height: 52,
@@ -118,7 +132,7 @@ class AddLiquidityBox extends HookConsumerWidget {
                       );
                     },
                   ),
-                  32.vSpacing,
+                  24.vSpacing,
                 ],
               );
             }
@@ -131,11 +145,6 @@ class AddLiquidityBox extends HookConsumerWidget {
           builder: (context, canAddLiquidity, child) {
             return Column(
               children: [
-                if (canAddLiquidity) ...[
-                  ADDLiqiuidityInfo(
-                      pair: selectedPool, slippage: slippage.value),
-                  32.vSpacing,
-                ],
                 PrimaryNomoButton(
                   enabled: canAddLiquidity &&
                       (liquidityProvider != LiquidityState.loading ||
@@ -148,6 +157,7 @@ class AddLiquidityBox extends HookConsumerWidget {
                           : ActionType.disabled,
                   height: 52,
                   expandToConstraints: true,
+                  borderRadius: BorderRadius.circular(16),
                   onPressed: () async {
                     final liquidity = Liquidity(
                       pair: selectedPool,

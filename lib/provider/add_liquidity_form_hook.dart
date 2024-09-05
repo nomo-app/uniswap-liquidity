@@ -26,6 +26,7 @@ class AddLiquidityFormController {
   final ValueNotifier<String?> zeniqErrorNotifier;
   final ValueNotifier<String?> tokenErrorNotifier;
   final ValueNotifier<bool> canAddLiquidity;
+  final ValueNotifier<String> shareOfPool;
   final ValueNotifier<ApprovalState> needsApproval;
   final BigInt reserveA;
   final BigInt reserveB;
@@ -34,20 +35,23 @@ class AddLiquidityFormController {
   final double zeniqBalance;
   final double tokenBalance;
   final String tokenContractAddress;
+  final double zeniqPerToken;
 
   AddLiquidityFormController(
-      this.zeniqBalance,
-      this.tokenBalance,
-      this.reserveA,
-      this.reserveB,
-      this.zeniqDecimals,
-      this.tokenDecimals,
-      this.tokenContractAddress)
-      : zeniqNotifier = ValueNotifier(""),
+    this.zeniqBalance,
+    this.tokenBalance,
+    this.reserveA,
+    this.reserveB,
+    this.zeniqDecimals,
+    this.tokenDecimals,
+    this.tokenContractAddress,
+    this.zeniqPerToken,
+  )   : zeniqNotifier = ValueNotifier(""),
         tokenNotifier = ValueNotifier(""),
         canAddLiquidity = ValueNotifier(false),
         needsApproval = ValueNotifier(ApprovalState.idel),
         zeniqErrorNotifier = ValueNotifier(null),
+        shareOfPool = ValueNotifier(""),
         tokenErrorNotifier = ValueNotifier(null) {
     zeniqNotifier.addListener(_calculateTokenFromZeniq);
     tokenNotifier.addListener(_calculateZeniqFromToken);
@@ -81,6 +85,8 @@ class AddLiquidityFormController {
       tokenNotifier.addListener(_calculateZeniqFromToken);
     }
 
+    _calculatePoolShare();
+
     _validateInputs();
   }
 
@@ -112,6 +118,7 @@ class AddLiquidityFormController {
       zeniqNotifier.addListener(_calculateTokenFromZeniq);
     }
 
+    _calculatePoolShare();
     _validateInputs();
   }
 
@@ -211,6 +218,37 @@ class AddLiquidityFormController {
       print('Error approving token value: $e');
     }
   }
+
+  //Something is wrong here :D
+  void _calculatePoolShare() {
+    final zeniqInput = double.tryParse(zeniqNotifier.value) ?? 0;
+    final tokenInput = double.tryParse(tokenNotifier.value) ?? 0;
+
+    if (zeniqInput == 0 || tokenInput == 0) {
+      shareOfPool.value = "0%";
+      return;
+    }
+
+    final reserveADouble = reserveA.toDouble() / pow(10, zeniqDecimals);
+    final reserveBDouble = reserveB.toDouble() / pow(10, tokenDecimals);
+
+    final reserveBInZeniq = reserveBDouble * zeniqPerToken;
+    final tokenInputInZeniq = tokenInput * zeniqPerToken;
+
+    final totalPoolLiquidityInZeniq = reserveADouble + reserveBInZeniq;
+
+    final userLiquidityInZeniq = zeniqInput + tokenInputInZeniq;
+
+    final poolShare = (userLiquidityInZeniq / totalPoolLiquidityInZeniq) * 100;
+
+    final cappedPoolShare = poolShare > 100 ? 100 : poolShare;
+
+    if (cappedPoolShare.toStringAsFixed(2) == "0.00" && cappedPoolShare > 0) {
+      shareOfPool.value = "<0.01%";
+    } else {
+      shareOfPool.value = "${cappedPoolShare.toStringAsFixed(2)}%";
+    }
+  }
 }
 
 AddLiquidityFormController useAddLiquidityForm(double zeniqBalance, Pair pool) {
@@ -225,6 +263,7 @@ AddLiquidityFormController useAddLiquidityForm(double zeniqBalance, Pair pool) {
       pool.tokeWZeniq.decimals,
       pool.token.decimals,
       pool.token.contractAddress,
+      pool.zeniqPerToken,
     );
     return null;
   }, [zeniqBalance, pool]);

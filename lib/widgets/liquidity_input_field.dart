@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:nomo_ui_kit/components/buttons/text/nomo_text_button.dart';
 import 'package:nomo_ui_kit/components/input/textInput/nomo_input.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
@@ -14,6 +15,7 @@ class LiquidityInputField extends HookConsumerWidget {
   final ValueNotifier<String?> errorNotifier;
   final ValueNotifier<String> valueNotifier;
   final double? fiatBlance;
+  final bool isZeniq;
   const LiquidityInputField({
     super.key,
     required this.token,
@@ -21,6 +23,7 @@ class LiquidityInputField extends HookConsumerWidget {
     required this.errorNotifier,
     required this.valueNotifier,
     required this.fiatBlance,
+    required this.isZeniq,
   });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,7 +50,7 @@ class LiquidityInputField extends HookConsumerWidget {
                               : context.theme.colors.onDisabled,
                           width: 1,
                         ),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -55,10 +58,11 @@ class LiquidityInputField extends HookConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           NomoInput(
+                            scrollable: true,
                             errorBorder: Border.fromBorderSide(
                               BorderSide(color: context.theme.colors.error),
                             ),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(16),
                             valueNotifier: valueNotifier,
                             maxLines: 1,
                             keyboardType: const TextInputType.numberWithOptions(
@@ -70,7 +74,7 @@ class LiquidityInputField extends HookConsumerWidget {
                               CustomNumberInputFormatter(
                                   decimals: token!.decimals),
                             ],
-                            background: context.theme.colors.surface,
+                            background: context.theme.colors.background1,
                             placeHolder: "0.0",
                             placeHolderStyle: context.typography.b3,
                             style: context.typography.b3,
@@ -78,13 +82,11 @@ class LiquidityInputField extends HookConsumerWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 image.when(
-                                  data: (data) => ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
+                                  data: (data) => ClipOval(
                                     child: Image.network(
                                       data.small,
-                                      width: 34,
-                                      height: 34,
-                                      fit: BoxFit.cover,
+                                      width: 24,
+                                      height: 24,
                                     ),
                                   ),
                                   error: (error, stackTrace) => Text(
@@ -128,6 +130,19 @@ class LiquidityInputField extends HookConsumerWidget {
                                       "0.00",
                                   style: context.typography.b1,
                                 ),
+                                8.hSpacing,
+                                if (isZeniq)
+                                  NomoTextButton(
+                                    text: "Max",
+                                    textStyle: context.typography.b1.copyWith(
+                                      color: context.theme.colors.primary,
+                                    ),
+                                    onPressed: () {
+                                      valueNotifier.value =
+                                          balance?.displayDouble.toString() ??
+                                              "0.00";
+                                    },
+                                  ),
                               ],
                             ),
                           ),
