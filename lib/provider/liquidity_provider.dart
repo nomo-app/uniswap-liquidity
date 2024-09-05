@@ -29,15 +29,8 @@ class LiquidityNotifier extends _$LiquidityNotifier {
     final minAmountToken = calculateMinAmount(amountTokenDesired.value,
         liquidity.slippage, liquidity.pair.token.decimals);
     final tokenContract = liquidity.pair.token.contractAddress;
-    final tokenERC20 = ERC20Contract(
-      contractAddress: tokenContract,
-      rpc: rpc,
-    );
-    final allowance = await _checkAllowance(tokenContract, tokenERC20);
 
-    if (allowance < amountTokenDesired.value) {
-      await _approveToken(tokenContract, tokenERC20, amountTokenDesired.value);
-    }
+    print("Trying to add liquidity");
 
     final rawTX = await _getLiquidtyTx(
       amountETHDesired: amountZeniqDesired.value,
@@ -48,13 +41,24 @@ class LiquidityNotifier extends _$LiquidityNotifier {
       token: tokenContract,
     );
 
+    print("Raw TX before trying to send: ${rawTX}");
+
     if (rawTX == null) {
       state = LiquidityState.error;
       return null;
     }
     final txHash = await _sendTransaction(rawTX);
 
+    print("TX Hash: ${txHash}");
+
     if (txHash == null) {
+      state = LiquidityState.error;
+      return null;
+    }
+
+    final successfully = await rpc.waitForTxConfirmation(txHash);
+
+    if (!successfully) {
       state = LiquidityState.error;
       return null;
     }
@@ -77,39 +81,6 @@ class LiquidityNotifier extends _$LiquidityNotifier {
     return null;
   }
 
-  Future<void> _approveToken(
-      String contracAddress, ERC20Contract contract, BigInt amount) async {
-    try {
-      final rawTx = await contract.approveTx(
-        sender: address,
-        spender: zeniqSwapRouter.contractAddress,
-        value: amount,
-      );
-      final signedTx =
-          await WebonKitDart.signTransaction(rawTx.serializedTransactionHex);
-      await rpc.sendRawTransaction(signedTx);
-    } catch (e) {
-      state = LiquidityState.error;
-      print('Error approving token value: $e');
-    }
-  }
-
-  Future<BigInt> _checkAllowance(
-      String contracAddress, ERC20Contract contract) async {
-    BigInt allowance = BigInt.zero;
-    try {
-      allowance = await contract.allowance(
-        owner: address,
-        spender: zeniqSwapRouter.contractAddress,
-      );
-      return allowance;
-    } catch (e) {
-      state = LiquidityState.error;
-      print('Error fetching allowance: $e');
-    }
-    return allowance;
-  }
-
   Future<RawEVMTransaction?> _getLiquidtyTx({
     required BigInt deadline,
     required BigInt amountTokenDesired,
@@ -129,6 +100,8 @@ class LiquidityNotifier extends _$LiquidityNotifier {
         sender: address,
         amountETHDesired: amountETHDesired,
       );
+
+      print("Raw liquidity TX: ${rawTx}");
       return rawTx;
     } catch (e) {
       state = LiquidityState.error;
@@ -139,7 +112,19 @@ class LiquidityNotifier extends _$LiquidityNotifier {
   }
 }
 
-enum LiquidityState { loading, idel, error }
+enum LiquidityState {
+  loading,
+  idel,
+  error,
+}
+
+enum ApprovalState {
+  loading,
+  idel,
+  error,
+  needsApproval,
+  approved,
+}
 
 BigInt calculateMinAmount(BigInt amount, String slippage, int tokenDecimals) {
   // Convert slippage to a decimal (e.g., "0.5" becomes 0.005)

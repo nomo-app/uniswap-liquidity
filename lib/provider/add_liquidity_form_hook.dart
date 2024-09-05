@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:uniswap_liquidity/main.dart';
+import 'package:uniswap_liquidity/provider/liquidity_provider.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'dart:math';
+
+import 'package:walletkit_dart/walletkit_dart.dart';
+import 'package:webon_kit_dart/webon_kit_dart.dart';
 
 enum LiquidityInputFieldError {
   insufficientBalance("Insufficient balance");
@@ -20,18 +26,27 @@ class AddLiquidityFormController {
   final ValueNotifier<String?> zeniqErrorNotifier;
   final ValueNotifier<String?> tokenErrorNotifier;
   final ValueNotifier<bool> canAddLiquidity;
+  final ValueNotifier<ApprovalState> needsApproval;
   final BigInt reserveA;
   final BigInt reserveB;
   final int zeniqDecimals;
   final int tokenDecimals;
   final double zeniqBalance;
   final double tokenBalance;
+  final String tokenContractAddress;
 
-  AddLiquidityFormController(this.zeniqBalance, this.tokenBalance,
-      this.reserveA, this.reserveB, this.zeniqDecimals, this.tokenDecimals)
+  AddLiquidityFormController(
+      this.zeniqBalance,
+      this.tokenBalance,
+      this.reserveA,
+      this.reserveB,
+      this.zeniqDecimals,
+      this.tokenDecimals,
+      this.tokenContractAddress)
       : zeniqNotifier = ValueNotifier(""),
         tokenNotifier = ValueNotifier(""),
         canAddLiquidity = ValueNotifier(false),
+        needsApproval = ValueNotifier(ApprovalState.idel),
         zeniqErrorNotifier = ValueNotifier(null),
         tokenErrorNotifier = ValueNotifier(null) {
     zeniqNotifier.addListener(_calculateTokenFromZeniq);
@@ -100,8 +115,9 @@ class AddLiquidityFormController {
     _validateInputs();
   }
 
-  void _validateInputs() {
+  void _validateInputs() async {
     bool isValid = true;
+    ApprovalState approvalState = ApprovalState.idel;
 
     if (zeniqNotifier.value.isEmpty || tokenNotifier.value.isEmpty) {
       isValid = false;
@@ -126,7 +142,74 @@ class AddLiquidityFormController {
       tokenErrorNotifier.value = null;
     }
 
+    if (isValid) {
+      final allowence = await checkAllowance(tokenContractAddress);
+
+      Amount tokenAmount =
+          Amount.convert(value: tokenInput, decimals: tokenDecimals);
+
+      if (allowence < tokenAmount.value) {
+        approvalState = ApprovalState.needsApproval;
+        isValid = false;
+      }
+    }
+
+    needsApproval.value = approvalState;
     canAddLiquidity.value = isValid;
+  }
+
+  Future<BigInt> checkAllowance(String contracAddress) async {
+    BigInt allowance = BigInt.zero;
+    ERC20Contract contract = ERC20Contract(
+      contractAddress: contracAddress,
+      rpc: rpc,
+    );
+    try {
+      allowance = await contract.allowance(
+        owner: address,
+        spender: zeniqSwapRouter.contractAddress,
+      );
+
+      print("Allowance: ${allowance}");
+      return allowance;
+    } catch (e) {
+      print('Error fetching allowance: $e');
+    }
+    return allowance;
+  }
+
+  Future<void> approveToken(String contracAddress, BigInt amount) async {
+    needsApproval.value = ApprovalState.loading;
+    ERC20Contract contract = ERC20Contract(
+      contractAddress: contracAddress,
+      rpc: rpc,
+    );
+
+    try {
+      final rawTx = await contract.approveTx(
+        sender: address,
+        spender: zeniqSwapRouter.contractAddress,
+        value: amount,
+      );
+      print("Raw approve TX: ${rawTx}");
+      final signedTx =
+          await WebonKitDart.signTransaction(rawTx.serializedTransactionHex);
+      final txHash = await rpc.sendRawTransaction(signedTx);
+
+      final approved = await rpc.waitForTxConfirmation(txHash);
+
+      if (approved) {
+        needsApproval.value = ApprovalState.approved;
+        canAddLiquidity.value = true;
+      } else {
+        throw Exception("Approval failed");
+      }
+
+      print("messagehex of approve token: ${txHash}");
+    } catch (e) {
+      needsApproval.value = ApprovalState.error;
+      print('Error approving token value: $e');
+    }
   }
 }
 
@@ -135,12 +218,14 @@ AddLiquidityFormController useAddLiquidityForm(double zeniqBalance, Pair pool) {
 
   useEffect(() {
     controller.value = AddLiquidityFormController(
-        zeniqBalance,
-        pool.balanceToken?.displayDouble ?? 0,
-        pool.reserves.$1,
-        pool.reserves.$2,
-        pool.tokeWZeniq.decimals,
-        pool.token.decimals);
+      zeniqBalance,
+      pool.balanceToken?.displayDouble ?? 0,
+      pool.reserves.$1,
+      pool.reserves.$2,
+      pool.tokeWZeniq.decimals,
+      pool.token.decimals,
+      pool.token.contractAddress,
+    );
     return null;
   }, [zeniqBalance, pool]);
 
