@@ -17,6 +17,7 @@ class DetailsScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedPool = ref.watch(selectedPoolProvider(pair!));
+
     return NomoScaffold(
       appBar: NomoAppBar(
         leading: BackButton(

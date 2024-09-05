@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
+import 'package:uniswap_liquidity/provider/position_provider.dart';
 import 'package:uniswap_liquidity/utils/logger.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -160,6 +161,9 @@ class PairNotifier extends _$PairNotifier {
       print('Error fetching pair data: $e');
       return [];
     }
+
+    ref.read(positionNotifierProvider.notifier).addPositions(pairsData);
+
     return pairsData;
   }
 
