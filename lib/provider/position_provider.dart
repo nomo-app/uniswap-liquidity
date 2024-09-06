@@ -18,19 +18,39 @@ class PositionNotifier extends _$PositionNotifier {
     for (final pair in pairs) {
       try {
         final liquidity = await pair.contract.balanceOf(address);
+        final totalSupply = await pair.contract.totalSupply();
+
+        final totalSupplyAmount = Amount(
+          value: totalSupply,
+          decimals: 18,
+        );
+
+        final reserveAmountZeniq = Amount(
+          value: pair.reserves.$1,
+          decimals: pair.tokeWZeniq.decimals,
+        );
+        final reserveAmountToken = Amount(
+          value: pair.reserves.$2,
+          decimals: pair.token.decimals,
+        );
 
         final liquidityAmount = Amount(
           value: liquidity,
           decimals: 18,
         );
 
+        final share = liquidityAmount / totalSupplyAmount;
+
+        final zeniqValue = share * reserveAmountZeniq;
+
+        final tokenValue = share * reserveAmountToken;
+
         final position = Position(
           pair: pair,
           liquidity: liquidityAmount,
-          zeniqValue: 0,
-          tokenValue: 0,
+          zeniqValue: zeniqValue,
+          tokenValue: tokenValue,
         );
-        print('Position: ${pair.token.symbol} $position');
         positions.add(position);
       } catch (e, s) {
         print('Error fetching pair at index $pair: $e');
@@ -44,6 +64,58 @@ class PositionNotifier extends _$PositionNotifier {
     state = AsyncValue.data(positions);
   }
 
+  Future<void> updatePosition(Pair pair) async {
+    final positions = state.value;
+    if (positions == null) return;
+
+    final position = positions.firstWhere((element) =>
+        element.pair.token.contractAddress == pair.token.contractAddress);
+
+    try {
+      final liquidity = await pair.contract.balanceOf(address);
+      final totalSupply = await pair.contract.totalSupply();
+
+      final totalSupplyAmount = Amount(
+        value: totalSupply,
+        decimals: 18,
+      );
+
+      final reserveAmountZeniq = Amount(
+        value: pair.reserves.$1,
+        decimals: pair.tokeWZeniq.decimals,
+      );
+      final reserveAmountToken = Amount(
+        value: pair.reserves.$2,
+        decimals: pair.token.decimals,
+      );
+
+      final liquidityAmount = Amount(
+        value: liquidity,
+        decimals: 18,
+      );
+
+      final share = liquidityAmount / totalSupplyAmount;
+
+      final zeniqValue = share * reserveAmountZeniq;
+
+      final tokenValue = share * reserveAmountToken;
+
+      final updatedPosition = Position(
+        pair: pair,
+        liquidity: liquidityAmount,
+        zeniqValue: zeniqValue,
+        tokenValue: tokenValue,
+      );
+
+      final index = positions.indexOf(position);
+      positions[index] = updatedPosition;
+      state = AsyncValue.data(positions);
+    } catch (e, s) {
+      print('Error fetching pair at index $pair: $e');
+      state = AsyncValue.error(e, s);
+    }
+  }
+
   // Position? getPosition(Pair pair) {
   //   final positions = state.value;
   //   if (positions == null) return null;
@@ -54,8 +126,8 @@ class PositionNotifier extends _$PositionNotifier {
 class Position {
   final Amount liquidity;
   final Pair pair;
-  final double zeniqValue;
-  final double tokenValue;
+  final Amount zeniqValue;
+  final Amount tokenValue;
 
   Position({
     required this.pair,

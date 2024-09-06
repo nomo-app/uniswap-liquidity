@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/provider/position_provider.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 import 'package:webon_kit_dart/webon_kit_dart.dart';
@@ -63,6 +64,9 @@ class LiquidityNotifier extends _$LiquidityNotifier {
       return null;
     }
 
+    await ref.read(positionNotifierProvider.notifier).updatePosition(
+          liquidity.pair,
+        );
     state = LiquidityState.idel;
 
     return txHash;

@@ -27,7 +27,6 @@ class AddLiquidityBox extends HookConsumerWidget {
     final liquidityProvider = ref.watch(liquidityNotifierProvider);
 
     final zeniqHasValue = useState(false);
-    // final position = ref.watch(positionNotifierProvider);
 
     formStateNotifier.zeniqNotifier.addListener(() {
       zeniqHasValue.value = formStateNotifier.zeniqNotifier.value.isNotEmpty &&
@@ -56,6 +55,8 @@ class AddLiquidityBox extends HookConsumerWidget {
         //   ),
         // ),
         // 32.vSpacing,
+        PositionBox(pair: selectedPool),
+        12.vSpacing,
         LiquidityInputField(
           isZeniq: true,
           token: selectedPool.tokeWZeniq,
@@ -79,7 +80,7 @@ class AddLiquidityBox extends HookConsumerWidget {
           valueNotifier: formStateNotifier.tokenNotifier,
           fiatBlance: selectedPool.fiatBlanceToken,
         ),
-        24.vSpacing,
+        12.vSpacing,
         ValueListenableBuilder(
           valueListenable: formStateNotifier.shareOfPool,
           builder: (context, shareOfPool, child) {
@@ -90,7 +91,7 @@ class AddLiquidityBox extends HookConsumerWidget {
           },
         ),
 
-        24.vSpacing,
+        12.vSpacing,
         ListenableBuilder(
           listenable: Listenable.merge([
             formStateNotifier.needsApproval,
@@ -134,7 +135,7 @@ class AddLiquidityBox extends HookConsumerWidget {
                       );
                     },
                   ),
-                  24.vSpacing,
+                  12.vSpacing,
                 ],
               );
             }
@@ -171,6 +172,7 @@ class AddLiquidityBox extends HookConsumerWidget {
                         .read(liquidityNotifierProvider.notifier)
                         .addLiquidity(liquidity);
                     if (txHash != null) {
+                      
                       print("Liquidity added: $txHash");
                       showDialog(
                         // ignore: use_build_context_synchronously
@@ -206,7 +208,6 @@ class AddLiquidityBox extends HookConsumerWidget {
                       zeniqHasValue.value == false ? "Enter Amount" : "Supply",
                   textStyle: context.typography.b2,
                 ),
-                PositionBox(pair: selectedPool),
                 if (liquidityProvider == LiquidityState.error) ...[
                   16.vSpacing,
                   NomoText("Error adding liquidity",
