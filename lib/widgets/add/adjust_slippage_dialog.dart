@@ -13,7 +13,7 @@ import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'package:uniswap_liquidity/provider/selected_pool_provider.dart';
 import 'package:uniswap_liquidity/utils/price_repository.dart';
-import 'package:uniswap_liquidity/widgets/liquidity_input_field.dart';
+import 'package:uniswap_liquidity/widgets/add/liquidity_input_field.dart';
 
 class SlippageDialog extends HookConsumerWidget {
   final Pair pair;

@@ -79,3 +79,18 @@ extension FormatExtension on double {
     return digits;
   }
 }
+
+BigInt? parseFromString(String value, int decimals) {
+  final split = value.replaceAll(',', '.').split('.');
+
+  if (split.length > 2) {
+    return null;
+  }
+
+  final right = split.length == 2
+      ? split[1].padRight(decimals, '0')
+      : ''.padRight(decimals, '0');
+  final left = split[0];
+
+  return BigInt.tryParse('$left$right');
+}

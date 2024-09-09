@@ -48,8 +48,15 @@ class PositionNotifier extends _$PositionNotifier {
         final position = Position(
           pair: pair,
           liquidity: liquidityAmount,
-          zeniqValue: zeniqValue,
-          tokenValue: tokenValue,
+          zeniqValue: Amount(
+              value: discardRightBigInt(zeniqValue.value, 18), decimals: 18),
+          totalSupply: totalSupplyAmount,
+          share: share,
+          tokenValue: Amount(
+              value: discardRightBigInt(tokenValue.value, pair.token.decimals),
+              decimals: pair.token.decimals),
+          reserveAmountZeniq: reserveAmountZeniq,
+          reserveAmountToken: reserveAmountToken,
         );
         positions.add(position);
       } catch (e, s) {
@@ -104,7 +111,11 @@ class PositionNotifier extends _$PositionNotifier {
         pair: pair,
         liquidity: liquidityAmount,
         zeniqValue: zeniqValue,
+        totalSupply: totalSupplyAmount,
         tokenValue: tokenValue,
+        reserveAmountZeniq: reserveAmountZeniq,
+        reserveAmountToken: reserveAmountToken,
+        share: share,
       );
 
       final index = positions.indexOf(position);
@@ -126,14 +137,22 @@ class PositionNotifier extends _$PositionNotifier {
 class Position {
   final Amount liquidity;
   final Pair pair;
+  final Amount totalSupply;
   final Amount zeniqValue;
   final Amount tokenValue;
+  final Amount share;
+  final Amount reserveAmountZeniq;
+  final Amount reserveAmountToken;
 
   Position({
     required this.pair,
     required this.liquidity,
     required this.zeniqValue,
     required this.tokenValue,
+    required this.totalSupply,
+    required this.share,
+    required this.reserveAmountZeniq,
+    required this.reserveAmountToken,
   });
 
   @override

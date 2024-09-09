@@ -3,8 +3,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
-import 'package:uniswap_liquidity/widgets/add_liquidity_box.dart';
+import 'package:uniswap_liquidity/widgets/add/add_liquidity_box.dart';
 import 'package:uniswap_liquidity/widgets/manage_buttons.dart';
+import 'package:uniswap_liquidity/widgets/remove/remove_liquidity_box.dart';
 
 class ManageCard extends HookConsumerWidget {
   final Pair selectedPool;
@@ -32,6 +33,9 @@ class ManageCard extends HookConsumerWidget {
             32.vSpacing,
             if (position.value == "Add") ...[
               AddLiquidityBox(selectedPool: selectedPool),
+            ],
+            if (position.value == "Remove") ...[
+              RemoveLiquidityBox(selectedPool: selectedPool),
             ],
           ],
         ),

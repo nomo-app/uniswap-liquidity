@@ -10,8 +10,8 @@ import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/add_liquidity_form_hook.dart';
 import 'package:uniswap_liquidity/provider/liquidity_provider.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
-import 'package:uniswap_liquidity/widgets/add_liquidity_info.dart';
-import 'package:uniswap_liquidity/widgets/liquidity_input_field.dart';
+import 'package:uniswap_liquidity/widgets/add/add_liquidity_info.dart';
+import 'package:uniswap_liquidity/widgets/add/liquidity_input_field.dart';
 import 'package:uniswap_liquidity/widgets/position_box.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
@@ -69,7 +69,7 @@ class AddLiquidityBox extends HookConsumerWidget {
         Icon(
           Icons.add_circle_outline_outlined,
           color: context.theme.colors.onDisabled,
-          size: 32,
+          size: 24,
         ),
         12.vSpacing,
         LiquidityInputField(
@@ -172,7 +172,6 @@ class AddLiquidityBox extends HookConsumerWidget {
                         .read(liquidityNotifierProvider.notifier)
                         .addLiquidity(liquidity);
                     if (txHash != null) {
-                      
                       print("Liquidity added: $txHash");
                       showDialog(
                         // ignore: use_build_context_synchronously
