@@ -80,6 +80,20 @@ class PositionBox extends ConsumerWidget {
                         ),
                       ],
                     ),
+                    8.vSpacing,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        NomoText(
+                          "Pool share",
+                          style: context.theme.typography.b1,
+                        ),
+                        NomoText(
+                          "${position.share.displayDouble.formatPriceImpact().$1}%",
+                          style: context.theme.typography.b1,
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

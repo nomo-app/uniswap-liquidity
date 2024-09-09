@@ -9,6 +9,7 @@ import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'package:uniswap_liquidity/provider/position_provider.dart';
 import 'package:uniswap_liquidity/provider/remove_liquidity_form_hook.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
+import 'package:uniswap_liquidity/widgets/remove/remove_price_display.dart';
 import 'package:uniswap_liquidity/widgets/remove/remove_token_display.dart';
 
 class RemoveLiquidityValue extends HookConsumerWidget {
@@ -59,11 +60,16 @@ class RemoveLiquidityValue extends HookConsumerWidget {
         return Column(
           children: [
             RemoveTokenDisplay(
-                tokenAmount: roundedTokenAmount,
-                zeniqAmount: roundedZeniqAmount,
-                tokenImage: tokenImage,
-                zeniqImage: zeniqImage,
-                tokenSymbol: selectedPool.token.symbol),
+              tokenAmount: roundedTokenAmount,
+              zeniqAmount: roundedZeniqAmount,
+              tokenImage: tokenImage,
+              zeniqImage: zeniqImage,
+              tokenSymbol: selectedPool.token.symbol,
+            ),
+            12.vSpacing,
+            RemovePriceDisplay(
+              pair: selectedPool,
+            ),
             16.vSpacing,
             Row(
               children: [

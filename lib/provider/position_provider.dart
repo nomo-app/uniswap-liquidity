@@ -157,6 +157,6 @@ class Position {
 
   @override
   String toString() {
-    return 'Position(liquidity: ${liquidity.displayDouble}, zeniqValue: $zeniqValue, tokenValue: $tokenValue)';
+    return 'Position(share: ${share} liquidity: ${liquidity.displayDouble}, zeniqValue: $zeniqValue, tokenValue: $tokenValue)';
   }
 }
