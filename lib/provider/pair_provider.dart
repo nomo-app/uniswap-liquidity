@@ -24,7 +24,9 @@ class PairNotifier extends _$PairNotifier {
       for (int i = 0; i < allPairsLength.toInt(); i++) {
         try {
           final pair = await factory.allPairs(BigInt.from(i));
-          pairs.add(pair);
+          if (allowedContracts.contains(pair)) {
+            pairs.add(pair);
+          }
         } catch (e) {
           print('Error fetching pair at index $i: $e');
         }
@@ -270,6 +272,12 @@ class Pair extends PairInformation {
       zeniqPerToken: zeniqPerToken ?? this.zeniqPerToken,
     );
   }
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return "Pair ${tokeWZeniq.symbol}/${token.symbol} contract ${contract.contractAddress}";
+  }
 }
 
 abstract class PairInformation {
@@ -303,3 +311,18 @@ abstract class PairInformation {
     required this.zeniqPerToken,
   });
 }
+
+const allowedContracts = [
+  "0x04358de9c80fa9e3e0185e25a513c08f97610720",
+  "0x334fead1c662f1aca47313b284077be123a4e2ab",
+  "0x7a25ebe2927028d3f2638f181dade503cc45c318",
+  "0xb10740f9a0f07cb3541e6d811632a12a0c98898a",
+  "0x47341630801dadda02f28827675ad106b525285f",
+  "0xdc88ade4eea3c0638f18b0449695071807dbae7e",
+  "0xb7a0f230742a357a9f4657f818322bd7c917d35a",
+  "0xff7b9ed4785a3caea71a90039908bf4fb7f7dc49",
+  "0x103850b1b08a37466148ae816cf8dfbb812162a3",
+  "0x2cdc266698a9821718d504ba4a2652388454ae63",
+  "0xeda0df58ea3675da3b8d08a2ae91a0b876f2dfaf",
+  "0x9c66828a4d82f4b6e0a636fa6d142b82b5fdd523",
+];
