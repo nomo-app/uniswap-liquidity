@@ -131,7 +131,7 @@ class RemoveLiquidityFormHook {
 
     final liquidityToRemove =
         discardRightBigInt(liquidityToRemoveWithoutRightBigInt.value, 18);
-//0.00000393969
+
     print("Liquidity to remove: ${liquidityToRemove}");
 
     try {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
-import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
@@ -10,6 +9,7 @@ import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'package:uniswap_liquidity/provider/position_provider.dart';
 import 'package:uniswap_liquidity/provider/remove_liquidity_form_hook.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
+import 'package:uniswap_liquidity/widgets/remove/remove_token_display.dart';
 
 class RemoveLiquidityValue extends HookConsumerWidget {
   final Pair selectedPool;
@@ -51,7 +51,6 @@ class RemoveLiquidityValue extends HookConsumerWidget {
         final zeniqAmount = formStateNotifier.zeniqAmount.value;
         final needsApproval = formStateNotifier.needsApproval.value;
         final liquidityState = formStateNotifier.liquidityState.value;
-
         final roundedTokenAmount = double.parse(tokenAmount)
             .toMaxPrecisionWithoutScientificNotation(6);
         final roundedZeniqAmount = double.parse(zeniqAmount)
@@ -59,64 +58,13 @@ class RemoveLiquidityValue extends HookConsumerWidget {
 
         return Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                NomoText(
-                  roundedZeniqAmount,
-                  style: context.typography.b2,
-                ),
-                Spacer(),
-                zeniqImage.when(
-                  data: (data) => ClipOval(
-                    child: Image.network(
-                      data.small,
-                      width: 24,
-                      height: 24,
-                    ),
-                  ),
-                  error: (error, stackTrace) => Text(
-                    error.toString(),
-                  ),
-                  loading: () => CircularProgressIndicator(),
-                ),
-                8.hSpacing,
-                NomoText(
-                  "WZENIQ",
-                  style: context.typography.b2,
-                ),
-              ],
-            ),
-            8.vSpacing,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                NomoText(
-                  roundedTokenAmount,
-                  style: context.typography.b2,
-                ),
-                Spacer(),
-                tokenImage.when(
-                  data: (data) => ClipOval(
-                    child: Image.network(
-                      data.small,
-                      width: 24,
-                      height: 24,
-                    ),
-                  ),
-                  error: (error, stackTrace) => Text(
-                    error.toString(),
-                  ),
-                  loading: () => CircularProgressIndicator(),
-                ),
-                8.hSpacing,
-                NomoText(
-                  selectedPool.token.symbol,
-                  style: context.typography.b2,
-                ),
-              ],
-            ),
-            12.vSpacing,
+            RemoveTokenDisplay(
+                tokenAmount: roundedTokenAmount,
+                zeniqAmount: roundedZeniqAmount,
+                tokenImage: tokenImage,
+                zeniqImage: zeniqImage,
+                tokenSymbol: selectedPool.token.symbol),
+            16.vSpacing,
             Row(
               children: [
                 Expanded(
@@ -150,13 +98,18 @@ class RemoveLiquidityValue extends HookConsumerWidget {
                     height: 52,
                     textStyle: context.typography.b1,
                     text: sliderValue.value == 0 ? "Enter Value" : "Remove",
-                    enabled: needsApproval == ApprovalState.approved,
+                    enabled: needsApproval == ApprovalState.approved &&
+                        tokenAmount != "0.0" &&
+                        zeniqAmount != "0.0",
                     type: needsApproval != ApprovalState.approved
                         ? ActionType.disabled
                         : getActionTypeRemove(
                             liquidityState, zeniqAmount, tokenAmount),
                     onPressed: () async {
                       await formStateNotifier.removeLiquidity();
+                      ref
+                          .read(positionNotifierProvider.notifier)
+                          .updatePosition(selectedPool);
                     },
                   ),
                 ),

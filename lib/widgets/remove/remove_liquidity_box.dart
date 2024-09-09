@@ -29,7 +29,7 @@ class RemoveLiquidityBox extends HookConsumerWidget {
           children: [
             PositionBox(pair: selectedPool),
             12.vSpacing,
-            RemoveLiquiditySlider(sliderValue: sliderValue),
+            RemoveLiquiditySlider(sliderValue: sliderValue, position: position),
             12.vSpacing,
             Icon(
               Icons.arrow_downward,

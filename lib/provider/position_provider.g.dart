@@ -6,7 +6,7 @@ part of 'position_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$positionNotifierHash() => r'00043384631378697c0583b1cb08d274d5e66f3c';
+String _$positionNotifierHash() => r'0b7e4eba9bcf0ecd85a35a2ea6a341a6d65c69dc';
 
 /// See also [PositionNotifier].
 @ProviderFor(PositionNotifier)
