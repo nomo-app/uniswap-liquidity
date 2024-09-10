@@ -5,7 +5,6 @@ import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
@@ -39,42 +38,41 @@ class ADDLiqiuidityInfo extends ConsumerWidget {
           ),
           12.vSpacing,
           NomoCard(
-            padding: EdgeInsets.all(16),
-            borderRadius: BorderRadius.circular(24),
-            backgroundColor: context.theme.colors.background2,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                UnitDisplay(
-                  token: pair.tokeWZeniq,
-                  zeniq: pair.token,
-                  isOther: true,
-                  value: pair.tokenPerZeniq
-                      .toMaxPrecisionWithoutScientificNotation(5),
-                ),
-                UnitDisplay(
-                  value: pair.zeniqPerToken
-                      .toMaxPrecisionWithoutScientificNotation(5),
-                  token: pair.token,
-                  zeniq: pair.tokeWZeniq,
-                  isOther: false,
-                ),
-                Column(
-                  children: [
-                    NomoText(
-                      shareOfPool.isEmpty ? "0%" : shareOfPool,
-                      style: context.theme.typography.b1,
-                    ),
-                    4.vSpacing,
-                    NomoText(
-                      "Pool share",
-                      style: context.theme.typography.b1,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+              padding: EdgeInsets.all(16),
+              borderRadius: BorderRadius.circular(24),
+              backgroundColor: context.theme.colors.background2,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  UnitDisplay(
+                    token: pair.tokeWZeniq,
+                    zeniq: pair.token,
+                    isOther: true,
+                    value: pair.tokenPerZeniq
+                        .toMaxPrecisionWithoutScientificNotation(5),
+                  ),
+                  UnitDisplay(
+                    value: pair.zeniqPerToken
+                        .toMaxPrecisionWithoutScientificNotation(5),
+                    token: pair.token,
+                    zeniq: pair.tokeWZeniq,
+                    isOther: false,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      NomoText(
+                        "Pool share",
+                        style: context.theme.typography.b1,
+                      ),
+                      NomoText(
+                        shareOfPool.isEmpty ? "0%" : shareOfPool,
+                        style: context.theme.typography.b1,
+                      ),
+                    ],
+                  ),
+                ],
+              )),
         ],
       ),
     );
@@ -97,15 +95,15 @@ class UnitDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         NomoText(
-          value,
+          isOther ? "${token.symbol} per ZENIQ" : "WZENIQ per ${token.symbol}",
           style: context.theme.typography.b1,
         ),
-        4.vSpacing,
         NomoText(
-          isOther ? " ${token.symbol} per ZENIQ" : "WZENIQ per ${token.symbol}",
+          value,
           style: context.theme.typography.b1,
         ),
       ],

@@ -30,7 +30,11 @@ class AddScreen extends ConsumerWidget {
       ),
       child: NomoRouteBody(
         child: selectedPool.when(
-          data: (pair) => AddLiquidityBox(selectedPool: pair),
+          data: (pair) => Center(
+              child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: AddLiquidityBox(selectedPool: pair),
+          )),
           error: (error, stackTrace) => NomoText(error.toString()),
           loading: () => Center(
             child: CircularProgressIndicator(),

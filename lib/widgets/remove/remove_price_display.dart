@@ -38,7 +38,7 @@ class RemovePriceDisplay extends ConsumerWidget {
             padding: EdgeInsets.all(16),
             borderRadius: BorderRadius.circular(24),
             backgroundColor: context.theme.colors.background2,
-            child: Row(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 UnitDisplay(

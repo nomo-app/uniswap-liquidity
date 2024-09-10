@@ -68,13 +68,17 @@ class RemoveLiquiditySlider extends HookConsumerWidget {
       borderRadius: BorderRadius.circular(24),
       child: Column(
         children: [
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               NomoText("Amount", style: context.typography.b2),
-              Spacer(),
-              NomoText(
-                "${liquidityToRemove.displayDouble.toMaxPrecisionWithoutScientificNotation(5)} WZENIQ/${pair.token.symbol}",
-                style: context.typography.b2,
+              8.vSpacing,
+              Align(
+                alignment: Alignment.centerRight,
+                child: NomoText(
+                  "${liquidityToRemove.displayDouble.toMaxPrecisionWithoutScientificNotation(5)} WZENIQ/${pair.token.symbol}",
+                  style: context.typography.b2,
+                ),
               )
             ],
           ),
