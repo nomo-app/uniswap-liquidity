@@ -33,9 +33,9 @@ class SuccessDialog extends ConsumerWidget {
             expandToConstraints: true,
             height: 52,
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
-            child: NomoText("Close", style: context.typography.b2),
+            child: NomoText("View Positions", style: context.typography.b2),
           ),
         ),
       ],

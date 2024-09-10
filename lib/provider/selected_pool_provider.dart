@@ -43,6 +43,11 @@ class SelectedPool extends _$SelectedPool {
     return pair;
   }
 
+  Future<void> updatePair(Pair newPair) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _addPair(newPair));
+  }
+
   Future<double> _getZeniqPrice(EthBasedTokenEntity tokeWZeniq) async {
     final price =
         await ref.read(assetNotifierProvider).fetchSingelPrice(tokeWZeniq);

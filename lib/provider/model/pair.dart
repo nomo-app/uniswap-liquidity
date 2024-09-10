@@ -72,9 +72,35 @@ class Pair extends PairInformation {
   }
 
   @override
+  bool operator ==(Object other) {
+    return contract.contractAddress == (other as Pair).contract.contractAddress;
+  }
+
+  @override
   String toString() {
-    // TODO: implement toString
     return "Pair ${tokeWZeniq.symbol}/${token.symbol} contract ${contract.contractAddress}";
+  }
+
+  @override
+  int get hashCode {
+    return tokeWZeniq.hashCode ^
+        token.hashCode ^
+        contract.hashCode ^
+        reserves.hashCode ^
+        tvl.hashCode ^
+        volume24h.hashCode ^
+        fees24h.hashCode ^
+        apr.hashCode ^
+        zeniqValue.hashCode ^
+        tokenValue.hashCode ^
+        tokenPrice.hashCode ^
+        zeniqPrice.hashCode ^
+        balanceToken.hashCode ^
+        fiatBlanceToken.hashCode ^
+        fiatZeniqBalance.hashCode ^
+        tokenPerZeniq.hashCode ^
+        zeniqPerToken.hashCode ^
+        position.hashCode;
   }
 }
 

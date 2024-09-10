@@ -228,7 +228,8 @@ class PairNotifier extends _$PairNotifier {
   }
 
   Future<void> updatePosition(Pair pair) async {
-    final pairs = state.value!;
+    final pairs = state.value;
+    if (pairs == null) return;
     try {
       final liquidity = await pair.contract.balanceOf(address);
       final totalSupply = await pair.contract.totalSupply();
@@ -268,6 +269,7 @@ class PairNotifier extends _$PairNotifier {
         share: share,
       );
       final index = pairs.indexOf(pair);
+      print("This is the index of updated pair: $index");
       pairs[index] = pair.copyWith(position: updatedPosition);
       state = AsyncValue.data(pairs);
     } catch (e, s) {

@@ -67,6 +67,7 @@ class LiquidityNotifier extends _$LiquidityNotifier {
     await ref.read(pairNotifierProvider.notifier).updatePosition(
           liquidity.pair,
         );
+
     state = LiquidityState.idel;
 
     return txHash;
