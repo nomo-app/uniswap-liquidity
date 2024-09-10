@@ -11,6 +11,7 @@ import 'package:uniswap_liquidity/provider/remove_liquidity_form_hook.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
 import 'package:uniswap_liquidity/widgets/remove/remove_price_display.dart';
 import 'package:uniswap_liquidity/widgets/remove/remove_token_display.dart';
+import 'package:uniswap_liquidity/widgets/success_dialog.dart';
 
 class RemoveLiquidityValue extends HookConsumerWidget {
   final Pair selectedPool;
@@ -81,9 +82,9 @@ class RemoveLiquidityValue extends HookConsumerWidget {
                     backgroundColor: needsApproval == ApprovalState.approved
                         ? Colors.green.lighten(0.1)
                         : null,
-                    enabled: needsApproval == ApprovalState.needsApproval &&
-                        zeniqAmount.toString() == "0.0" &&
-                        tokenAmount.toString() == "0.0",
+                    enabled: needsApproval == ApprovalState.needsApproval,
+                    //     zeniqAmount.toString() == "0.0" &&
+                    //     tokenAmount.toString() == "0.0",
                     type: getActionTypeApprove(
                         needsApproval, zeniqAmount, tokenAmount),
                     text: needsApproval == ApprovalState.approved
@@ -111,10 +112,20 @@ class RemoveLiquidityValue extends HookConsumerWidget {
                         : getActionTypeRemove(
                             liquidityState, zeniqAmount, tokenAmount),
                     onPressed: () async {
-                      await formStateNotifier.removeLiquidity();
-                      ref
-                          .read(pairNotifierProvider.notifier)
-                          .updatePosition(selectedPool);
+                      final messageHex =
+                          await formStateNotifier.removeLiquidity();
+
+                      if (messageHex != null) {
+                        showDialog(
+                          // ignore: use_build_context_synchronously
+                          context: context,
+                          builder: (context) =>
+                              SuccessDialog(messageHex: messageHex),
+                        );
+                        ref
+                            .read(pairNotifierProvider.notifier)
+                            .updatePosition(selectedPool);
+                      }
                     },
                   ),
                 ),

@@ -6,12 +6,12 @@ part of 'pair_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$pairNotifierHash() => r'7995e7aea9cd9ec41c0d05070f7d7b15f8fd925a';
+String _$pairNotifierHash() => r'7edb5dd98892a42f0743bc3233a9c159f52140bb';
 
 /// See also [PairNotifier].
 @ProviderFor(PairNotifier)
 final pairNotifierProvider =
-    AutoDisposeAsyncNotifierProvider<PairNotifier, List<Pair>>.internal(
+    AsyncNotifierProvider<PairNotifier, List<Pair>>.internal(
   PairNotifier.new,
   name: r'pairNotifierProvider',
   debugGetCreateSourceHash:
@@ -20,6 +20,6 @@ final pairNotifierProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$PairNotifier = AutoDisposeAsyncNotifier<List<Pair>>;
+typedef _$PairNotifier = AsyncNotifier<List<Pair>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

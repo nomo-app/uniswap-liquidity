@@ -11,7 +11,7 @@ import 'package:walletkit_dart/walletkit_dart.dart';
 
 part "pair_provider.g.dart";
 
-@riverpod
+@Riverpod(keepAlive: true)
 class PairNotifier extends _$PairNotifier {
   @override
   Future<List<Pair>> build() async {

@@ -13,14 +13,18 @@ class SuccessDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return NomoDialog(
-      title: "Liquidity added",
+      titleWidget: NomoText(
+        "Success",
+        style: context.typography.h1,
+        maxLines: 1,
+      ),
       content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          NomoText("Liquidity added successfully",
-              style: context.typography.b3),
+          NomoText("Transaction", style: context.typography.b2),
+          8.vSpacing,
+          SelectableText(style: context.typography.b2, messageHex),
           16.vSpacing,
-          NomoText("Transaction hash: $messageHex",
-              style: context.typography.b3),
         ],
       ),
       actions: [
@@ -31,7 +35,7 @@ class SuccessDialog extends ConsumerWidget {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: NomoText("View on explorer", style: context.typography.b2),
+            child: NomoText("Close", style: context.typography.b2),
           ),
         ),
       ],

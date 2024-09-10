@@ -34,11 +34,12 @@ class HomeScreen extends HookConsumerWidget {
         //   onPressed: () async {
         //     final pair = await showDialog(
         //       context: context,
-        //       builder: (context) => SelectDialog(),
+        //       builder: (context) => SuccessDialog(
+        //           messageHex: "0x04358de9c80fa9e3e0185e25a513c08f97610720"),
         //     );
         //     if (pair == null) return;
         //     // ignore: use_build_context_synchronously
-        //     NomoNavigator.of(context).push(AddScreenRoute(pair: pair));
+        //     // NomoNavigator.of(context).push(AddScreenRoute(pair: pair));
         //   },
         //   text: "Add Liquidity",
         //   textStyle: context.typography.b1,

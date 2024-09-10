@@ -98,7 +98,7 @@ class RemoveLiquidityFormHook {
     }
   }
 
-  Future<void> removeLiquidity() async {
+  Future<String?> removeLiquidity() async {
     liquidityState.value = LiquidityState.loading;
 
     final tokenAmountToRemove = Amount(
@@ -156,14 +156,15 @@ class RemoveLiquidityFormHook {
 
       if (approved) {
         liquidityState.value = LiquidityState.idel;
+        return txHash;
       } else {
         throw Exception("Approval failed");
       }
-      print("messagehex of remove liquidity: ${txHash}");
     } catch (e, s) {
       liquidityState.value = LiquidityState.error;
       print("Error removing liquidity$e$s");
     }
+    return null;
   }
 }
 

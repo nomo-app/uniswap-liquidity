@@ -216,8 +216,10 @@ class PoolOverview extends ConsumerWidget {
                           SizedBox(
                             width: 100,
                             child: NomoText(
-                              pair.tokenValue
-                                  .toMaxPrecisionWithoutScientificNotation(4),
+                              pair.balanceToken?.displayDouble
+                                      .toMaxPrecisionWithoutScientificNotation(
+                                          4) ??
+                                  "",
                               maxLines: 2,
                               fit: true,
                               style: context.typography.b1,
