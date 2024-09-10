@@ -158,9 +158,12 @@ class PairNotifier extends _$PairNotifier {
     if (liquidityAmount > Amount.zero) {
       position = Position(
         liquidity: liquidityAmount,
-        zeniqValue: zeniqValue,
+        zeniqValue: Amount(
+            value: discardRightBigInt(zeniqValue.value, 18), decimals: 18),
         totalSupply: totalSupplyAmount,
-        tokenValue: tokenValue,
+        tokenValue: Amount(
+            value: discardRightBigInt(tokenValue.value, token.decimals),
+            decimals: token.decimals),
         reserveAmountZeniq: reserveAmountZeniq,
         reserveAmountToken: reserveAmountToken,
         share: share,

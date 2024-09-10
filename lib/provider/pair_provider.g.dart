@@ -6,7 +6,7 @@ part of 'pair_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$pairNotifierHash() => r'bdbfb541da40281ca7e9aab46c562e22d31e0374';
+String _$pairNotifierHash() => r'34ba8c86ea5450a010fb3ad48694a913cdb845c3';
 
 /// See also [PairNotifier].
 @ProviderFor(PairNotifier)
