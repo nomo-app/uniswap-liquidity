@@ -9,7 +9,7 @@ import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/add_liquidity_form_hook.dart';
 import 'package:uniswap_liquidity/provider/liquidity_provider.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/widgets/add/add_liquidity_info.dart';
 import 'package:uniswap_liquidity/widgets/add/liquidity_input_field.dart';
 import 'package:uniswap_liquidity/widgets/position_box.dart';

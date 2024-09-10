@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/liquidity_provider.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
-import 'package:uniswap_liquidity/provider/position_provider.dart';
+import 'package:uniswap_liquidity/provider/model/pair.dart';
+import 'package:uniswap_liquidity/provider/model/position.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
@@ -58,12 +58,12 @@ class RemoveLiquidityFormHook {
 
     final zeniqAmountToRemove = Amount(
       value: zeniqRemoveValue,
-      decimals: position.pair.tokeWZeniq.decimals,
+      decimals: selectedPool.tokeWZeniq.decimals,
     );
 
     final tokenAmountToRemove = Amount(
       value: tokenRemoveValue,
-      decimals: position.pair.token.decimals,
+      decimals: selectedPool.token.decimals,
     );
 
     zeniqAmount.value = zeniqAmountToRemove.displayValue;
@@ -102,14 +102,14 @@ class RemoveLiquidityFormHook {
     liquidityState.value = LiquidityState.loading;
 
     final tokenAmountToRemove = Amount(
-      value: parseFromString(tokenAmount.value, position.pair.token.decimals)!,
-      decimals: position.pair.token.decimals,
+      value: parseFromString(tokenAmount.value, selectedPool.token.decimals)!,
+      decimals: selectedPool.token.decimals,
     );
 
     final zeniqAmountToRemove = Amount(
-      value: parseFromString(
-          zeniqAmount.value, position.pair.tokeWZeniq.decimals)!,
-      decimals: position.pair.tokeWZeniq.decimals,
+      value:
+          parseFromString(zeniqAmount.value, selectedPool.tokeWZeniq.decimals)!,
+      decimals: selectedPool.tokeWZeniq.decimals,
     );
 
     final now = DateTime.now();
@@ -139,12 +139,12 @@ class RemoveLiquidityFormHook {
         sender: address,
         liquidity: liquidityToRemove,
         amountTokenMin: calculateMinAmount(
-            tokenAmountToRemove.value, "0.5", position.pair.token.decimals),
-        amountETHMin: calculateMinAmount(zeniqAmountToRemove.value, "0.5",
-            position.pair.tokeWZeniq.decimals),
+            tokenAmountToRemove.value, "0.5", selectedPool.token.decimals),
+        amountETHMin: calculateMinAmount(
+            zeniqAmountToRemove.value, "0.5", selectedPool.tokeWZeniq.decimals),
         deadline: BigInt.from(deadline.millisecondsSinceEpoch ~/ 1000),
         to: address,
-        token: position.pair.token.contractAddress,
+        token: selectedPool.token.contractAddress,
       );
 
       final signedTxHash =

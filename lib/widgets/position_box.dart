@@ -4,8 +4,7 @@ import 'package:nomo_ui_kit/components/card/nomo_card.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
-import 'package:uniswap_liquidity/provider/position_provider.dart';
+import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
 
 class PositionBox extends ConsumerWidget {
@@ -14,95 +13,85 @@ class PositionBox extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final position = ref.watch(positionNotifierProvider);
-    return position.when(
-      data: (data) {
-        final position = data.firstWhere((element) =>
-            element.pair.token.contractAddress == pair.token.contractAddress);
-
-        return NomoCard(
-          borderRadius: BorderRadius.circular(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 16, top: 16),
-                child: NomoText(
-                  "Your position",
-                  style: context.theme.typography.b1,
-                ),
-              ),
-              8.vSpacing,
-              NomoCard(
-                padding: EdgeInsets.all(16),
-                backgroundColor: context.theme.colors.background2,
-                borderRadius: BorderRadius.circular(24),
-                child: Column(
+    return NomoCard(
+      borderRadius: BorderRadius.circular(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 16, top: 16),
+            child: NomoText(
+              "Your position",
+              style: context.theme.typography.b1,
+            ),
+          ),
+          8.vSpacing,
+          NomoCard(
+            padding: EdgeInsets.all(16),
+            backgroundColor: context.theme.colors.background2,
+            borderRadius: BorderRadius.circular(24),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        NomoText(
-                          "WZENIQ/${position.pair.token.symbol}",
-                          style: context.theme.typography.b1,
-                        ),
-                        NomoText(
-                          position.liquidity.displayDouble
-                              .toMaxPrecisionWithoutScientificNotation(5),
-                          style: context.theme.typography.b1,
-                        ),
-                      ],
+                    NomoText(
+                      "WZENIQ/${pair.token.symbol}",
+                      style: context.theme.typography.b1,
                     ),
-                    8.vSpacing,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        NomoText("WZENIQ", style: context.theme.typography.b1),
-                        NomoText(
-                          position.zeniqValue.displayDouble
-                              .toMaxPrecisionWithoutScientificNotation(5),
-                          style: context.theme.typography.b1,
-                        ),
-                      ],
-                    ),
-                    8.vSpacing,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        NomoText(
-                          position.pair.token.symbol,
-                          style: context.theme.typography.b1,
-                        ),
-                        NomoText(
-                          position.tokenValue.displayDouble
-                              .toMaxPrecisionWithoutScientificNotation(5),
-                          style: context.theme.typography.b1,
-                        ),
-                      ],
-                    ),
-                    8.vSpacing,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        NomoText(
-                          "Pool share",
-                          style: context.theme.typography.b1,
-                        ),
-                        NomoText(
-                          "${position.share.displayDouble.formatPriceImpact().$1}%",
-                          style: context.theme.typography.b1,
-                        ),
-                      ],
+                    NomoText(
+                      pair.position!.liquidity.displayDouble
+                          .toMaxPrecisionWithoutScientificNotation(5),
+                      style: context.theme.typography.b1,
                     ),
                   ],
                 ),
-              ),
-            ],
+                8.vSpacing,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    NomoText("WZENIQ", style: context.theme.typography.b1),
+                    NomoText(
+                      pair.position!.zeniqValue.displayDouble
+                          .toMaxPrecisionWithoutScientificNotation(5),
+                      style: context.theme.typography.b1,
+                    ),
+                  ],
+                ),
+                8.vSpacing,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    NomoText(
+                      pair.token.symbol,
+                      style: context.theme.typography.b1,
+                    ),
+                    NomoText(
+                      pair.position!.tokenValue.displayDouble
+                          .toMaxPrecisionWithoutScientificNotation(5),
+                      style: context.theme.typography.b1,
+                    ),
+                  ],
+                ),
+                8.vSpacing,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    NomoText(
+                      "Pool share",
+                      style: context.theme.typography.b1,
+                    ),
+                    NomoText(
+                      "${pair.position!.share.displayDouble.formatPriceImpact().$1}%",
+                      style: context.theme.typography.b1,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        );
-      },
-      error: (error, stackTrace) => Text(error.toString()),
-      loading: () => CircularProgressIndicator(),
+        ],
+      ),
     );
   }
 }

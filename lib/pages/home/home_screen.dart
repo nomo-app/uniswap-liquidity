@@ -18,7 +18,7 @@ class HomeScreen extends HookConsumerWidget {
     return NomoScaffold(
       appBar: NomoAppBar(
         title: NomoText(
-          "Pools",
+          "Positions",
           style: context.typography.h1,
         ),
       ),
@@ -26,14 +26,24 @@ class HomeScreen extends HookConsumerWidget {
         padding: const EdgeInsets.all(16),
         backgroundColor: context.theme.colors.background1,
         child: pairsProvider.when(
-          data: (pairs) => ListView.builder(
-            itemCount: pairs.length,
-            itemBuilder: (context, index) {
-              return PoolOverview(
-                pair: pairs[index],
+          data: (pairs) {
+            final positionPairs =
+                pairs.where((element) => element.position != null).toList();
+
+            if (positionPairs.isEmpty) {
+              return NomoText(
+                "No positions found",
+                style: context.typography.h2,
               );
-            },
-          ),
+            }
+            return ListView.builder(
+              itemCount: positionPairs.length,
+              itemBuilder: (context, index) {
+                final pair = positionPairs[index];
+                return PoolOverview(pair: pair);
+              },
+            );
+          },
           error: (error, _) => NomoText(
             error.toString(),
             style: context.typography.h2,

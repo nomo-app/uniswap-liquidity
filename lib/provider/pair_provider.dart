@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
+import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
-import 'package:uniswap_liquidity/provider/position_provider.dart';
+import 'package:uniswap_liquidity/provider/model/pair.dart';
+import 'package:uniswap_liquidity/provider/model/position.dart';
 import 'package:uniswap_liquidity/utils/logger.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -56,6 +58,15 @@ class PairNotifier extends _$PairNotifier {
     final tokenZeroAddress = await pair.token0();
     final tokenOneAddress = await pair.token1();
     final reserves = await pair.getReserves();
+    BigInt? liquidity = BigInt.zero;
+    BigInt? totalSupply = BigInt.zero;
+
+    try {
+      liquidity = await pair.balanceOf(address);
+      totalSupply = await pair.totalSupply();
+    } catch (e) {
+      throw Exception('Error fetching position data');
+    }
 
     //TODO: Fetch token data from WEbonkit
     final assets = <EthBasedTokenEntity>[];
@@ -117,6 +128,45 @@ class PairNotifier extends _$PairNotifier {
       orderedReserves = (reserves.$2, reserves.$1);
     }
 
+    final totalSupplyAmount = Amount(
+      value: totalSupply,
+      decimals: 18,
+    );
+
+    final reserveAmountZeniq = Amount(
+      value: orderedReserves.$1,
+      decimals: wToken.decimals,
+    );
+    final reserveAmountToken = Amount(
+      value: orderedReserves.$2,
+      decimals: token.decimals,
+    );
+
+    final liquidityAmount = Amount(
+      value: liquidity,
+      decimals: 18,
+    );
+
+    Position? position;
+
+    final share = liquidityAmount / totalSupplyAmount;
+
+    final zeniqValue = share * reserveAmountZeniq;
+
+    final tokenValue = share * reserveAmountToken;
+
+    if (liquidityAmount > Amount.zero) {
+      position = Position(
+        liquidity: liquidityAmount,
+        zeniqValue: zeniqValue,
+        totalSupply: totalSupplyAmount,
+        tokenValue: tokenValue,
+        reserveAmountZeniq: reserveAmountZeniq,
+        reserveAmountToken: reserveAmountToken,
+        share: share,
+      );
+    }
+
     Map<String, dynamic> tvlInfo = {};
     try {
       tvlInfo = await _calculateTVL(
@@ -147,6 +197,7 @@ class PairNotifier extends _$PairNotifier {
       balanceToken: null,
       fiatBlanceToken: null,
       fiatZeniqBalance: null,
+      position: position,
     );
   }
 
@@ -163,10 +214,56 @@ class PairNotifier extends _$PairNotifier {
       print('Error fetching pair data: $e');
       return [];
     }
-
-    ref.read(positionNotifierProvider.notifier).addPositions(pairsData);
-
     return pairsData;
+  }
+
+  Future<void> updatePosition(Pair pair) async {
+    final pairs = state.value!;
+    try {
+      final liquidity = await pair.contract.balanceOf(address);
+      final totalSupply = await pair.contract.totalSupply();
+
+      final totalSupplyAmount = Amount(
+        value: totalSupply,
+        decimals: 18,
+      );
+
+      final reserveAmountZeniq = Amount(
+        value: pair.reserves.$1,
+        decimals: pair.tokeWZeniq.decimals,
+      );
+      final reserveAmountToken = Amount(
+        value: pair.reserves.$2,
+        decimals: pair.token.decimals,
+      );
+
+      final liquidityAmount = Amount(
+        value: liquidity,
+        decimals: 18,
+      );
+
+      final share = liquidityAmount / totalSupplyAmount;
+
+      final zeniqValue = share * reserveAmountZeniq;
+
+      final tokenValue = share * reserveAmountToken;
+
+      final updatedPosition = Position(
+        liquidity: liquidityAmount,
+        zeniqValue: zeniqValue,
+        totalSupply: totalSupplyAmount,
+        tokenValue: tokenValue,
+        reserveAmountZeniq: reserveAmountZeniq,
+        reserveAmountToken: reserveAmountToken,
+        share: share,
+      );
+      final index = pairs.indexOf(pair);
+      pairs[index] = pair.copyWith(position: updatedPosition);
+      state = AsyncValue.data(pairs);
+    } catch (e, s) {
+      print('Error fetching position at index $pair: $e');
+      state = AsyncValue.error(e, s);
+    }
   }
 
   Future<Map<String, dynamic>> _calculateTVL({
@@ -205,111 +302,6 @@ class PairNotifier extends _$PairNotifier {
 
     return tvlInfo;
   }
-}
-
-class Pair extends PairInformation {
-  EthBasedTokenEntity tokeWZeniq;
-  EthBasedTokenEntity token;
-  UniswapV2Pair contract;
-  (BigInt, BigInt) reserves;
-
-  Pair({
-    required this.tokeWZeniq,
-    required super.volume24h,
-    required super.fees24h,
-    required super.apr,
-    required this.token,
-    required this.contract,
-    required this.reserves,
-    required super.tvl,
-    required super.zeniqValue,
-    required super.tokenValue,
-    required super.tokenPrice,
-    required super.zeniqPrice,
-    required super.balanceToken,
-    required super.fiatBlanceToken,
-    required super.fiatZeniqBalance,
-    required super.tokenPerZeniq,
-    required super.zeniqPerToken,
-  });
-
-  copyWith({
-    EthBasedTokenEntity? tokeWZeniq,
-    EthBasedTokenEntity? token,
-    UniswapV2Pair? contract,
-    (BigInt, BigInt)? reserves,
-    double? tvl,
-    double? volume24h,
-    double? fees24h,
-    double? apr,
-    double? zeniqValue,
-    double? tokenValue,
-    double? tokenPrice,
-    double? zeniqPrice,
-    Amount? balanceToken,
-    double? fiatBlanceToken,
-    double? fiatZeniqBalance,
-    double? tokenPerZeniq,
-    double? zeniqPerToken,
-  }) {
-    return Pair(
-      tokeWZeniq: tokeWZeniq ?? this.tokeWZeniq,
-      token: token ?? this.token,
-      contract: contract ?? this.contract,
-      reserves: reserves ?? this.reserves,
-      tvl: tvl ?? this.tvl,
-      volume24h: volume24h ?? this.volume24h,
-      fees24h: fees24h ?? this.fees24h,
-      apr: apr ?? this.apr,
-      zeniqValue: zeniqValue ?? this.zeniqValue,
-      tokenValue: tokenValue ?? this.tokenValue,
-      tokenPrice: tokenPrice ?? this.tokenPrice,
-      zeniqPrice: zeniqPrice ?? this.zeniqPrice,
-      balanceToken: balanceToken ?? this.balanceToken,
-      fiatBlanceToken: fiatBlanceToken ?? this.fiatBlanceToken,
-      fiatZeniqBalance: fiatZeniqBalance ?? this.fiatZeniqBalance,
-      tokenPerZeniq: tokenPerZeniq ?? this.tokenPerZeniq,
-      zeniqPerToken: zeniqPerToken ?? this.zeniqPerToken,
-    );
-  }
-
-  @override
-  String toString() {
-    // TODO: implement toString
-    return "Pair ${tokeWZeniq.symbol}/${token.symbol} contract ${contract.contractAddress}";
-  }
-}
-
-abstract class PairInformation {
-  final double tvl;
-  final double? volume24h;
-  final double? fees24h;
-  final double? apr;
-  final double zeniqPrice;
-  final double tokenPrice;
-  final double tokenValue;
-  final double zeniqValue;
-  final Amount? balanceToken;
-  final double? fiatBlanceToken;
-  final double? fiatZeniqBalance;
-  final double tokenPerZeniq;
-  final double zeniqPerToken;
-
-  PairInformation({
-    required this.tvl,
-    required this.volume24h,
-    required this.fees24h,
-    required this.apr,
-    required this.zeniqValue,
-    required this.tokenValue,
-    required this.tokenPrice,
-    required this.zeniqPrice,
-    required this.balanceToken,
-    required this.fiatBlanceToken,
-    required this.fiatZeniqBalance,
-    required this.tokenPerZeniq,
-    required this.zeniqPerToken,
-  });
 }
 
 const allowedContracts = [

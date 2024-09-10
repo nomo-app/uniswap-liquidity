@@ -5,8 +5,8 @@ import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/liquidity_provider.dart';
+import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
-import 'package:uniswap_liquidity/provider/position_provider.dart';
 import 'package:uniswap_liquidity/provider/remove_liquidity_form_hook.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
 import 'package:uniswap_liquidity/widgets/remove/remove_price_display.dart';
@@ -14,22 +14,21 @@ import 'package:uniswap_liquidity/widgets/remove/remove_token_display.dart';
 
 class RemoveLiquidityValue extends HookConsumerWidget {
   final Pair selectedPool;
-  final Position position;
   final ValueNotifier<double> sliderValue;
 
   const RemoveLiquidityValue({
     required this.sliderValue,
     required this.selectedPool,
-    required this.position,
     super.key,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formStateNotifier = useRemoveLiquidityFormHook(
-        sliderValue: sliderValue,
-        selectedPool: selectedPool,
-        position: position);
+      sliderValue: sliderValue,
+      selectedPool: selectedPool,
+      position: selectedPool.position!,
+    );
     final imageZeniq = ref
         .watch(assetNotifierProvider)
         .imageNotifierForToken(selectedPool.tokeWZeniq)!;
@@ -114,7 +113,7 @@ class RemoveLiquidityValue extends HookConsumerWidget {
                     onPressed: () async {
                       await formStateNotifier.removeLiquidity();
                       ref
-                          .read(positionNotifierProvider.notifier)
+                          .read(pairNotifierProvider.notifier)
                           .updatePosition(selectedPool);
                     },
                   ),

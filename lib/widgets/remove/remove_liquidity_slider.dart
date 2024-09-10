@@ -6,16 +6,16 @@ import 'package:nomo_ui_kit/components/card/nomo_card.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
-import 'package:uniswap_liquidity/provider/position_provider.dart';
+import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
 class RemoveLiquiditySlider extends HookConsumerWidget {
   final ValueNotifier<double> sliderValue;
-  final Position position;
+  final Pair pair;
 
   const RemoveLiquiditySlider(
-      {required this.sliderValue, required this.position, super.key});
+      {required this.sliderValue, required this.pair, super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Amount liquidityToRemove = Amount.zero;
@@ -23,33 +23,33 @@ class RemoveLiquiditySlider extends HookConsumerWidget {
     useEffect(() {
       final percentageToRemove = sliderValue.value / 100;
 
-      final zeniqRemoveValue = (position.zeniqValue.value *
+      final zeniqRemoveValue = (pair.position!.zeniqValue.value *
               BigInt.from((percentageToRemove * 100).toInt())) ~/
           BigInt.from(100);
-      final tokenRemoveValue = (position.tokenValue.value *
+      final tokenRemoveValue = (pair.position!.tokenValue.value *
               BigInt.from((percentageToRemove * 100).toInt())) ~/
           BigInt.from(100);
 
       final zeniqAmountToRemove = Amount(
         value: zeniqRemoveValue,
-        decimals: position.pair.tokeWZeniq.decimals,
+        decimals: pair.tokeWZeniq.decimals,
       );
 
       final tokenAmountToRemove = Amount(
         value: tokenRemoveValue,
-        decimals: position.pair.token.decimals,
+        decimals: pair.token.decimals,
       );
       final zeniqAmountWithPoolRatio =
-          zeniqAmountToRemove / position.reserveAmountZeniq;
+          zeniqAmountToRemove / pair.position!.reserveAmountZeniq;
       final tokenAmountWithPoolRatio =
-          tokenAmountToRemove / position.reserveAmountToken;
+          tokenAmountToRemove / pair.position!.reserveAmountToken;
 
       final smallerRatio = zeniqAmountWithPoolRatio < tokenAmountWithPoolRatio
           ? zeniqAmountWithPoolRatio
           : tokenAmountWithPoolRatio;
 
       final liquidityToRemoveWithoutRightBigInt =
-          smallerRatio * position.totalSupply;
+          smallerRatio * pair.position!.totalSupply;
 
       final liquidityToRemoveValue =
           discardRightBigInt(liquidityToRemoveWithoutRightBigInt.value, 18);
@@ -73,7 +73,7 @@ class RemoveLiquiditySlider extends HookConsumerWidget {
               NomoText("Amount", style: context.typography.b2),
               Spacer(),
               NomoText(
-                "${liquidityToRemove.displayDouble.toMaxPrecisionWithoutScientificNotation(5)} WZENIQ/${position.pair.token.symbol}",
+                "${liquidityToRemove.displayDouble.toMaxPrecisionWithoutScientificNotation(5)} WZENIQ/${pair.token.symbol}",
                 style: context.typography.b2,
               )
             ],
