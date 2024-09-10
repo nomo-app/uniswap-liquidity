@@ -151,7 +151,7 @@ class PoolOverview extends ConsumerWidget {
                 ),
                 32.hSpacing,
                 NomoText(
-                  "TVL: ${pair.tvl.toStringAsFixed(7)}",
+                  "Mange Position",
                   style: context.typography.b2,
                 ),
                 Spacer(),

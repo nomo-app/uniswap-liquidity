@@ -21,6 +21,12 @@ class AppRouter extends NomoAppRouter {
                 pair: typedArgs?.pair,
               );
             },
+            AddScreenRoute.path: ([a]) {
+              final typedArgs = a as AddScreenArguments?;
+              return AddScreenRoute(
+                pair: typedArgs?.pair,
+              );
+            },
           },
           _routes.expanded.where((r) => r is! NestedNavigator).toList(),
           _routes.expanded.whereType<NestedNavigator>().toList(),
@@ -72,4 +78,25 @@ class DetailsScreenRoute extends AppRoute implements DetailsScreenArguments {
           ),
         );
   static String path = '/details';
+}
+
+class AddScreenArguments {
+  final Pair? pair;
+  const AddScreenArguments({
+    this.pair,
+  });
+}
+
+class AddScreenRoute extends AppRoute implements AddScreenArguments {
+  @override
+  final Pair? pair;
+  AddScreenRoute({
+    this.pair,
+  }) : super(
+          name: '/add',
+          page: AddScreen(
+            pair: pair,
+          ),
+        );
+  static String path = '/add';
 }

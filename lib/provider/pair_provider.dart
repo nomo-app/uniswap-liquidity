@@ -60,6 +60,7 @@ class PairNotifier extends _$PairNotifier {
     final reserves = await pair.getReserves();
     BigInt? liquidity = BigInt.zero;
     BigInt? totalSupply = BigInt.zero;
+    Amount tokenBalance = Amount.zero;
 
     try {
       liquidity = await pair.balanceOf(address);
@@ -170,6 +171,12 @@ class PairNotifier extends _$PairNotifier {
       );
     }
 
+    try {
+      tokenBalance = await rpc.fetchTokenBalance(address, token);
+    } catch (e) {
+      print('Error fetching token balance: $e');
+    }
+
     Map<String, dynamic> tvlInfo = {};
     try {
       tvlInfo = await _calculateTVL(
@@ -197,7 +204,7 @@ class PairNotifier extends _$PairNotifier {
       zeniqPrice: tvlInfo["zeniqPrice"],
       tokenPerZeniq: tvlInfo["tokenPerZeniq"],
       zeniqPerToken: tvlInfo["zeniqPerToken"],
-      balanceToken: null,
+      balanceToken: tokenBalance,
       fiatBlanceToken: null,
       fiatZeniqBalance: null,
       position: position,

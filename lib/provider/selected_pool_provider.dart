@@ -2,7 +2,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
-import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
 part 'selected_pool_provider.g.dart';
@@ -16,8 +15,7 @@ class SelectedPool extends _$SelectedPool {
 
   Future<Pair> _addPair(Pair pair) async {
     try {
-      final tokenBalance = await rpc.fetchTokenBalance(address, pair.token);
-      print('SelectedPool: Fetched balance - $tokenBalance');
+      final tokenBalance = pair.balanceToken!;
       final zeniqPrice = await _getZeniqPrice(pair.tokeWZeniq);
       final tokenPrice = _getTokenPrice(pair, zeniqPrice);
 
