@@ -25,18 +25,23 @@ class ManageCard extends HookConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ManageButtons(
-              initalValue: position.value,
+              initialValue: position.value,
               onChanged: (value) {
                 position.value = value;
               },
             ),
-            32.vSpacing,
-            if (position.value == "Add") ...[
-              AddLiquidityBox(selectedPool: selectedPool),
-            ],
-            if (position.value == "Remove") ...[
-              RemoveLiquidityBox(selectedPool: selectedPool),
-            ],
+            16.vSpacing,
+            AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) {
+                  return ScaleTransition(
+                    scale: animation,
+                    child: child,
+                  );
+                },
+                child: position.value == "Add"
+                    ? AddLiquidityBox(selectedPool: selectedPool)
+                    : RemoveLiquidityBox(selectedPool: selectedPool)),
           ],
         ),
       ),
