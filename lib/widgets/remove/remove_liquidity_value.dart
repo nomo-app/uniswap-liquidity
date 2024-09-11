@@ -9,9 +9,8 @@ import 'package:uniswap_liquidity/provider/liquidity_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'package:uniswap_liquidity/provider/remove_liquidity_form_hook.dart';
-import 'package:uniswap_liquidity/utils/max_percission.dart';
+import 'package:uniswap_liquidity/widgets/remove/remove_input.dart';
 import 'package:uniswap_liquidity/widgets/remove/remove_price_display.dart';
-import 'package:uniswap_liquidity/widgets/remove/remove_token_display.dart';
 import 'package:uniswap_liquidity/widgets/success_dialog.dart';
 
 class RemoveLiquidityValue extends HookConsumerWidget {
@@ -49,28 +48,27 @@ class RemoveLiquidityValue extends HookConsumerWidget {
         formStateNotifier.removeError,
       ]),
       builder: (context, child) {
-        final tokenImage = imageToken.value;
-        final zeniqImage = imageZeniq.value;
         final tokenAmount = formStateNotifier.tokenAmount.value;
         final zeniqAmount = formStateNotifier.zeniqAmount.value;
         final needsApproval = formStateNotifier.needsApproval.value;
         final liquidityState = formStateNotifier.liquidityState.value;
         final approveError = formStateNotifier.approveError.value;
         final removeError = formStateNotifier.removeError.value;
-
-        final roundedTokenAmount = double.parse(tokenAmount)
-            .toMaxPrecisionWithoutScientificNotation(6);
-        final roundedZeniqAmount = double.parse(zeniqAmount)
-            .toMaxPrecisionWithoutScientificNotation(6);
+        final zeniqError = formStateNotifier.zeniqErrorNotifier.value;
+        final tokenError = formStateNotifier.tokenErrorNotifier.value;
 
         return Column(
           children: [
-            RemoveTokenDisplay(
-              tokenAmount: roundedTokenAmount,
-              zeniqAmount: roundedZeniqAmount,
-              tokenImage: tokenImage,
-              zeniqImage: zeniqImage,
-              tokenSymbol: selectedPool.token.symbol,
+            RemoveInput(
+              token: selectedPool.tokeWZeniq,
+              valueNotifier: formStateNotifier.zeniqAmount,
+              errorNotifier: formStateNotifier.zeniqErrorNotifier,
+            ),
+            12.vSpacing,
+            RemoveInput(
+              token: selectedPool.token,
+              errorNotifier: formStateNotifier.tokenErrorNotifier,
+              valueNotifier: formStateNotifier.tokenAmount,
             ),
             12.vSpacing,
             RemovePriceDisplay(
@@ -127,12 +125,12 @@ class RemoveLiquidityValue extends HookConsumerWidget {
               textStyle: context.typography.b1,
               text: sliderValue.value == 0 ? "Enter Value" : "Remove",
               enabled: needsApproval == ApprovalState.approved &&
-                  tokenAmount != "0.0" &&
-                  zeniqAmount != "0.0",
+                  (tokenAmount != "0.0" || tokenAmount.isEmpty) &&
+                  (zeniqAmount != "0.0" || zeniqAmount.isEmpty),
               type: needsApproval != ApprovalState.approved
                   ? ActionType.disabled
-                  : getActionTypeRemove(
-                      liquidityState, zeniqAmount, tokenAmount),
+                  : getActionTypeRemove(liquidityState, zeniqAmount,
+                      tokenAmount, zeniqError, tokenError),
               onPressed: () async {
                 final messageHex = await formStateNotifier.removeLiquidity();
 
@@ -158,7 +156,8 @@ class RemoveLiquidityValue extends HookConsumerWidget {
       ApprovalState approvalState, String zeniqAmount, String tokenAmount) {
     switch (approvalState) {
       case ApprovalState.needsApproval:
-        if (zeniqAmount == "0.0" && tokenAmount == "0.0") {
+        if ((zeniqAmount == "0.0" && tokenAmount == "0.0") ||
+            (zeniqAmount.isEmpty && tokenAmount.isEmpty)) {
           return ActionType.disabled;
         }
         return ActionType.def;
@@ -174,12 +173,19 @@ class RemoveLiquidityValue extends HookConsumerWidget {
   }
 
   ActionType getActionTypeRemove(
-      LiquidityState liquidityState, String zeniqAmount, String tokenAmount) {
+      LiquidityState liquidityState,
+      String zeniqAmount,
+      String tokenAmount,
+      String? errorZeniq,
+      String? errorToken) {
     switch (liquidityState) {
       case LiquidityState.loading:
         return ActionType.loading;
       case LiquidityState.idel:
-        if (zeniqAmount == "0.0" && tokenAmount == "0.0") {
+        if ((zeniqAmount == "0.0" || tokenAmount == "0.0") ||
+            (zeniqAmount.isEmpty || tokenAmount.isEmpty) ||
+            errorZeniq != null ||
+            errorToken != null) {
           return ActionType.disabled;
         }
         return ActionType.def;

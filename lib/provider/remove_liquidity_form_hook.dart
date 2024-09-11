@@ -19,21 +19,29 @@ class RemoveLiquidityFormHook {
   final ValueNotifier<LiquidityState> liquidityState;
   final ValueNotifier<String> approveError;
   final ValueNotifier<String> removeError;
+  final ValueNotifier<String?> tokenErrorNotifier;
+  final ValueNotifier<String?> zeniqErrorNotifier;
 
   RemoveLiquidityFormHook({
     required this.sliderValue,
     required this.selectedPool,
     required this.position,
-  })  : zeniqAmount = ValueNotifier("0.0"),
-        tokenAmount = ValueNotifier("0.0"),
+  })  : zeniqAmount = ValueNotifier(""),
+        tokenAmount = ValueNotifier(""),
         approveError = ValueNotifier(""),
         removeError = ValueNotifier(""),
+        tokenErrorNotifier = ValueNotifier(null),
+        zeniqErrorNotifier = ValueNotifier(null),
         liquidityState = ValueNotifier(LiquidityState.idel),
         needsApproval = ValueNotifier(
           ApprovalState.needsApproval,
         ) {
-    sliderValue.addListener(calculateReceiveTokens);
+    sliderValue.addListener(_onSliderChanged);
+    zeniqAmount.addListener(_onZeniqAmountChanged);
+    tokenAmount.addListener(_onTokenAmountChanged);
   }
+
+  bool _isUpdating = false;
 
   Future<BigInt> checkAllowance() async {
     BigInt allowance = BigInt.zero;
@@ -50,7 +58,115 @@ class RemoveLiquidityFormHook {
     return allowance;
   }
 
-  void calculateReceiveTokens() {
+  void _onSliderChanged() {
+    if (!_isUpdating) {
+      _isUpdating = true;
+      _calculateReceiveTokens();
+      _clearErrors();
+
+      _isUpdating = false;
+    }
+  }
+
+  void _onZeniqAmountChanged() {
+    if (!_isUpdating) {
+      _isUpdating = true;
+      if (zeniqAmount.value.isEmpty) {
+        _resetInputs();
+      } else if (_isValidZeniqAmount()) {
+        _calculateTokenAndSliderFromZeniq();
+        zeniqErrorNotifier.value = null;
+      } else {
+        zeniqErrorNotifier.value = "Insufficient ZENIQ amount";
+        tokenAmount.value = "";
+        sliderValue.value = 0;
+      }
+      _isUpdating = false;
+    }
+  }
+
+  void _onTokenAmountChanged() {
+    if (!_isUpdating) {
+      _isUpdating = true;
+      if (tokenAmount.value.isEmpty) {
+        _resetInputs();
+      } else if (_isValidTokenAmount()) {
+        _calculateZeniqAndSliderFromToken();
+        tokenErrorNotifier.value = null;
+      } else {
+        tokenErrorNotifier.value = "Insufficient token amount";
+        zeniqAmount.value = "";
+        sliderValue.value = 0;
+      }
+      _isUpdating = false;
+    }
+  }
+
+  void _resetInputs() {
+    zeniqAmount.value = "";
+    tokenAmount.value = "";
+    sliderValue.value = 0;
+    _clearErrors();
+  }
+
+  bool _isValidZeniqAmount() {
+    final zeniqAmountBigInt =
+        parseFromString(zeniqAmount.value, selectedPool.tokeWZeniq.decimals);
+    return zeniqAmountBigInt != null &&
+        zeniqAmountBigInt <= position.zeniqValue.value;
+  }
+
+  bool _isValidTokenAmount() {
+    final tokenAmountBigInt =
+        parseFromString(tokenAmount.value, selectedPool.token.decimals);
+    return tokenAmountBigInt != null &&
+        tokenAmountBigInt <= position.tokenValue.value;
+  }
+
+  void _clearErrors() {
+    zeniqErrorNotifier.value = null;
+    tokenErrorNotifier.value = null;
+  }
+
+  void _calculateTokenAndSliderFromZeniq() {
+    final zeniqAmountBigInt =
+        parseFromString(zeniqAmount.value, selectedPool.tokeWZeniq.decimals);
+    if (zeniqAmountBigInt == null) return;
+
+    final percentageToRemove =
+        (zeniqAmountBigInt * BigInt.from(100)) ~/ position.zeniqValue.value;
+    sliderValue.value = percentageToRemove.toDouble();
+
+    final tokenRemoveValue =
+        (position.tokenValue.value * percentageToRemove) ~/ BigInt.from(100);
+    final tokenAmountToRemove = Amount(
+      value: tokenRemoveValue,
+      decimals: selectedPool.token.decimals,
+    );
+
+    tokenAmount.value = tokenAmountToRemove.displayValue;
+  }
+
+  void _calculateZeniqAndSliderFromToken() {
+    final tokenAmountBigInt =
+        parseFromString(tokenAmount.value, selectedPool.token.decimals);
+    if (tokenAmountBigInt == null) return;
+
+    final percentageToRemove =
+        (tokenAmountBigInt * BigInt.from(100)) ~/ position.tokenValue.value;
+    sliderValue.value = percentageToRemove.toDouble();
+
+    final zeniqRemoveValue =
+        (position.zeniqValue.value * percentageToRemove) ~/ BigInt.from(100);
+    final zeniqAmountToRemove = Amount(
+      value: zeniqRemoveValue,
+      decimals: selectedPool.tokeWZeniq.decimals,
+    );
+
+    zeniqAmount.value = zeniqAmountToRemove.displayValue;
+  }
+
+  void _calculateReceiveTokens() {
     final percentageToRemove = sliderValue.value / 100;
 
     final zeniqRemoveValue = (position.zeniqValue.value *
