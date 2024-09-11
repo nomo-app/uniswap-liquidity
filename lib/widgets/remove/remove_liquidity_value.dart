@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
+import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
@@ -44,6 +45,8 @@ class RemoveLiquidityValue extends HookConsumerWidget {
         formStateNotifier.zeniqAmount,
         formStateNotifier.needsApproval,
         formStateNotifier.liquidityState,
+        formStateNotifier.approveError,
+        formStateNotifier.removeError,
       ]),
       builder: (context, child) {
         final tokenImage = imageToken.value;
@@ -52,6 +55,9 @@ class RemoveLiquidityValue extends HookConsumerWidget {
         final zeniqAmount = formStateNotifier.zeniqAmount.value;
         final needsApproval = formStateNotifier.needsApproval.value;
         final liquidityState = formStateNotifier.liquidityState.value;
+        final approveError = formStateNotifier.approveError.value;
+        final removeError = formStateNotifier.removeError.value;
+
         final roundedTokenAmount = double.parse(tokenAmount)
             .toMaxPrecisionWithoutScientificNotation(6);
         final roundedZeniqAmount = double.parse(zeniqAmount)
@@ -71,65 +77,76 @@ class RemoveLiquidityValue extends HookConsumerWidget {
               pair: selectedPool,
             ),
             16.vSpacing,
-            Row(
-              children: [
-                Expanded(
-                  child: PrimaryNomoButton(
-                    borderRadius: BorderRadius.circular(16),
-                    height: 52,
-                    expandToConstraints: true,
-                    textStyle: context.typography.b1,
-                    backgroundColor: needsApproval == ApprovalState.approved
-                        ? Colors.green.lighten(0.1)
-                        : null,
-                    enabled: needsApproval == ApprovalState.needsApproval,
-                    //     zeniqAmount.toString() == "0.0" &&
-                    //     tokenAmount.toString() == "0.0",
-                    type: getActionTypeApprove(
-                        needsApproval, zeniqAmount, tokenAmount),
-                    text: needsApproval == ApprovalState.approved
-                        ? "Approved"
-                        : "Approve",
-                    onPressed: () async {
-                      print("approved pressed");
-                      await formStateNotifier.approveLiquidityValue();
-                    },
+            if (needsApproval == ApprovalState.needsApproval ||
+                needsApproval == ApprovalState.loading) ...[
+              PrimaryNomoButton(
+                borderRadius: BorderRadius.circular(16),
+                height: 52,
+                expandToConstraints: true,
+                textStyle: context.typography.b1,
+                backgroundColor: needsApproval == ApprovalState.approved
+                    ? Colors.green.lighten(0.1)
+                    : null,
+                enabled: needsApproval == ApprovalState.needsApproval,
+                //     zeniqAmount.toString() == "0.0" &&
+                //     tokenAmount.toString() == "0.0",
+                type: getActionTypeApprove(
+                    needsApproval, zeniqAmount, tokenAmount),
+                text: needsApproval == ApprovalState.approved
+                    ? "Approved"
+                    : "Approve",
+                onPressed: () async {
+                  print("approved pressed");
+                  await formStateNotifier.approveLiquidityValue();
+                },
+              ),
+              12.vSpacing,
+              if (approveError.isNotEmpty) ...[
+                NomoText(
+                  approveError,
+                  style: context.theme.typography.b1.copyWith(
+                    color: context.theme.colors.error,
                   ),
                 ),
-                12.hSpacing,
-                Expanded(
-                  child: PrimaryNomoButton(
-                    borderRadius: BorderRadius.circular(16),
-                    expandToConstraints: true,
-                    height: 52,
-                    textStyle: context.typography.b1,
-                    text: sliderValue.value == 0 ? "Enter Value" : "Remove",
-                    enabled: needsApproval == ApprovalState.approved &&
-                        tokenAmount != "0.0" &&
-                        zeniqAmount != "0.0",
-                    type: needsApproval != ApprovalState.approved
-                        ? ActionType.disabled
-                        : getActionTypeRemove(
-                            liquidityState, zeniqAmount, tokenAmount),
-                    onPressed: () async {
-                      final messageHex =
-                          await formStateNotifier.removeLiquidity();
-
-                      if (messageHex != null) {
-                        showDialog(
-                          // ignore: use_build_context_synchronously
-                          context: context,
-                          builder: (context) =>
-                              SuccessDialog(messageHex: messageHex),
-                        );
-                        ref
-                            .read(pairNotifierProvider.notifier)
-                            .updatePosition(selectedPool);
-                      }
-                    },
-                  ),
-                ),
+                12.vSpacing,
               ],
+            ],
+            if (removeError.isNotEmpty) ...[
+              NomoText(
+                removeError,
+                style: context.theme.typography.b1.copyWith(
+                  color: context.theme.colors.error,
+                ),
+              ),
+              12.vSpacing,
+            ],
+            PrimaryNomoButton(
+              borderRadius: BorderRadius.circular(16),
+              expandToConstraints: true,
+              height: 52,
+              textStyle: context.typography.b1,
+              text: sliderValue.value == 0 ? "Enter Value" : "Remove",
+              enabled: needsApproval == ApprovalState.approved &&
+                  tokenAmount != "0.0" &&
+                  zeniqAmount != "0.0",
+              type: needsApproval != ApprovalState.approved
+                  ? ActionType.disabled
+                  : getActionTypeRemove(
+                      liquidityState, zeniqAmount, tokenAmount),
+              onPressed: () async {
+                final messageHex = await formStateNotifier.removeLiquidity();
+
+                if (messageHex != null) {
+                  showDialog(
+                    // ignore: use_build_context_synchronously
+                    context: context,
+                    builder: (context) => SuccessDialog(messageHex: messageHex),
+                  );
+                  ref
+                      .read(pairNotifierProvider.notifier)
+                      .updatePosition(selectedPool);
+                }
+              },
             ),
           ],
         );

@@ -17,6 +17,8 @@ class RemoveLiquidityFormHook {
   final Position position;
   final ValueNotifier<ApprovalState> needsApproval;
   final ValueNotifier<LiquidityState> liquidityState;
+  final ValueNotifier<String> approveError;
+  final ValueNotifier<String> removeError;
 
   RemoveLiquidityFormHook({
     required this.sliderValue,
@@ -24,6 +26,8 @@ class RemoveLiquidityFormHook {
     required this.position,
   })  : zeniqAmount = ValueNotifier("0.0"),
         tokenAmount = ValueNotifier("0.0"),
+        approveError = ValueNotifier(""),
+        removeError = ValueNotifier(""),
         liquidityState = ValueNotifier(LiquidityState.idel),
         needsApproval = ValueNotifier(
           ApprovalState.needsApproval,
@@ -71,6 +75,7 @@ class RemoveLiquidityFormHook {
   }
 
   Future<void> approveLiquidityValue() async {
+    approveError.value = "";
     needsApproval.value = ApprovalState.loading;
     try {
       final rawTx = await selectedPool.contract.approveTx(
@@ -93,24 +98,21 @@ class RemoveLiquidityFormHook {
 
       print("messagehex of approve token: ${txHash}");
     } catch (e) {
-      needsApproval.value = ApprovalState.error;
+      needsApproval.value = ApprovalState.needsApproval;
+      approveError.value = "Error approving";
       print("Error approving");
     }
   }
 
   Future<String?> removeLiquidity() async {
+    removeError.value = "";
     liquidityState.value = LiquidityState.loading;
 
-    final tokenAmountToRemove = Amount(
-      value: parseFromString(tokenAmount.value, selectedPool.token.decimals)!,
-      decimals: selectedPool.token.decimals,
-    );
+    final tokenAmountToRemove =
+        parseFromString(tokenAmount.value, selectedPool.token.decimals)!;
 
-    final zeniqAmountToRemove = Amount(
-      value:
-          parseFromString(zeniqAmount.value, selectedPool.tokeWZeniq.decimals)!,
-      decimals: selectedPool.tokeWZeniq.decimals,
-    );
+    final zeniqAmountToRemove =
+        parseFromString(zeniqAmount.value, selectedPool.tokeWZeniq.decimals)!;
 
     final now = DateTime.now();
     final deadline = now.add(
@@ -118,19 +120,23 @@ class RemoveLiquidityFormHook {
     );
 
     final zeniqAmountWithPoolRatio =
-        zeniqAmountToRemove / position.reserveAmountZeniq;
+        (zeniqAmountToRemove * BigInt.from(10).pow(18)) *
+            BigInt.from(10).pow(18) ~/
+            position.reserveAmountZeniq.value;
     final tokenAmountWithPoolRatio =
-        tokenAmountToRemove / position.reserveAmountToken;
+        (tokenAmountToRemove * BigInt.from(10).pow(18)) *
+            BigInt.from(10).pow(18) ~/
+            position.reserveAmountToken.value;
 
     final smallerRatio = zeniqAmountWithPoolRatio < tokenAmountWithPoolRatio
         ? zeniqAmountWithPoolRatio
         : tokenAmountWithPoolRatio;
 
-    final liquidityToRemoveWithoutRightBigInt =
-        smallerRatio * position.totalSupply;
+    final liquidityToRemoveliquidityToRemoveWithoutRightBigInt =
+        (smallerRatio * position.totalSupply.value) ~/ BigInt.from(10).pow(18);
 
-    final liquidityToRemove =
-        discardRightBigInt(liquidityToRemoveWithoutRightBigInt.value, 18);
+    final liquidityToRemove = discardRightBigInt(
+        liquidityToRemoveliquidityToRemoveWithoutRightBigInt, 18);
 
     print("Liquidity to remove: ${liquidityToRemove}");
 
@@ -139,9 +145,9 @@ class RemoveLiquidityFormHook {
         sender: address,
         liquidity: liquidityToRemove,
         amountTokenMin: calculateMinAmount(
-            tokenAmountToRemove.value, "0.5", selectedPool.token.decimals),
+            tokenAmountToRemove, "0.5", selectedPool.token.decimals),
         amountETHMin: calculateMinAmount(
-            zeniqAmountToRemove.value, "0.5", selectedPool.tokeWZeniq.decimals),
+            zeniqAmountToRemove, "0.5", selectedPool.tokeWZeniq.decimals),
         deadline: BigInt.from(deadline.millisecondsSinceEpoch ~/ 1000),
         to: address,
         token: selectedPool.token.contractAddress,
@@ -161,7 +167,8 @@ class RemoveLiquidityFormHook {
         throw Exception("Approval failed");
       }
     } catch (e, s) {
-      liquidityState.value = LiquidityState.error;
+      liquidityState.value = LiquidityState.idel;
+      removeError.value = "Error removing liquidity $e";
       print("Error removing liquidity$e$s");
     }
     return null;

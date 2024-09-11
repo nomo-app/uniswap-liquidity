@@ -153,8 +153,7 @@ class AddLiquidityBox extends HookConsumerWidget {
               children: [
                 PrimaryNomoButton(
                   enabled: canAddLiquidity &&
-                      (liquidityProvider != LiquidityState.loading ||
-                          liquidityProvider != LiquidityState.error),
+                      (liquidityProvider != LiquidityState.loading),
                   type: canAddLiquidity &&
                           (liquidityProvider == LiquidityState.idel)
                       ? ActionType.def
@@ -194,7 +193,7 @@ class AddLiquidityBox extends HookConsumerWidget {
                 if (liquidityProvider == LiquidityState.error) ...[
                   16.vSpacing,
                   NomoText("Error adding liquidity",
-                      color: Colors.red, style: context.typography.b3),
+                      color: Colors.red, style: context.typography.b1),
                 ],
               ],
             );
