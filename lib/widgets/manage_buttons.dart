@@ -12,29 +12,35 @@ class ManageButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ToggleButtons(
-      borderColor: context.theme.colors.onDisabled,
-      borderWidth: 1,
-      constraints: BoxConstraints(
-        minHeight: 52,
-        minWidth: MediaQuery.of(context).size.width / 2 - 24,
-      ),
-      selectedBorderColor: context.theme.colors.primary,
-      selectedColor: context.theme.colors.foreground1,
-      color: context.theme.colors.foreground1,
-      fillColor: context.theme.colors.primary,
-      textStyle: context.typography.b2,
-      borderRadius: BorderRadius.circular(16),
-      isSelected: initialValue == "Add" ? [true, false] : [false, true],
-      onPressed: (index) => onChanged(index == 0 ? "Add" : "Remove"),
-      children: const [
-        Text(
-          "Add",
-        ),
-        Text(
-          "Remove",
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth > 600 ? 600 : constraints.maxWidth;
+
+        return ToggleButtons(
+          borderColor: context.theme.colors.onDisabled,
+          borderWidth: 1,
+          constraints: BoxConstraints.expand(
+            width: (width - 3) / 2,
+            height: 48,
+          ),
+          selectedBorderColor: context.theme.colors.primary,
+          selectedColor: context.theme.colors.foreground1,
+          color: context.theme.colors.foreground1,
+          fillColor: context.theme.colors.primary,
+          textStyle: context.typography.b2,
+          borderRadius: BorderRadius.circular(16),
+          isSelected: initialValue == "Add" ? [true, false] : [false, true],
+          onPressed: (index) => onChanged(index == 0 ? "Add" : "Remove"),
+          children: const [
+            Text(
+              "Add",
+            ),
+            Text(
+              "Remove",
+            ),
+          ],
+        );
+      },
     );
   }
 }

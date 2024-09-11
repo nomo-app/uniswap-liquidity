@@ -32,16 +32,17 @@ class ManageCard extends HookConsumerWidget {
             ),
             16.vSpacing,
             AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (child, animation) {
-                  return ScaleTransition(
-                    scale: animation,
-                    child: child,
-                  );
-                },
-                child: position.value == "Add"
-                    ? AddLiquidityBox(selectedPool: selectedPool)
-                    : RemoveLiquidityBox(selectedPool: selectedPool)),
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                return ScaleTransition(
+                  scale: animation,
+                  child: child,
+                );
+              },
+              child: position.value == "Add"
+                  ? AddLiquidityBox(selectedPool: selectedPool)
+                  : RemoveLiquidityBox(selectedPool: selectedPool),
+            ),
           ],
         ),
       ),
