@@ -50,7 +50,9 @@ class PairItem extends ConsumerWidget {
                       error: (error, stackTrace) => Text(
                         error.toString(),
                       ),
-                      loading: () => CircularProgressIndicator(),
+                      loading: () => CircularProgressIndicator(
+                        color: context.theme.colors.primary,
+                      ),
                     ),
                     tokenImage.when(
                       data: (data) => Positioned(
@@ -67,7 +69,9 @@ class PairItem extends ConsumerWidget {
                       error: (error, stackTrace) => Text(
                         error.toString(),
                       ),
-                      loading: () => CircularProgressIndicator(),
+                      loading: () => CircularProgressIndicator(
+                        color: context.theme.colors.primary,
+                      ),
                     ),
                   ],
                 ),

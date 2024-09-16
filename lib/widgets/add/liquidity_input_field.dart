@@ -73,7 +73,9 @@ class LiquidityInputField extends HookConsumerWidget {
                   error: (error, stackTrace) => Text(
                     error.toString(),
                   ),
-                  loading: () => CircularProgressIndicator(),
+                  loading: () => CircularProgressIndicator(
+                    color: context.theme.colors.primary,
+                  ),
                 ),
                 8.hSpacing,
                 NomoText(

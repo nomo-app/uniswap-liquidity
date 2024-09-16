@@ -69,7 +69,9 @@ class PoolOverview extends ConsumerWidget {
                             error: (error, stackTrace) => Text(
                               error.toString(),
                             ),
-                            loading: () => CircularProgressIndicator(),
+                            loading: () => CircularProgressIndicator(
+                              color: context.theme.colors.primary,
+                            ),
                           ),
                           imageToken1.when(
                             data: (data) => Positioned(
@@ -86,7 +88,9 @@ class PoolOverview extends ConsumerWidget {
                             error: (error, stackTrace) => Text(
                               error.toString(),
                             ),
-                            loading: () => CircularProgressIndicator(),
+                            loading: () => CircularProgressIndicator(
+                              color: context.theme.colors.primary,
+                            ),
                           ),
                         ],
                       ),
@@ -157,33 +161,25 @@ class PoolOverview extends ConsumerWidget {
                       ),
                     ),
                     Spacer(),
-                    SizedBox(
-                        width: 100,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: pair.position == null ? 1 : 2,
-                              child: NomoText(
-                                pair.position == null
-                                    ? "Enter"
-                                    : "Mange Position",
-                                maxLines: 2,
-                                fit: true,
-                                style: context.typography.b1,
-                              ),
-                            ),
-                            IconButton(
-                              color: context.theme.colors.foreground1,
-                              onPressed: () {
-                                NomoNavigator.of(context)
-                                    .push(DetailsScreenRoute(pair: pair));
-                              },
-                              icon: Icon(
-                                Icons.arrow_forward_ios,
-                              ),
-                            ),
-                          ],
-                        )),
+                    NomoText(
+                      pair.position == null ? "Enter" : "Mange\nPosition",
+                      style: context.typography.b1,
+                    ),
+                    12.vSpacing,
+                    // IconButton(
+                    //   splashRadius: 2,
+                    //   color: context.theme.colors.foreground1,
+                    //   onPressed: () {
+                    //     NomoNavigator.of(context)
+                    //         .push(DetailsScreenRoute(pair: pair));
+                    //   },
+                    //   icon:
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      color: context.theme.colors.foreground1,
+                      size: 26,
+                    ),
+                    // ),
                   ],
                 ),
                 if (pair.position == null) ...[
