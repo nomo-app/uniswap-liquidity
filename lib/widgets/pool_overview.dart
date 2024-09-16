@@ -96,69 +96,66 @@ class PoolOverview extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              NomoText(
-                                pair.tokeWZeniq.symbol,
-                                style: context.typography.b1,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            NomoText(
+                              pair.tokeWZeniq.symbol,
+                              style: context.typography.b1,
+                            ),
+                            NomoText(
+                              " / ",
+                              style: context.typography.b1,
+                              opacity: 0.7,
+                            ),
+                            NomoText(
+                              pair.token.symbol,
+                              style: context.typography.b1,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Container(
+                              width: 42,
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: context.theme.colors.primary,
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              NomoText(
-                                " / ",
-                                style: context.typography.b1,
-                                opacity: 0.7,
-                              ),
-                              NomoText(
-                                pair.token.symbol,
-                                style: context.typography.b1,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Container(
-                                width: 42,
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: context.theme.colors.primary,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Center(
-                                  child: NomoText(
-                                    "V2",
-                                    style: context.typography.b1,
-                                    fontSize: 12,
-                                  ),
+                              child: Center(
+                                child: NomoText(
+                                  "V2",
+                                  style: context.typography.b1,
+                                  fontSize: 12,
                                 ),
                               ),
-                              6.hSpacing,
-                              Container(
-                                width: 46,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 4,
-                                  horizontal: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: context.theme.colors.background3,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Center(
-                                  child: NomoText(
-                                    "0.3%",
-                                    style: context.typography.b1,
-                                    fontSize: 12,
-                                  ),
+                            ),
+                            6.hSpacing,
+                            Container(
+                              width: 46,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4,
+                                horizontal: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: context.theme.colors.background3,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: NomoText(
+                                  "0.3%",
+                                  style: context.typography.b1,
+                                  fontSize: 12,
                                 ),
                               ),
-                            ],
-                          )
-                        ],
-                      ),
+                            ),
+                          ],
+                        )
+                      ],
                     ),
                     Spacer(),
                     NomoText(
