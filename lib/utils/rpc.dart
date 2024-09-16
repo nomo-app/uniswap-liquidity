@@ -1,6 +1,7 @@
 import 'package:walletkit_dart/walletkit_dart.dart';
 
 final rpc = EvmRpcInterface(
+  useQueuedManager: false,
   type: ZeniqSmartNetwork,
   clients: [
     EvmRpcClient(zeniqSmartRPCEndpoint),
