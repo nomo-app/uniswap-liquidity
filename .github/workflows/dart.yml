@@ -23,3 +23,48 @@ jobs:
         run: flutter pub get
       - name: Lint analysis
         run: flutter analyze
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v1
+
+      - name: Flutter Doctor
+        run: flutter doctor
+
+      - name: Clone submodules
+        run: git submodule update --init --recursive
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build web app
+        run: flutter build web --wasm
+
+      - name: Add SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      - name: Add server to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        run: |
+          ssh -v -i ~/.ssh/id_ed25519 ${{ secrets.USERNAME }}@${{ secrets.HOST }} "echo 'SSH connection established'"
+
+      - name: Deploy to server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.HOST }}
+          SSH_USERNAME: ${{ secrets.USERNAME }}
+          REMOTE_PATH: /var/www/production_webons/web
+        run: |
+          rsync -avz --delete --exclude='.git' build/web/ $SSH_USERNAME@$SSH_HOST:$REMOTE_PATH
