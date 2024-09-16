@@ -65,7 +65,7 @@ class RemoveLiquiditySlider extends HookConsumerWidget {
               children: [
                 PrimaryNomoButton(
                   padding: EdgeInsets.all(8),
-                  width: 64,
+                  width: 52,
                   textStyle: context.typography.b1,
                   onPressed: () {
                     sliderValue.value = 25;
@@ -73,7 +73,7 @@ class RemoveLiquiditySlider extends HookConsumerWidget {
                   text: "25%",
                 ),
                 PrimaryNomoButton(
-                  width: 64,
+                  width: 52,
                   textStyle: context.typography.b1,
                   padding: EdgeInsets.all(8),
                   onPressed: () {
@@ -82,7 +82,7 @@ class RemoveLiquiditySlider extends HookConsumerWidget {
                   text: "50%",
                 ),
                 PrimaryNomoButton(
-                  width: 64,
+                  width: 52,
                   textStyle: context.typography.b1,
                   padding: EdgeInsets.all(8),
                   onPressed: () {
@@ -91,7 +91,7 @@ class RemoveLiquiditySlider extends HookConsumerWidget {
                   text: "75%",
                 ),
                 PrimaryNomoButton(
-                  width: 64,
+                  width: 52,
                   textStyle: context.typography.b1,
                   padding: EdgeInsets.all(8),
                   onPressed: () {

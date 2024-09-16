@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -20,7 +21,7 @@ void main() async {
   usePathUrlStrategy();
 
   try {
-    if (WebonKitDart.isFallBackMode()) {
+    if (WebonKitDart.isFallBackMode() && kDebugMode == false) {
       throw Exception("Not inside the NomoApp");
     }
 
