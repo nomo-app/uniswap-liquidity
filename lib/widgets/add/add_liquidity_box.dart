@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
-import 'package:nomo_ui_kit/components/dialog/nomo_dialog.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/add_liquidity_form_hook.dart';
 import 'package:uniswap_liquidity/provider/liquidity_provider.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/widgets/add/add_liquidity_info.dart';
 import 'package:uniswap_liquidity/widgets/add/liquidity_input_field.dart';
 import 'package:uniswap_liquidity/widgets/position_box.dart';
+import 'package:uniswap_liquidity/widgets/success_dialog.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
 class AddLiquidityBox extends HookConsumerWidget {
@@ -34,6 +34,7 @@ class AddLiquidityBox extends HookConsumerWidget {
     });
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         // Align(
         //   alignment: Alignment.centerRight,
@@ -55,8 +56,10 @@ class AddLiquidityBox extends HookConsumerWidget {
         //   ),
         // ),
         // 32.vSpacing,
-        PositionBox(pair: selectedPool),
-        12.vSpacing,
+        if (selectedPool.position != null) ...[
+          PositionBox(pair: selectedPool),
+          12.vSpacing,
+        ],
         LiquidityInputField(
           isZeniq: true,
           token: selectedPool.tokeWZeniq,
@@ -150,8 +153,7 @@ class AddLiquidityBox extends HookConsumerWidget {
               children: [
                 PrimaryNomoButton(
                   enabled: canAddLiquidity &&
-                      (liquidityProvider != LiquidityState.loading ||
-                          liquidityProvider != LiquidityState.error),
+                      (liquidityProvider != LiquidityState.loading),
                   type: canAddLiquidity &&
                           (liquidityProvider == LiquidityState.idel)
                       ? ActionType.def
@@ -177,27 +179,8 @@ class AddLiquidityBox extends HookConsumerWidget {
                         // ignore: use_build_context_synchronously
                         context: context,
                         builder: (context) {
-                          return NomoDialog(
-                            title: "Liquidity added",
-                            content: Column(
-                              children: [
-                                NomoText("Liquidity added successfully",
-                                    style: context.typography.b3),
-                                16.vSpacing,
-                                NomoText("Transaction hash: $txHash",
-                                    style: context.typography.b3),
-                              ],
-                            ),
-                            actions: [
-                              PrimaryNomoButton(
-                                expandToConstraints: true,
-                                height: 52,
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text("OK"),
-                              ),
-                            ],
+                          return SuccessDialog(
+                            messageHex: txHash,
                           );
                         },
                       );
@@ -210,7 +193,7 @@ class AddLiquidityBox extends HookConsumerWidget {
                 if (liquidityProvider == LiquidityState.error) ...[
                   16.vSpacing,
                   NomoText("Error adding liquidity",
-                      color: Colors.red, style: context.typography.b3),
+                      color: Colors.red, style: context.typography.b1),
                 ],
               ],
             );

@@ -4,7 +4,7 @@ import 'package:nomo_ui_kit/components/card/nomo_card.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
 import 'package:uniswap_liquidity/widgets/add/add_liquidity_info.dart';
 
@@ -38,7 +38,7 @@ class RemovePriceDisplay extends ConsumerWidget {
             padding: EdgeInsets.all(16),
             borderRadius: BorderRadius.circular(24),
             backgroundColor: context.theme.colors.background2,
-            child: Row(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 UnitDisplay(

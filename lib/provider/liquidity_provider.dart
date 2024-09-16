@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uniswap_liquidity/main.dart';
+import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
-import 'package:uniswap_liquidity/provider/position_provider.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 import 'package:webon_kit_dart/webon_kit_dart.dart';
@@ -64,18 +64,21 @@ class LiquidityNotifier extends _$LiquidityNotifier {
       return null;
     }
 
-    await ref.read(positionNotifierProvider.notifier).updatePosition(
+    await ref.read(pairNotifierProvider.notifier).updatePosition(
           liquidity.pair,
         );
+
     state = LiquidityState.idel;
 
     return txHash;
   }
 
-  Future<String?> _sendTransaction(RawEVMTransaction rawTx) async {
+  Future<String?> _sendTransaction(RawEvmTransaction rawTx) async {
     try {
-      final signedTx =
-          await WebonKitDart.signTransaction(rawTx.serializedTransactionHex);
+      rawTx as RawEVMTransactionType0;
+
+      final signedTx = await WebonKitDart.signTransaction(
+          rawTx.serializedUnsigned(rpc.type.chainId).toHex);
       final txHash = await rpc.sendRawTransaction(signedTx);
       return txHash;
     } catch (e) {
@@ -85,7 +88,7 @@ class LiquidityNotifier extends _$LiquidityNotifier {
     return null;
   }
 
-  Future<RawEVMTransaction?> _getLiquidtyTx({
+  Future<RawEvmTransaction?> _getLiquidtyTx({
     required BigInt deadline,
     required BigInt amountTokenDesired,
     required BigInt amountETHDesired,
@@ -103,7 +106,7 @@ class LiquidityNotifier extends _$LiquidityNotifier {
         deadline: deadline,
         sender: address,
         amountETHDesired: amountETHDesired,
-      );
+      ) as RawEVMTransactionType0;
 
       print("Raw liquidity TX: ${rawTx}");
       return rawTx;

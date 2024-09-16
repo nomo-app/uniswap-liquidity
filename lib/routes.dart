@@ -2,9 +2,10 @@ import 'package:flutter/widgets.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_router/router/entities/route.dart';
 import 'package:route_gen/anotations.dart';
+import 'package:uniswap_liquidity/pages/add/add_screen.dart';
 import 'package:uniswap_liquidity/pages/details/details_screen.dart';
 import 'package:uniswap_liquidity/pages/home/home_screen.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/provider/model/pair.dart';
 
 part "routes.g.dart";
 
@@ -19,5 +20,10 @@ const _routes = [
     page: DetailsScreen,
     path: '/details',
     title: 'Details',
+  ),
+  MenuPageRouteInfo(
+    path: "/add",
+    page: AddScreen,
+    title: "Add",
   ),
 ];

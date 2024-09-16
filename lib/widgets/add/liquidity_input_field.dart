@@ -36,131 +36,89 @@ class LiquidityInputField extends HookConsumerWidget {
         listenable: tokenImage,
         builder: (context, child) {
           final image = tokenImage.value;
-          return ValueListenableBuilder(
-              valueListenable: errorNotifier,
-              builder: (context, value, child) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: value != null
-                              ? context.theme.colors.error
-                              : context.theme.colors.onDisabled,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          NomoInput(
-                            scrollable: true,
-                            errorBorder: Border.fromBorderSide(
-                              BorderSide(color: context.theme.colors.error),
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            valueNotifier: valueNotifier,
-                            maxLines: 1,
-                            keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true),
-                            selectedBorder: Border.fromBorderSide(
-                              BorderSide(color: context.theme.colors.surface),
-                            ),
-                            inputFormatters: [
-                              CustomNumberInputFormatter(
-                                  decimals: token!.decimals),
-                            ],
-                            background: context.theme.colors.background1,
-                            placeHolder: "0.0",
-                            placeHolderStyle: context.typography.b3,
-                            style: context.typography.b3,
-                            trailling: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                image.when(
-                                  data: (data) => ClipOval(
-                                    child: Image.network(
-                                      data.small,
-                                      width: 24,
-                                      height: 24,
-                                    ),
-                                  ),
-                                  error: (error, stackTrace) => Text(
-                                    error.toString(),
-                                  ),
-                                  loading: () => CircularProgressIndicator(),
-                                ),
-                                8.hSpacing,
-                                NomoText(
-                                  token?.symbol ?? "nav",
-                                  style: context.typography.b2,
-                                ),
-                              ],
-                            ),
-                            height: 58,
-                          ),
-                          8.vSpacing,
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 16,
-                              bottom: 12,
-                              right: 16,
-                            ),
-                            child: Row(
-                              children: [
-                                ValueListenableBuilder(
-                                  valueListenable: assetNotifier,
-                                  builder: (context, value, child) => NomoText(
-                                    "${value.symbol} ${fiatBlance?.toStringAsFixed(2) ?? "0.00"}",
-                                    style: context.typography.b1,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Icon(
-                                  Icons.wallet,
-                                  color: context.theme.colors.foreground1,
-                                ),
-                                8.hSpacing,
-                                NomoText(
-                                  balance?.displayDouble.toStringAsFixed(5) ??
-                                      "0.00",
-                                  style: context.typography.b1,
-                                ),
-                                8.hSpacing,
-                                if (isZeniq)
-                                  NomoTextButton(
-                                    text: "Max",
-                                    textStyle: context.typography.b1.copyWith(
-                                      color: context.theme.colors.primary,
-                                    ),
-                                    onPressed: () {
-                                      valueNotifier.value =
-                                          balance?.displayDouble.toString() ??
-                                              "0.00";
-                                    },
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+          return NomoInput(
+            scrollable: true,
+            errorNotifier: errorNotifier,
+            border: Border.fromBorderSide(
+              BorderSide(color: context.theme.colors.onDisabled, width: 2),
+            ),
+            errorBorder: Border.fromBorderSide(
+              BorderSide(color: context.theme.colors.error, width: 2),
+            ),
+            borderRadius: BorderRadius.circular(16),
+            valueNotifier: valueNotifier,
+            maxLines: 1,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            selectedBorder: Border.fromBorderSide(
+              BorderSide(color: context.theme.colors.primary, width: 2),
+            ),
+            inputFormatters: [
+              CustomNumberInputFormatter(decimals: token!.decimals),
+            ],
+            background: context.theme.colors.background1,
+            placeHolder: "0.0",
+            placeHolderStyle: context.typography.b3,
+            style: context.typography.b3,
+            trailling: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                image.when(
+                  data: (data) => ClipOval(
+                    child: Image.network(
+                      data.small,
+                      width: 24,
+                      height: 24,
                     ),
-                    if (value != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: NomoText(
-                          value,
-                          style: context.typography.b2,
-                          color: context.theme.colors.error,
-                        ),
+                  ),
+                  error: (error, stackTrace) => Text(
+                    error.toString(),
+                  ),
+                  loading: () => CircularProgressIndicator(),
+                ),
+                8.hSpacing,
+                NomoText(
+                  token?.symbol ?? "nav",
+                  style: context.typography.b2,
+                ),
+              ],
+            ),
+            bottom: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Row(
+                children: [
+                  ValueListenableBuilder(
+                    valueListenable: assetNotifier,
+                    builder: (context, value, child) => NomoText(
+                      "${value.symbol} ${fiatBlance?.toStringAsFixed(2) ?? "0.00"}",
+                      style: context.typography.b1,
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    Icons.wallet,
+                    color: context.theme.colors.foreground1,
+                  ),
+                  8.hSpacing,
+                  NomoText(
+                    balance?.displayDouble.toStringAsFixed(5) ?? "0.00",
+                    style: context.typography.b1,
+                  ),
+                  8.hSpacing,
+                  if (isZeniq)
+                    NomoTextButton(
+                      text: "Max",
+                      textStyle: context.typography.b1.copyWith(
+                        color: context.theme.colors.primary,
                       ),
-                  ],
-                );
-              });
+                      onPressed: () {
+                        valueNotifier.value =
+                            balance?.displayDouble.toString() ?? "0.00";
+                      },
+                    ),
+                ],
+              ),
+            ),
+          );
         });
   }
 }
