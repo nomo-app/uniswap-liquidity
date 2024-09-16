@@ -75,7 +75,10 @@ class LiquidityNotifier extends _$LiquidityNotifier {
 
   Future<String?> _sendTransaction(RawEvmTransaction rawTx) async {
     try {
-      final signedTx = await WebonKitDart.signTransaction(rawTx.serializedHex);
+      rawTx as RawEVMTransactionType0;
+
+      final signedTx = await WebonKitDart.signTransaction(
+          rawTx.serializedUnsigned(rpc.type.chainId).toHex);
       final txHash = await rpc.sendRawTransaction(signedTx);
       return txHash;
     } catch (e) {
@@ -103,7 +106,7 @@ class LiquidityNotifier extends _$LiquidityNotifier {
         deadline: deadline,
         sender: address,
         amountETHDesired: amountETHDesired,
-      );
+      ) as RawEVMTransactionType0;
 
       print("Raw liquidity TX: ${rawTx}");
       return rawTx;

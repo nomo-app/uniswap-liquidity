@@ -232,9 +232,9 @@ class RemoveLiquidityFormHook {
         sender: address,
         spender: zeniqSwapRouter.contractAddress,
         value: position.liquidity.value,
-      );
-      final signedTxHash =
-          await WebonKitDart.signTransaction(rawTx.serializedHex);
+      ) as RawEVMTransactionType0;
+      final signedTxHash = await WebonKitDart.signTransaction(
+          rawTx.serializedUnsigned(rpc.type.chainId).toHex);
 
       final txHash = await rpc.sendRawTransaction(signedTxHash);
 
@@ -301,10 +301,11 @@ class RemoveLiquidityFormHook {
         deadline: BigInt.from(deadline.millisecondsSinceEpoch ~/ 1000),
         to: address,
         token: selectedPool.token.contractAddress,
-      );
+      ) as RawEVMTransactionType0;
 
-      final signedTxHash =
-          await WebonKitDart.signTransaction(rawTx.serializedHex);
+      final signedTxHash = await WebonKitDart.signTransaction(
+        rawTx.serializedUnsigned(rpc.type.chainId).toHex,
+      );
 
       final txHash = await rpc.sendRawTransaction(signedTxHash);
 

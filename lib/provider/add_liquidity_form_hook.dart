@@ -197,9 +197,10 @@ class AddLiquidityFormController {
         sender: address,
         spender: zeniqSwapRouter.contractAddress,
         value: amount,
-      );
+      ) as RawEVMTransactionType0;
       print("Raw approve TX: ${rawTx}");
-      final signedTx = await WebonKitDart.signTransaction(rawTx.serializedHex);
+      final signedTx = await WebonKitDart.signTransaction(
+          rawTx.serializedUnsigned(rpc.type.chainId).toHex);
       final txHash = await rpc.sendRawTransaction(signedTx);
 
       final approved = await rpc.waitForTxConfirmation(txHash);
