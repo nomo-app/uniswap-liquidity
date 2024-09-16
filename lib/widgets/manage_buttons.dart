@@ -21,13 +21,15 @@ class ManageButtons extends StatelessWidget {
           borderWidth: 1,
           constraints: BoxConstraints.expand(
             width: (width - 3) / 2,
-            height: 48,
+            height: 42,
           ),
           selectedBorderColor: context.theme.colors.primary,
           selectedColor: context.theme.colors.foreground1,
           color: context.theme.colors.foreground1,
           fillColor: context.theme.colors.primary,
-          textStyle: context.typography.b2,
+          textStyle: context.typography.b1.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
           borderRadius: BorderRadius.circular(16),
           isSelected: initialValue == "Add" ? [true, false] : [false, true],
           onPressed: (index) => onChanged(index == 0 ? "Add" : "Remove"),
