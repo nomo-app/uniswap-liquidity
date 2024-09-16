@@ -199,8 +199,7 @@ class AddLiquidityFormController {
         value: amount,
       );
       print("Raw approve TX: ${rawTx}");
-      final signedTx =
-          await WebonKitDart.signTransaction(rawTx.serializedTransactionHex);
+      final signedTx = await WebonKitDart.signTransaction(rawTx.serializedHex);
       final txHash = await rpc.sendRawTransaction(signedTx);
 
       final approved = await rpc.waitForTxConfirmation(txHash);

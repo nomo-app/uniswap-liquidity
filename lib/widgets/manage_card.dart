@@ -34,8 +34,8 @@ class ManageCard extends HookConsumerWidget {
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               transitionBuilder: (child, animation) {
-                return ScaleTransition(
-                  scale: animation,
+                return FadeTransition(
+                  opacity: animation,
                   child: child,
                 );
               },

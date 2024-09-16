@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
 import 'package:nomo_ui_kit/components/card/nomo_card.dart';
@@ -12,55 +11,18 @@ import 'package:walletkit_dart/walletkit_dart.dart';
 
 class RemoveLiquiditySlider extends HookConsumerWidget {
   final ValueNotifier<double> sliderValue;
+  final ValueNotifier<String> liquidityToRemove;
   final Pair pair;
 
   const RemoveLiquiditySlider(
-      {required this.sliderValue, required this.pair, super.key});
+      {required this.sliderValue,
+      required this.pair,
+      required this.liquidityToRemove,
+      super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Amount liquidityToRemove = Amount.zero;
-
-    useEffect(() {
-      final percentageToRemove = sliderValue.value / 100;
-
-      final zeniqRemoveValue = (pair.position!.zeniqValue.value *
-              BigInt.from((percentageToRemove * 100).toInt())) ~/
-          BigInt.from(100);
-      final tokenRemoveValue = (pair.position!.tokenValue.value *
-              BigInt.from((percentageToRemove * 100).toInt())) ~/
-          BigInt.from(100);
-
-      final zeniqAmountToRemove = Amount(
-        value: zeniqRemoveValue,
-        decimals: pair.tokeWZeniq.decimals,
-      );
-
-      final tokenAmountToRemove = Amount(
-        value: tokenRemoveValue,
-        decimals: pair.token.decimals,
-      );
-      final zeniqAmountWithPoolRatio =
-          zeniqAmountToRemove / pair.position!.reserveAmountZeniq;
-      final tokenAmountWithPoolRatio =
-          tokenAmountToRemove / pair.position!.reserveAmountToken;
-
-      final smallerRatio = zeniqAmountWithPoolRatio < tokenAmountWithPoolRatio
-          ? zeniqAmountWithPoolRatio
-          : tokenAmountWithPoolRatio;
-
-      final liquidityToRemoveWithoutRightBigInt =
-          smallerRatio * pair.position!.totalSupply;
-
-      final liquidityToRemoveValue =
-          discardRightBigInt(liquidityToRemoveWithoutRightBigInt.value, 18);
-
-      liquidityToRemove = Amount(
-        value: liquidityToRemoveValue,
-        decimals: 18,
-      );
-
-      return null;
-    }, [sliderValue.value]);
+    final value = Amount.convert(
+        value: double.parse(liquidityToRemove.value), decimals: 18);
 
     return NomoCard(
       backgroundColor: context.theme.colors.background2,
@@ -76,7 +38,7 @@ class RemoveLiquiditySlider extends HookConsumerWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: NomoText(
-                  "${liquidityToRemove.displayDouble.toMaxPrecisionWithoutScientificNotation(5)} WZENIQ/${pair.token.symbol}",
+                  "${value.displayDouble.toMaxPrecisionWithoutScientificNotation(5)} WZENIQ/${pair.token.symbol}",
                   style: context.typography.b2,
                 ),
               )
@@ -85,10 +47,10 @@ class RemoveLiquiditySlider extends HookConsumerWidget {
           12.vSpacing,
           Slider(
             value: sliderValue.value,
-            divisions: 100,
+            // divisions: 100,
             label: "${sliderValue.value}%",
             onChanged: (value) {
-              sliderValue.value = value.floor().toDouble();
+              sliderValue.value = double.parse(value.toStringAsFixed(2));
             },
             min: 0,
             max: 100,

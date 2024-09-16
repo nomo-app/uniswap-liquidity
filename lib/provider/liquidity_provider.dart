@@ -73,10 +73,9 @@ class LiquidityNotifier extends _$LiquidityNotifier {
     return txHash;
   }
 
-  Future<String?> _sendTransaction(RawEVMTransaction rawTx) async {
+  Future<String?> _sendTransaction(RawEvmTransaction rawTx) async {
     try {
-      final signedTx =
-          await WebonKitDart.signTransaction(rawTx.serializedTransactionHex);
+      final signedTx = await WebonKitDart.signTransaction(rawTx.serializedHex);
       final txHash = await rpc.sendRawTransaction(signedTx);
       return txHash;
     } catch (e) {
@@ -86,7 +85,7 @@ class LiquidityNotifier extends _$LiquidityNotifier {
     return null;
   }
 
-  Future<RawEVMTransaction?> _getLiquidtyTx({
+  Future<RawEvmTransaction?> _getLiquidtyTx({
     required BigInt deadline,
     required BigInt amountTokenDesired,
     required BigInt amountETHDesired,

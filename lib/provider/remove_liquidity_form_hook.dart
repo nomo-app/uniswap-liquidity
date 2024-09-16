@@ -21,12 +21,14 @@ class RemoveLiquidityFormHook {
   final ValueNotifier<String> removeError;
   final ValueNotifier<String?> tokenErrorNotifier;
   final ValueNotifier<String?> zeniqErrorNotifier;
+  final ValueNotifier<String?> totalLiquidityToRemove;
 
-  RemoveLiquidityFormHook({
-    required this.sliderValue,
-    required this.selectedPool,
-    required this.position,
-  })  : zeniqAmount = ValueNotifier(""),
+  RemoveLiquidityFormHook(
+      {required this.sliderValue,
+      required this.selectedPool,
+      required this.position,
+      required this.totalLiquidityToRemove})
+      : zeniqAmount = ValueNotifier(""),
         tokenAmount = ValueNotifier(""),
         approveError = ValueNotifier(""),
         removeError = ValueNotifier(""),
@@ -61,44 +63,41 @@ class RemoveLiquidityFormHook {
   void _onSliderChanged() {
     if (!_isUpdating) {
       _isUpdating = true;
-      _calculateReceiveTokens();
-      _clearErrors();
-
-      _isUpdating = false;
+      try {
+        _calculateReceiveTokens();
+      } finally {
+        _isUpdating = false;
+      }
     }
   }
 
   void _onZeniqAmountChanged() {
     if (!_isUpdating) {
       _isUpdating = true;
-      if (zeniqAmount.value.isEmpty) {
-        _resetInputs();
-      } else if (_isValidZeniqAmount()) {
-        _calculateTokenAndSliderFromZeniq();
-        zeniqErrorNotifier.value = null;
-      } else {
-        zeniqErrorNotifier.value = "Insufficient ZENIQ amount";
-        tokenAmount.value = "";
-        sliderValue.value = 0;
+      try {
+        if (zeniqAmount.value.isEmpty) {
+          _resetInputs();
+        } else {
+          _calculateTokenAndSliderFromZeniq();
+        }
+      } finally {
+        _isUpdating = false;
       }
-      _isUpdating = false;
     }
   }
 
   void _onTokenAmountChanged() {
     if (!_isUpdating) {
       _isUpdating = true;
-      if (tokenAmount.value.isEmpty) {
-        _resetInputs();
-      } else if (_isValidTokenAmount()) {
-        _calculateZeniqAndSliderFromToken();
-        tokenErrorNotifier.value = null;
-      } else {
-        tokenErrorNotifier.value = "Insufficient token amount";
-        zeniqAmount.value = "";
-        sliderValue.value = 0;
+      try {
+        if (tokenAmount.value.isEmpty) {
+          _resetInputs();
+        } else {
+          _calculateZeniqAndSliderFromToken();
+        }
+      } finally {
+        _isUpdating = false;
       }
-      _isUpdating = false;
     }
   }
 
@@ -109,19 +108,52 @@ class RemoveLiquidityFormHook {
     _clearErrors();
   }
 
-  bool _isValidZeniqAmount() {
+  void _calculateTotalLiquidityToRemove() {
     final zeniqAmountBigInt =
         parseFromString(zeniqAmount.value, selectedPool.tokeWZeniq.decimals);
-    return zeniqAmountBigInt != null &&
-        zeniqAmountBigInt <= position.zeniqValue.value;
-  }
-
-  bool _isValidTokenAmount() {
     final tokenAmountBigInt =
         parseFromString(tokenAmount.value, selectedPool.token.decimals);
-    return tokenAmountBigInt != null &&
-        tokenAmountBigInt <= position.tokenValue.value;
+
+    if (zeniqAmountBigInt == null || tokenAmountBigInt == null) {
+      totalLiquidityToRemove.value = "";
+      return;
+    }
+
+    final zeniqAmountWithPoolRatio = (zeniqAmountBigInt *
+            BigInt.from(10).pow(selectedPool.tokeWZeniq.decimals)) ~/
+        position.reserveAmountZeniq.value;
+    final tokenAmountWithPoolRatio = (tokenAmountBigInt *
+            BigInt.from(10).pow(selectedPool.token.decimals)) ~/
+        position.reserveAmountToken.value;
+
+    final smallerRatio = zeniqAmountWithPoolRatio < tokenAmountWithPoolRatio
+        ? zeniqAmountWithPoolRatio
+        : tokenAmountWithPoolRatio;
+
+    final liquidityToRemoveValue =
+        (smallerRatio * position.totalSupply.value) ~/ BigInt.from(10).pow(18);
+
+    final liquidityToRemove = Amount(
+      value: liquidityToRemoveValue,
+      decimals: 18, // Assuming liquidity tokens have 18 decimals
+    );
+
+    totalLiquidityToRemove.value = liquidityToRemove.displayValue;
   }
+
+  // bool _isValidZeniqAmount() {
+  //   final zeniqAmountBigInt =
+  //       parseFromString(zeniqAmount.value, selectedPool.tokeWZeniq.decimals);
+  //   return zeniqAmountBigInt != null &&
+  //       zeniqAmountBigInt <= position.zeniqValue.value;
+  // }
+
+  // bool _isValidTokenAmount() {
+  //   final tokenAmountBigInt =
+  //       parseFromString(tokenAmount.value, selectedPool.token.decimals);
+  //   return tokenAmountBigInt != null &&
+  //       tokenAmountBigInt <= position.tokenValue.value;
+  // }
 
   void _clearErrors() {
     zeniqErrorNotifier.value = null;
@@ -131,63 +163,65 @@ class RemoveLiquidityFormHook {
   void _calculateTokenAndSliderFromZeniq() {
     final zeniqAmountBigInt =
         parseFromString(zeniqAmount.value, selectedPool.tokeWZeniq.decimals);
-    if (zeniqAmountBigInt == null) return;
+    if (zeniqAmountBigInt == null ||
+        zeniqAmountBigInt > position.zeniqValue.value) {
+      zeniqErrorNotifier.value = "Insufficient ZENIQ amount";
+      return;
+    }
 
     final percentageToRemove =
-        (zeniqAmountBigInt * BigInt.from(100)) ~/ position.zeniqValue.value;
-    sliderValue.value = percentageToRemove.toDouble();
+        (zeniqAmountBigInt * BigInt.from(1e6)) ~/ position.zeniqValue.value;
+    sliderValue.value = (percentageToRemove.toDouble() / 1e4).clamp(0, 100);
 
-    final tokenRemoveValue =
-        (position.tokenValue.value * percentageToRemove) ~/ BigInt.from(100);
-    final tokenAmountToRemove = Amount(
-      value: tokenRemoveValue,
-      decimals: selectedPool.token.decimals,
-    );
-
-    tokenAmount.value = tokenAmountToRemove.displayValue;
+    _calculateReceiveTokens(preserveZeniq: true);
+    _clearErrors();
   }
 
   void _calculateZeniqAndSliderFromToken() {
     final tokenAmountBigInt =
         parseFromString(tokenAmount.value, selectedPool.token.decimals);
-    if (tokenAmountBigInt == null) return;
+    if (tokenAmountBigInt == null ||
+        tokenAmountBigInt > position.tokenValue.value) {
+      tokenErrorNotifier.value = "Insufficient token amount";
+      return;
+    }
 
     final percentageToRemove =
-        (tokenAmountBigInt * BigInt.from(100)) ~/ position.tokenValue.value;
-    sliderValue.value = percentageToRemove.toDouble();
+        (tokenAmountBigInt * BigInt.from(1e6)) ~/ position.tokenValue.value;
+    sliderValue.value = (percentageToRemove.toDouble() / 1e4).clamp(0, 100);
 
-    final zeniqRemoveValue =
-        (position.zeniqValue.value * percentageToRemove) ~/ BigInt.from(100);
-    final zeniqAmountToRemove = Amount(
-      value: zeniqRemoveValue,
-      decimals: selectedPool.tokeWZeniq.decimals,
-    );
-
-    zeniqAmount.value = zeniqAmountToRemove.displayValue;
+    _calculateReceiveTokens(preserveToken: true);
+    _clearErrors();
   }
 
-  void _calculateReceiveTokens() {
+  void _calculateReceiveTokens(
+      {bool preserveZeniq = false, bool preserveToken = false}) {
     final percentageToRemove = sliderValue.value / 100;
 
     final zeniqRemoveValue = (position.zeniqValue.value *
-            BigInt.from((percentageToRemove * 100).toInt())) ~/
-        BigInt.from(100);
+            BigInt.from((percentageToRemove * 1e6).round())) ~/
+        BigInt.from(1e6);
     final tokenRemoveValue = (position.tokenValue.value *
-            BigInt.from((percentageToRemove * 100).toInt())) ~/
-        BigInt.from(100);
+            BigInt.from((percentageToRemove * 1e6).round())) ~/
+        BigInt.from(1e6);
 
-    final zeniqAmountToRemove = Amount(
-      value: zeniqRemoveValue,
-      decimals: selectedPool.tokeWZeniq.decimals,
-    );
+    if (!preserveZeniq) {
+      final zeniqAmountToRemove = Amount(
+        value: zeniqRemoveValue,
+        decimals: selectedPool.tokeWZeniq.decimals,
+      );
+      zeniqAmount.value = zeniqAmountToRemove.displayValue;
+    }
 
-    final tokenAmountToRemove = Amount(
-      value: tokenRemoveValue,
-      decimals: selectedPool.token.decimals,
-    );
-
-    zeniqAmount.value = zeniqAmountToRemove.displayValue;
-    tokenAmount.value = tokenAmountToRemove.displayValue;
+    if (!preserveToken) {
+      final tokenAmountToRemove = Amount(
+        value: tokenRemoveValue,
+        decimals: selectedPool.token.decimals,
+      );
+      tokenAmount.value = tokenAmountToRemove.displayValue;
+    }
+    _calculateTotalLiquidityToRemove();
+    _clearErrors();
   }
 
   Future<void> approveLiquidityValue() async {
@@ -200,7 +234,7 @@ class RemoveLiquidityFormHook {
         value: position.liquidity.value,
       );
       final signedTxHash =
-          await WebonKitDart.signTransaction(rawTx.serializedTransactionHex);
+          await WebonKitDart.signTransaction(rawTx.serializedHex);
 
       final txHash = await rpc.sendRawTransaction(signedTxHash);
 
@@ -270,7 +304,7 @@ class RemoveLiquidityFormHook {
       );
 
       final signedTxHash =
-          await WebonKitDart.signTransaction(rawTx.serializedTransactionHex);
+          await WebonKitDart.signTransaction(rawTx.serializedHex);
 
       final txHash = await rpc.sendRawTransaction(signedTxHash);
 
@@ -294,6 +328,7 @@ class RemoveLiquidityFormHook {
 RemoveLiquidityFormHook useRemoveLiquidityFormHook(
     {required ValueNotifier<double> sliderValue,
     required Pair selectedPool,
+    required ValueNotifier<String> liquidityToRemove,
     required Position position}) {
   final controller = useState<RemoveLiquidityFormHook?>(null);
 
@@ -301,6 +336,7 @@ RemoveLiquidityFormHook useRemoveLiquidityFormHook(
     final hook = RemoveLiquidityFormHook(
       sliderValue: sliderValue,
       selectedPool: selectedPool,
+      totalLiquidityToRemove: liquidityToRemove,
       position: position,
     );
 

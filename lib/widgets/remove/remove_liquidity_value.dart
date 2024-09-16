@@ -16,10 +16,12 @@ import 'package:uniswap_liquidity/widgets/success_dialog.dart';
 class RemoveLiquidityValue extends HookConsumerWidget {
   final Pair selectedPool;
   final ValueNotifier<double> sliderValue;
+  final ValueNotifier<String> liquidityToRemove;
 
   const RemoveLiquidityValue({
     required this.sliderValue,
     required this.selectedPool,
+    required this.liquidityToRemove,
     super.key,
   });
 
@@ -28,6 +30,7 @@ class RemoveLiquidityValue extends HookConsumerWidget {
     final formStateNotifier = useRemoveLiquidityFormHook(
       sliderValue: sliderValue,
       selectedPool: selectedPool,
+      liquidityToRemove: liquidityToRemove,
       position: selectedPool.position!,
     );
     final imageZeniq = ref

@@ -15,12 +15,14 @@ class RemoveLiquidityBox extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sliderValue = useState(0.0);
+    final liquidityToRemove = useState("0.0");
 
     return Column(
       children: [
         PositionBox(pair: selectedPool),
         12.vSpacing,
         RemoveLiquiditySlider(
+          liquidityToRemove: liquidityToRemove,
           sliderValue: sliderValue,
           pair: selectedPool,
         ),
@@ -32,6 +34,7 @@ class RemoveLiquidityBox extends HookConsumerWidget {
         ),
         12.vSpacing,
         RemoveLiquidityValue(
+          liquidityToRemove: liquidityToRemove,
           sliderValue: sliderValue,
           selectedPool: selectedPool,
         ),
