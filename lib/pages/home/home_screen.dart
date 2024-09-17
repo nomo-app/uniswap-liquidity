@@ -55,25 +55,6 @@ class HomeScreen extends HookConsumerWidget {
             final allPools =
                 pairs.where((element) => element.position == null).toList();
 
-            if (positionPairs.isEmpty) {
-              showAllPools.value = true;
-            }
-
-            if (positionPairs.isEmpty) {
-              return Column(
-                children: [
-                  NomoText(
-                    "No positions found",
-                    style: context.typography.b2,
-                  ),
-                  12.vSpacing,
-                  NomoText(
-                    "Add liquidity to a pool to see your positions",
-                    style: context.typography.b2,
-                  ),
-                ],
-              );
-            }
             return Column(
               children: [
                 Row(
@@ -112,19 +93,31 @@ class HomeScreen extends HookConsumerWidget {
                   ],
                 ),
                 16.vSpacing,
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: showAllPools.value
-                        ? allPools.length
-                        : positionPairs.length,
-                    itemBuilder: (context, index) {
-                      final pair = showAllPools.value
-                          ? allPools[index]
-                          : positionPairs[index];
-                      return PoolOverview(pair: pair);
-                    },
+                if (positionPairs.isEmpty && showAllPools.value == false) ...[
+                  NomoText(
+                    "No positions found",
+                    style: context.typography.b2,
                   ),
-                ),
+                  12.vSpacing,
+                  NomoText(
+                    "Add liquidity to a pool to see your positions",
+                    style: context.typography.b2,
+                  ),
+                ] else ...[
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: showAllPools.value
+                          ? allPools.length
+                          : positionPairs.length,
+                      itemBuilder: (context, index) {
+                        final pair = showAllPools.value
+                            ? allPools[index]
+                            : positionPairs[index];
+                        return PoolOverview(pair: pair);
+                      },
+                    ),
+                  ),
+                ],
               ],
             );
           },
