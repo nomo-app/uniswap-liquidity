@@ -261,9 +261,12 @@ class PairNotifier extends _$PairNotifier {
 
       final updatedPosition = Position(
         liquidity: liquidityAmount,
-        zeniqValue: zeniqValue,
+        zeniqValue: Amount(
+            value: discardRightBigInt(zeniqValue.value, 18), decimals: 18),
         totalSupply: totalSupplyAmount,
-        tokenValue: tokenValue,
+        tokenValue: Amount(
+            value: discardRightBigInt(tokenValue.value, pair.token.decimals),
+            decimals: pair.token.decimals),
         reserveAmountZeniq: reserveAmountZeniq,
         reserveAmountToken: reserveAmountToken,
         share: share,
