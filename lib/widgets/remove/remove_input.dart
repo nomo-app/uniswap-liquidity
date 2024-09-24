@@ -23,6 +23,8 @@ class RemoveInput extends HookConsumerWidget {
     final tokenImage =
         ref.read(assetNotifierProvider).imageNotifierForToken(token!)!;
 
+    final symbol = token?.symbol == "WZENIQ" ? "ZENIQ" : token?.symbol;
+
     return ListenableBuilder(
       listenable: tokenImage,
       builder: (context, child) {
@@ -70,7 +72,7 @@ class RemoveInput extends HookConsumerWidget {
               ),
               8.hSpacing,
               NomoText(
-                token?.symbol ?? "nav",
+                symbol ?? "nav",
                 style: context.typography.b2,
               ),
             ],

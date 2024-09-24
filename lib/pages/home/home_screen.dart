@@ -52,8 +52,8 @@ class HomeScreen extends HookConsumerWidget {
           data: (pairs) {
             final positionPairs =
                 pairs.where((element) => element.position != null).toList();
-            // final allPools =
-            //     pairs.where((element) => element.position == null).toList();
+
+            pairs.sort((a, b) => b.tvl.compareTo(a.tvl));
 
             return Column(
               children: [
@@ -113,7 +113,10 @@ class HomeScreen extends HookConsumerWidget {
                         final pair = showAllPools.value
                             ? pairs[index]
                             : positionPairs[index];
-                        return PoolOverview(pair: pair);
+                        return PoolOverview(
+                          pair: pair,
+                          showTVL: showAllPools.value ? true : false,
+                        );
                       },
                     ),
                   ),

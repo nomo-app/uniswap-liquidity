@@ -12,7 +12,8 @@ import 'package:uniswap_liquidity/utils/max_percission.dart';
 
 class PoolOverview extends ConsumerWidget {
   final Pair pair;
-  const PoolOverview({super.key, required this.pair});
+  final bool showTVL;
+  const PoolOverview({super.key, required this.pair, required this.showTVL});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -125,27 +126,6 @@ class PoolOverview extends ConsumerWidget {
                         //   ],
                         // ),
                         const SizedBox(height: 4),
-                        // Row(
-                        //   children: [
-                        //     Container(
-                        //       width: 42,
-                        //       padding: const EdgeInsets.all(4),
-                        //       decoration: BoxDecoration(
-                        //         color: context.theme.colors.primary,
-                        //         borderRadius: BorderRadius.circular(12),
-                        //       ),
-                        //       child: Center(
-                        //         child: NomoText(
-                        //           "V2",
-                        //           style: context.typography.b1,
-                        //           fontSize: 12,
-                        //         ),
-                        //       ),
-                        //     ),
-                        //     6.hSpacing,
-
-                        //   ],
-                        // )
                         Container(
                           width: 64,
                           padding: const EdgeInsets.symmetric(
@@ -188,12 +168,13 @@ class PoolOverview extends ConsumerWidget {
                     // ),
                   ],
                 ),
-                if (pair.position == null) ...[
+                if (showTVL) ...[
                   16.vSpacing,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           NomoText(
                             "TVL",
@@ -208,24 +189,39 @@ class PoolOverview extends ConsumerWidget {
                           ),
                         ],
                       ),
+                      if (pair.position != null)
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            NomoText(
+                              "VL",
+                              style: context.typography.b1,
+                            ),
+                            8.vSpacing,
+                            NomoText(
+                              "${pair.position?.valueLocked.toMaxPrecisionWithoutScientificNotation(2)} ${currency.symbol}",
+                              maxLines: 2,
+                              fit: true,
+                              style: context.typography.b1,
+                            ),
+                          ],
+                        ),
                       Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           NomoText(
                             "${pair.token.symbol} Balance",
                             style: context.typography.b1,
                           ),
                           8.vSpacing,
-                          SizedBox(
-                            width: 100,
-                            child: NomoText(
-                              pair.balanceToken?.displayDouble
-                                      .toMaxPrecisionWithoutScientificNotation(
-                                          4) ??
-                                  "",
-                              maxLines: 2,
-                              fit: true,
-                              style: context.typography.b1,
-                            ),
+                          NomoText(
+                            pair.balanceToken?.displayDouble
+                                    .toMaxPrecisionWithoutScientificNotation(
+                                        4) ??
+                                "",
+                            maxLines: 2,
+                            fit: true,
+                            style: context.typography.b1,
                           ),
                         ],
                       ),

@@ -57,7 +57,7 @@ class PositionBox extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        NomoText("WZENIQ", style: context.theme.typography.b1),
+                        NomoText("ZENIQ", style: context.theme.typography.b1),
                         NomoText(
                           pair.position!.zeniqValue.displayDouble
                               .toMaxPrecisionWithoutScientificNotation(5),

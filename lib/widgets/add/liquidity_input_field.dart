@@ -32,6 +32,8 @@ class LiquidityInputField extends HookConsumerWidget {
 
     final assetNotifier = ref.watch(assetNotifierProvider).currencyNotifier;
 
+    final symbol = token?.symbol == "WZENIQ" ? "ZENIQ" : token?.symbol;
+
     return ListenableBuilder(
         listenable: tokenImage,
         builder: (context, child) {
@@ -79,7 +81,7 @@ class LiquidityInputField extends HookConsumerWidget {
                 ),
                 8.hSpacing,
                 NomoText(
-                  token?.symbol ?? "nav",
+                  symbol ?? "nav",
                   style: context.typography.b2,
                 ),
               ],
