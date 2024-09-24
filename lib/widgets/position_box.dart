@@ -7,6 +7,7 @@ import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
+import 'package:uniswap_liquidity/widgets/dotted_line.dart';
 
 class PositionBox extends ConsumerWidget {
   final Pair pair;
@@ -33,7 +34,6 @@ class PositionBox extends ConsumerWidget {
                   style: context.theme.typography.b1,
                 ),
               ),
-              8.vSpacing,
               NomoCard(
                 padding: EdgeInsets.all(16),
                 backgroundColor: context.theme.colors.background2,
@@ -47,17 +47,22 @@ class PositionBox extends ConsumerWidget {
                           "Value Locked",
                           style: context.theme.typography.b1,
                         ),
+                        8.hSpacing,
+                        DottedLine(),
+                        8.hSpacing,
                         NomoText(
                           "${pair.position!.valueLocked.toMaxPrecisionWithoutScientificNotation(2)} ${currency.symbol}",
                           style: context.theme.typography.b1,
                         ),
                       ],
                     ),
-                    8.vSpacing,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         NomoText("ZENIQ", style: context.theme.typography.b1),
+                        8.hSpacing,
+                        DottedLine(),
+                        8.hSpacing,
                         NomoText(
                           pair.position!.zeniqValue.displayDouble
                               .toMaxPrecisionWithoutScientificNotation(5),
@@ -65,7 +70,6 @@ class PositionBox extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    8.vSpacing,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -73,6 +77,9 @@ class PositionBox extends ConsumerWidget {
                           pair.token.symbol,
                           style: context.theme.typography.b1,
                         ),
+                        8.hSpacing,
+                        DottedLine(),
+                        8.hSpacing,
                         NomoText(
                           pair.position!.tokenValue.displayDouble
                               .toMaxPrecisionWithoutScientificNotation(5),
@@ -80,7 +87,6 @@ class PositionBox extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    8.vSpacing,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -88,6 +94,9 @@ class PositionBox extends ConsumerWidget {
                           "Pool share",
                           style: context.theme.typography.b1,
                         ),
+                        8.hSpacing,
+                        DottedLine(),
+                        8.hSpacing,
                         NomoText(
                           "${pair.position!.share.displayDouble.formatPriceImpact().$1}%",
                           style: context.theme.typography.b1,

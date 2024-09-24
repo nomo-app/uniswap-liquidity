@@ -6,6 +6,7 @@ import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
+import 'package:uniswap_liquidity/widgets/dotted_line.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
 class ADDLiqiuidityInfo extends ConsumerWidget {
@@ -65,6 +66,9 @@ class ADDLiqiuidityInfo extends ConsumerWidget {
                         "Pool share",
                         style: context.theme.typography.b1,
                       ),
+                      8.hSpacing,
+                      DottedLine(),
+                      8.hSpacing,
                       NomoText(
                         shareOfPool.isEmpty ? "0%" : shareOfPool,
                         style: context.theme.typography.b1,
@@ -102,6 +106,9 @@ class UnitDisplay extends ConsumerWidget {
           isOther ? "${token.symbol} per ZENIQ" : "ZENIQ per ${token.symbol}",
           style: context.theme.typography.b1,
         ),
+        8.hSpacing,
+        DottedLine(),
+        8.hSpacing,
         NomoText(
           value,
           style: context.theme.typography.b1,
