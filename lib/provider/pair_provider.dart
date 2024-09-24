@@ -18,6 +18,17 @@ class PairNotifier extends _$PairNotifier {
     return _getPairs();
   }
 
+  Future<void> softUpdate() async {
+    state.whenData((List<Pair> currentPairs) {
+      state = AsyncValue.data(currentPairs
+          .map<Pair>((Pair pair) => pair.copyWith(isUpdating: true))
+          .toList());
+    });
+
+    final updatedPairs = await _getPairs();
+    state = AsyncValue.data(updatedPairs);
+  }
+
   Future<List<String>> _allPairs() async {
     try {
       final allPairsLength = await factory.allPairsLength();

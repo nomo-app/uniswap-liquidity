@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
+// import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'package:uniswap_liquidity/utils/price_repository.dart';
 
 class AnimatedCurrencySwitch extends ConsumerWidget {
-  const AnimatedCurrencySwitch({super.key});
+  final VoidCallback onCurrencyChanged;
+  const AnimatedCurrencySwitch({required this.onCurrencyChanged, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,7 +19,8 @@ class AnimatedCurrencySwitch extends ConsumerWidget {
         final newCurrency =
             currentCurrency == Currency.usd ? Currency.eur : Currency.usd;
         assetNotifier.currencyNotifier.value = newCurrency;
-        ref.invalidate(pairNotifierProvider);
+        // ref.invalidate(pairNotifierProvider);
+        onCurrencyChanged();
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),

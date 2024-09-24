@@ -7,6 +7,7 @@ class Pair extends PairInformation {
   UniswapV2Pair contract;
   (BigInt, BigInt) reserves;
   Position? position;
+  final bool isUpdating;
 
   Pair({
     required this.tokeWZeniq,
@@ -26,6 +27,7 @@ class Pair extends PairInformation {
     required super.fiatZeniqBalance,
     required super.tokenPerZeniq,
     required super.zeniqPerToken,
+    this.isUpdating = false,
     required this.position,
   });
 
@@ -45,6 +47,7 @@ class Pair extends PairInformation {
     Amount? balanceToken,
     double? fiatBlanceToken,
     double? fiatZeniqBalance,
+    bool? isUpdating,
     double? tokenPerZeniq,
     double? zeniqPerToken,
     Position? position,
@@ -61,6 +64,7 @@ class Pair extends PairInformation {
       zeniqValue: zeniqValue ?? this.zeniqValue,
       tokenValue: tokenValue ?? this.tokenValue,
       tokenPrice: tokenPrice ?? this.tokenPrice,
+      isUpdating: isUpdating ?? this.isUpdating,
       zeniqPrice: zeniqPrice ?? this.zeniqPrice,
       balanceToken: balanceToken ?? this.balanceToken,
       fiatBlanceToken: fiatBlanceToken ?? this.fiatBlanceToken,

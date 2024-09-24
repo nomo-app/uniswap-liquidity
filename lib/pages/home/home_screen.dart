@@ -77,7 +77,12 @@ class HomeScreen extends HookConsumerWidget {
                       textStyle: context.typography.b1,
                     ),
                     Spacer(),
-                    AnimatedCurrencySwitch(),
+                    AnimatedCurrencySwitch(
+                      onCurrencyChanged: () {
+                        // Use the new softUpdate method
+                        ref.read(pairNotifierProvider.notifier).softUpdate();
+                      },
+                    ),
                   ],
                 ),
                 16.vSpacing,
