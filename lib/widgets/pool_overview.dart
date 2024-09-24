@@ -9,6 +9,7 @@ import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/routes.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
+import 'package:uniswap_liquidity/widgets/dotted_line.dart';
 
 class PoolOverview extends ConsumerWidget {
   final Pair pair;
@@ -101,7 +102,6 @@ class PoolOverview extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         NomoText(
                           pair.token.symbol,
@@ -170,17 +170,19 @@ class PoolOverview extends ConsumerWidget {
                 ),
                 if (showTVL) ...[
                   16.vSpacing,
-                  Row(
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           NomoText(
-                            "TVL",
+                            "Total Value Locked",
                             style: context.typography.b1,
                           ),
-                          8.vSpacing,
+                          8.hSpacing,
+                          DottedLine(),
+                          8.hSpacing,
                           NomoText(
                             "${pair.tvl.toMaxPrecisionWithoutScientificNotation(2)} ${currency.symbol}",
                             maxLines: 2,
@@ -189,15 +191,17 @@ class PoolOverview extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      if (pair.position != null)
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                      if (pair.position != null) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             NomoText(
-                              "VL",
+                              "Value Locked",
                               style: context.typography.b1,
                             ),
-                            8.vSpacing,
+                            8.hSpacing,
+                            DottedLine(),
+                            8.hSpacing,
                             NomoText(
                               "${pair.position?.valueLocked.toMaxPrecisionWithoutScientificNotation(2)} ${currency.symbol}",
                               maxLines: 2,
@@ -206,14 +210,55 @@ class PoolOverview extends ConsumerWidget {
                             ),
                           ],
                         ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            NomoText(
+                              "ZENIQ",
+                              style: context.typography.b1,
+                            ),
+                            8.hSpacing,
+                            DottedLine(),
+                            8.hSpacing,
+                            NomoText(
+                              pair.position?.zeniqValue.displayDouble
+                                      .toMaxPrecisionWithoutScientificNotation(
+                                          4) ??
+                                  "",
+                              style: context.typography.b1,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            NomoText(
+                              pair.token.symbol,
+                              style: context.typography.b1,
+                            ),
+                            8.hSpacing,
+                            DottedLine(),
+                            8.hSpacing,
+                            NomoText(
+                              pair.position?.tokenValue.displayDouble
+                                      .toMaxPrecisionWithoutScientificNotation(
+                                          4) ??
+                                  "",
+                              style: context.typography.b1,
+                            ),
+                          ],
+                        ),
+                      ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           NomoText(
                             "${pair.token.symbol} Balance",
                             style: context.typography.b1,
                           ),
-                          8.vSpacing,
+                          8.hSpacing,
+                          DottedLine(),
+                          8.hSpacing,
                           NomoText(
                             pair.balanceToken?.displayDouble
                                     .toMaxPrecisionWithoutScientificNotation(
@@ -229,29 +274,50 @@ class PoolOverview extends ConsumerWidget {
                   ),
                 ] else ...[
                   16.vSpacing,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Column(
                     children: [
-                      Column(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          NomoText(
+                            "Total Value Locked",
+                            style: context.typography.b1,
+                          ),
+                          8.hSpacing,
+                          DottedLine(),
+                          8.hSpacing,
+                          NomoText(
+                            "${pair.tvl.toMaxPrecision(2)} ${currency.symbol}",
+                            style: context.typography.b1,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           NomoText(
                             "Value Locked",
                             style: context.typography.b1,
                           ),
-                          8.vSpacing,
+                          8.hSpacing,
+                          DottedLine(),
+                          8.hSpacing,
                           NomoText(
                             "${pair.position?.valueLocked.toMaxPrecision(2)} ${currency.symbol}",
                             style: context.typography.b1,
                           ),
                         ],
                       ),
-                      Column(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           NomoText(
                             "ZENIQ",
                             style: context.typography.b1,
                           ),
-                          8.vSpacing,
+                          8.hSpacing,
+                          DottedLine(),
+                          8.hSpacing,
                           NomoText(
                             pair.position?.zeniqValue.displayDouble
                                     .toMaxPrecisionWithoutScientificNotation(
@@ -261,13 +327,16 @@ class PoolOverview extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      Column(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           NomoText(
                             pair.token.symbol,
                             style: context.typography.b1,
                           ),
-                          8.vSpacing,
+                          8.hSpacing,
+                          DottedLine(),
+                          8.hSpacing,
                           NomoText(
                             pair.position?.tokenValue.displayDouble
                                     .toMaxPrecisionWithoutScientificNotation(
