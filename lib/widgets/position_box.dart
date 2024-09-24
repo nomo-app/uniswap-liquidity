@@ -34,6 +34,7 @@ class PositionBox extends ConsumerWidget {
                   style: context.theme.typography.b1,
                 ),
               ),
+              12.vSpacing,
               NomoCard(
                 padding: EdgeInsets.all(16),
                 backgroundColor: context.theme.colors.background2,

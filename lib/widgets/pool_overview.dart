@@ -11,7 +11,6 @@ import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/routes.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
-import 'package:uniswap_liquidity/widgets/dotted_line.dart';
 
 class PoolOverview extends ConsumerWidget {
   final Pair pair;
@@ -189,9 +188,6 @@ class PoolOverview extends ConsumerWidget {
                               "Total Value Locked",
                               style: context.typography.b1,
                             ),
-                            8.hSpacing,
-                            DottedLine(),
-                            8.hSpacing,
                             pair.isUpdating
                                 ? ShimmerLoading(
                                     isLoading: pair.isUpdating,
@@ -220,9 +216,6 @@ class PoolOverview extends ConsumerWidget {
                                 "Value Locked",
                                 style: context.typography.b1,
                               ),
-                              8.hSpacing,
-                              DottedLine(),
-                              8.hSpacing,
                               pair.isUpdating
                                   ? ShimmerLoading(
                                       isLoading: pair.isUpdating,
@@ -251,9 +244,6 @@ class PoolOverview extends ConsumerWidget {
                                 "ZENIQ",
                                 style: context.typography.b1,
                               ),
-                              8.hSpacing,
-                              DottedLine(),
-                              8.hSpacing,
                               NomoText(
                                 pair.position?.zeniqValue.displayDouble
                                         .toMaxPrecisionWithoutScientificNotation(
@@ -270,9 +260,6 @@ class PoolOverview extends ConsumerWidget {
                                 pair.token.symbol,
                                 style: context.typography.b1,
                               ),
-                              8.hSpacing,
-                              DottedLine(),
-                              8.hSpacing,
                               NomoText(
                                 pair.position?.tokenValue.displayDouble
                                         .toMaxPrecisionWithoutScientificNotation(
@@ -290,9 +277,6 @@ class PoolOverview extends ConsumerWidget {
                               "${pair.token.symbol} Balance",
                               style: context.typography.b1,
                             ),
-                            8.hSpacing,
-                            DottedLine(),
-                            8.hSpacing,
                             NomoText(
                               pair.balanceToken?.displayDouble
                                       .toMaxPrecisionWithoutScientificNotation(
@@ -317,9 +301,6 @@ class PoolOverview extends ConsumerWidget {
                               "Total Value Locked",
                               style: context.typography.b1,
                             ),
-                            8.hSpacing,
-                            DottedLine(),
-                            8.hSpacing,
                             pair.isUpdating
                                 ? ShimmerLoading(
                                     isLoading: pair.isUpdating,
@@ -345,9 +326,6 @@ class PoolOverview extends ConsumerWidget {
                               "Value Locked",
                               style: context.typography.b1,
                             ),
-                            8.hSpacing,
-                            DottedLine(),
-                            8.hSpacing,
                             pair.isUpdating
                                 ? ShimmerLoading(
                                     isLoading: pair.isUpdating,
@@ -373,9 +351,6 @@ class PoolOverview extends ConsumerWidget {
                               "ZENIQ",
                               style: context.typography.b1,
                             ),
-                            8.hSpacing,
-                            DottedLine(),
-                            8.hSpacing,
                             NomoText(
                               pair.position?.zeniqValue.displayDouble
                                       .toMaxPrecisionWithoutScientificNotation(
@@ -392,9 +367,6 @@ class PoolOverview extends ConsumerWidget {
                               pair.token.symbol,
                               style: context.typography.b1,
                             ),
-                            8.hSpacing,
-                            DottedLine(),
-                            8.hSpacing,
                             NomoText(
                               pair.position?.tokenValue.displayDouble
                                       .toMaxPrecisionWithoutScientificNotation(

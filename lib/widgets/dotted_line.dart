@@ -20,7 +20,7 @@ class DottedLine extends StatelessWidget {
     return Expanded(
       child: CustomPaint(
         painter: _DottedLinePainter(
-          color: context.theme.colors.foreground1,
+          color: context.theme.colors.onDisabled,
           strokeWidth: strokeWidth,
           dashWidth: dashWidth,
           dashSpace: dashSpace,
