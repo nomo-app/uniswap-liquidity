@@ -1,16 +1,27 @@
 <svg width="228" height="228" viewBox="0 0 228 228" xmlns="http://www.w3.org/2000/svg">
-  <rect width="228" height="228" fill="#262626"/>
+  <rect width="228" height="228" fill="#262626" />
   <g transform="translate(34,34)">
     <g clip-path="url(#clip0_1547_1900)">
-      <path d="M91.9023 111.67L110.123 129.88L159.998 80.0048L123.627 79.9453L91.9023 111.67Z" fill="#606060"/>
-      <path d="M61.8438 18.1609L80.0046 0L160 80.005L123.628 79.9455L61.8438 18.1609Z" fill="#4F4F4F"/>
-      <path d="M68.0959 48.33L49.8854 30.1196L0 80.0051L36.3713 80.0546L68.0959 48.33Z" fill="#606060"/>
-      <path d="M98.1658 141.839L80.005 160L0 80.0049L36.3713 80.0544L98.1658 141.839Z" fill="#4F4F4F"/>
-      <path d="M80.0041 99.2078L99.207 80.0049L80.0041 60.8019L60.8011 80.0049L80.0041 99.2078Z" fill="#CFB16D"/>
+      <path d="M91.9023 111.67L110.123 129.88L159.998 80.0048L123.627 79.9453L91.9023 111.67Z" fill="#4169E1" />
+      <path d="M61.8438 18.1609L80.0046 0L160 80.005L123.628 79.9455L61.8438 18.1609Z" fill="#4F4F4F" />
+      <path d="M68.0959 48.33L49.8854 30.1196L0 80.0051L36.3713 80.0546L68.0959 48.33Z" fill="#4169E1" />
+      <path d="M98.1658 141.839L80.005 160L0 80.0049L36.3713 80.0544L98.1658 141.839Z" fill="#4F4F4F" />
+      <!-- Water Drop -->
+      <path d="M80 60 Q60 80 80 100 Q100 80 80 60 Z" fill="#4169E1">
+        <animate attributeName="d" values="M80 60 Q60 80 80 100 Q100 80 80 60 Z;
+                         M80 62 Q62 80 80 98 Q98 80 80 62 Z;
+                         M80 60 Q60 80 80 100 Q100 80 80 60 Z" dur="2s" repeatCount="indefinite" />
+      </path>
+      <!-- Highlight -->
+      <path d="M75 70 Q70 75 75 80 Q80 75 75 70 Z" fill="#6495ED">
+        <animate attributeName="d" values="M75 70 Q70 75 75 80 Q80 75 75 70 Z;
+                         M76 71 Q71 76 76 81 Q81 76 76 71 Z;
+                         M75 70 Q70 75 75 80 Q80 75 75 70 Z" dur="2s" repeatCount="indefinite" />
+      </path>
     </g>
     <defs>
       <clipPath id="clip0_1547_1900">
-        <rect width="160" height="160" fill="white"/>
+        <rect width="160" height="160" fill="white" />
       </clipPath>
     </defs>
   </g>
