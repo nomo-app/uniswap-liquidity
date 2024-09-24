@@ -1,8 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uniswap_liquidity/main.dart';
-import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
-import 'package:walletkit_dart/walletkit_dart.dart';
 
 part 'selected_pool_provider.g.dart';
 
@@ -16,10 +14,10 @@ class SelectedPool extends _$SelectedPool {
   Future<Pair> _addPair(Pair pair) async {
     try {
       final tokenBalance = pair.balanceToken!;
-      final zeniqPrice = await _getZeniqPrice(pair.tokeWZeniq);
-      final tokenPrice = _getTokenPrice(pair, zeniqPrice);
 
-      final fiatBalanceZeniq = zeniqBalance.displayDouble * zeniqPrice;
+      final tokenPrice = pair.tokenPrice;
+
+      final fiatBalanceZeniq = zeniqBalance.displayDouble * pair.zeniqPrice;
       final fiatBalanceToken = tokenBalance.displayDouble * tokenPrice;
 
       final updatedPair = pair.copyWith(
@@ -48,21 +46,22 @@ class SelectedPool extends _$SelectedPool {
     state = await AsyncValue.guard(() => _addPair(newPair));
   }
 
-  Future<double> _getZeniqPrice(EthBasedTokenEntity tokeWZeniq) async {
-    final price =
-        await ref.read(assetNotifierProvider).fetchSingelPrice(tokeWZeniq);
+  // Future<double> _getZeniqPrice(EthBasedTokenEntity tokeWZeniq) async {
+  //   final price = await ref
+  //       .read(assetNotifierProvider)
+  //       .fetchSingelPrice(tokeWZeniq, true);
 
-    return price;
-  }
+  //   return price;
+  // }
 
-  double _getTokenPrice(Pair pair, double zeniqPrice) {
-    final amountWZENIQ = Amount.from(
-        value: pair.reserves.$1.toInt(), decimals: pair.tokeWZeniq.decimals);
-    final amountToken = Amount.from(
-        value: pair.reserves.$2.toInt(), decimals: pair.token.decimals);
-    final priceToken1 =
-        zeniqPrice * (amountWZENIQ.displayDouble / amountToken.displayDouble);
+  // double _getTokenPrice(Pair pair, double zeniqPrice) {
+  //   final amountWZENIQ = Amount.from(
+  //       value: pair.reserves.$1.toInt(), decimals: pair.tokeWZeniq.decimals);
+  //   final amountToken = Amount.from(
+  //       value: pair.reserves.$2.toInt(), decimals: pair.token.decimals);
+  //   final priceToken1 =
+  //       zeniqPrice * (amountWZENIQ.displayDouble / amountToken.displayDouble);
 
-    return priceToken1;
-  }
+  //   return priceToken1;
+  // }
 }

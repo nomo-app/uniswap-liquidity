@@ -42,8 +42,8 @@ class RemovePriceDisplay extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 UnitDisplay(
-                  token: pair.tokeWZeniq,
-                  zeniq: pair.token,
+                  token: pair.token,
+                  zeniq: pair.tokeWZeniq,
                   isOther: true,
                   value: pair.tokenPerZeniq
                       .toMaxPrecisionWithoutScientificNotation(5),

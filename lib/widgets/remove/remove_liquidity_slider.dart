@@ -38,7 +38,7 @@ class RemoveLiquiditySlider extends HookConsumerWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: NomoText(
-                  "${value.displayDouble.toMaxPrecisionWithoutScientificNotation(5)} WZENIQ/${pair.token.symbol}",
+                  "${value.displayDouble.toMaxPrecisionWithoutScientificNotation(5)} ZENIQ/${pair.token.symbol}",
                   style: context.typography.b2,
                 ),
               )

@@ -89,8 +89,9 @@ class AssetNotifier {
     }
   }
 
-  Future<double> fetchSingelPrice(TokenEntity token) async {
-    final result = await PriceRepository.fetchSingle(token, currency);
+  Future<double> fetchSingelPrice(
+      EthBasedTokenEntity token, bool isZeniq) async {
+    final result = await PriceRepository.fetchSingle(token, currency, isZeniq);
     return result;
   }
 

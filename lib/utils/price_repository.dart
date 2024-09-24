@@ -171,13 +171,25 @@ abstract class PriceRepository {
   /// Single
   ///
   static Future<double> fetchSingle(
-    TokenEntity token,
+    EthBasedTokenEntity token,
     Currency currency,
+    bool isZeniq,
   ) async {
     if (token == avinocZSC) {
       token = avinocETH; // workaround for a price-service bug
     }
-    final endpoint = "$PRICE_ENDPOINT/currentprice/ZENIQ/${currency.name}";
+
+    // String symbol = token.symbol;
+    // if (token.symbol == "WZENIQ") {
+    //   symbol = "zeniq";
+    // }
+
+    String endpoint =
+        "$PRICE_ENDPOINT/currentprice/${token.contractAddress}/${currency.name}/zeniq-smart-chain";
+
+    if (isZeniq) {
+      endpoint = "$PRICE_ENDPOINT/currentprice/zeniq/${currency.name}";
+    }
 
     try {
       final price = await (_fetchSingle(
