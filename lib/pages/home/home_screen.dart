@@ -22,7 +22,7 @@ class HomeScreen extends HookConsumerWidget {
     return NomoScaffold(
       appBar: NomoAppBar(
         title: NomoText(
-          "Positions",
+          "Liquidity",
           style: context.typography.h1,
         ),
         // trailling: PrimaryNomoButton(
@@ -52,8 +52,8 @@ class HomeScreen extends HookConsumerWidget {
           data: (pairs) {
             final positionPairs =
                 pairs.where((element) => element.position != null).toList();
-            final allPools =
-                pairs.where((element) => element.position == null).toList();
+            // final allPools =
+            //     pairs.where((element) => element.position == null).toList();
 
             return Column(
               children: [
@@ -107,11 +107,11 @@ class HomeScreen extends HookConsumerWidget {
                   Expanded(
                     child: ListView.builder(
                       itemCount: showAllPools.value
-                          ? allPools.length
+                          ? pairs.length
                           : positionPairs.length,
                       itemBuilder: (context, index) {
                         final pair = showAllPools.value
-                            ? allPools[index]
+                            ? pairs[index]
                             : positionPairs[index];
                         return PoolOverview(pair: pair);
                       },

@@ -45,8 +45,8 @@ class ADDLiqiuidityInfo extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   UnitDisplay(
-                    token: pair.tokeWZeniq,
-                    zeniq: pair.token,
+                    token: pair.token,
+                    zeniq: pair.tokeWZeniq,
                     isOther: true,
                     value: pair.tokenPerZeniq
                         .toMaxPrecisionWithoutScientificNotation(5),
@@ -99,7 +99,7 @@ class UnitDisplay extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         NomoText(
-          isOther ? "${token.symbol} per ZENIQ" : "WZENIQ per ${token.symbol}",
+          isOther ? "${token.symbol} per ZENIQ" : "ZENIQ per ${token.symbol}",
           style: context.theme.typography.b1,
         ),
         NomoText(

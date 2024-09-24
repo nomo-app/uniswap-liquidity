@@ -154,22 +154,16 @@ class PairNotifier extends _$PairNotifier {
 
     final zeniqValue = share * reserveAmountZeniq;
 
-    final tokenValue = share * reserveAmountToken;
+    final zeniqAmount = Amount(
+      value: discardRightBigInt(zeniqValue.value, 18),
+      decimals: 18,
+    );
 
-    if (liquidityAmount > Amount.zero) {
-      position = Position(
-        liquidity: liquidityAmount,
-        zeniqValue: Amount(
-            value: discardRightBigInt(zeniqValue.value, 18), decimals: 18),
-        totalSupply: totalSupplyAmount,
-        tokenValue: Amount(
-            value: discardRightBigInt(tokenValue.value, token.decimals),
-            decimals: token.decimals),
-        reserveAmountZeniq: reserveAmountZeniq,
-        reserveAmountToken: reserveAmountToken,
-        share: share,
-      );
-    }
+    final tokenValue = share * reserveAmountToken;
+    final tokenAmount = Amount(
+      value: discardRightBigInt(tokenValue.value, token.decimals),
+      decimals: token.decimals,
+    );
 
     try {
       tokenBalance = await rpc.fetchTokenBalance(address, token);
@@ -189,6 +183,30 @@ class PairNotifier extends _$PairNotifier {
       Logger.logError(e, hint: 'Error calculating data');
     }
 
+    final double tokenPrice = tvlInfo["tokenPrice"];
+    final double zeniqPrice = tvlInfo["zeniqPrice"];
+
+    if (liquidityAmount > Amount.zero) {
+      // print("Zeniq Price is: $zeniqPrice");
+      // print("Token Price is: $tokenPrice of ${token.symbol}");
+      // print("Zeniq Value is: ${zeniqValue.displayDouble}");
+      // print("Token Value is: ${tokenValue.displayDouble} of ${token.symbol}");
+
+      final vl = (zeniqValue.displayDouble * zeniqPrice) +
+          (tokenValue.displayDouble * tokenPrice);
+
+      position = Position(
+        valueLocked: vl,
+        liquidity: liquidityAmount,
+        zeniqValue: zeniqAmount,
+        totalSupply: totalSupplyAmount,
+        tokenValue: tokenAmount,
+        reserveAmountZeniq: reserveAmountZeniq,
+        reserveAmountToken: reserveAmountToken,
+        share: share,
+      );
+    }
+
     return Pair(
       volume24h: null,
       apr: null,
@@ -200,8 +218,8 @@ class PairNotifier extends _$PairNotifier {
       tvl: tvlInfo["tvl"],
       zeniqValue: tvlInfo["zeniqValue"],
       tokenValue: tvlInfo["tokenValue"],
-      tokenPrice: tvlInfo["tokenPrice"],
-      zeniqPrice: tvlInfo["zeniqPrice"],
+      tokenPrice: tokenPrice,
+      zeniqPrice: zeniqPrice,
       tokenPerZeniq: tvlInfo["tokenPerZeniq"],
       zeniqPerToken: tvlInfo["zeniqPerToken"],
       balanceToken: tokenBalance,
@@ -259,6 +277,9 @@ class PairNotifier extends _$PairNotifier {
 
       final tokenValue = share * reserveAmountToken;
 
+      final vl = (zeniqValue.displayDouble * pair.zeniqPrice) +
+          (tokenValue.displayDouble * pair.tokenPrice);
+
       final updatedPosition = Position(
         liquidity: liquidityAmount,
         zeniqValue: Amount(
@@ -269,6 +290,7 @@ class PairNotifier extends _$PairNotifier {
             decimals: pair.token.decimals),
         reserveAmountZeniq: reserveAmountZeniq,
         reserveAmountToken: reserveAmountToken,
+        valueLocked: vl,
         share: share,
       );
       final index = pairs.indexOf(pair);
@@ -281,6 +303,20 @@ class PairNotifier extends _$PairNotifier {
     }
   }
 
+  Future<double?> _fetchTokenPrice(EthBasedTokenEntity token) async {
+    print('Fetching token price for ${token.symbol}');
+
+    try {
+      final tokenPrice =
+          await ref.read(assetNotifierProvider).fetchSingelPrice(token);
+      return tokenPrice;
+    } catch (e) {
+      print('Error fetching token price: $e');
+    }
+
+    return null;
+  }
+
   Future<Map<String, dynamic>> _calculateTVL({
     required EthBasedTokenEntity wtoken,
     required EthBasedTokenEntity token1,
@@ -289,15 +325,19 @@ class PairNotifier extends _$PairNotifier {
   }) async {
     final zeniqPrice =
         await ref.read(assetNotifierProvider).fetchSingelPrice(wtoken);
+    double? fetchedTokenPrice = await _fetchTokenPrice(token1);
+    print('Fetched token price: $fetchedTokenPrice for ${token1.symbol}');
     final amountWZENIQ =
-        Amount.from(value: reserveWZENIQ.toInt(), decimals: wtoken.decimals);
-    final amountToken =
-        Amount.from(value: reserveToken.toInt(), decimals: token1.decimals);
+        Amount(value: reserveWZENIQ, decimals: wtoken.decimals);
+    final amountToken = Amount(value: reserveToken, decimals: token1.decimals);
 
-    final priceToken1 =
-        zeniqPrice * (amountWZENIQ.displayDouble / amountToken.displayDouble);
+    if (fetchedTokenPrice == null) {
+      fetchedTokenPrice =
+          zeniqPrice * (amountWZENIQ.displayDouble / amountToken.displayDouble);
+    }
+
     final valueWZENIQ = amountWZENIQ.displayDouble * zeniqPrice;
-    final valueToken1 = amountToken.displayDouble * priceToken1;
+    final valueToken1 = amountToken.displayDouble * fetchedTokenPrice;
     final tvl = valueToken1 + valueWZENIQ;
 
     final tokensPerZeniq =
@@ -309,7 +349,7 @@ class PairNotifier extends _$PairNotifier {
       'tvl': tvl,
       'zeniqValue': valueWZENIQ,
       'tokenValue': valueToken1,
-      'tokenPrice': priceToken1,
+      'tokenPrice': fetchedTokenPrice,
       'zeniqPrice': zeniqPrice,
       'tokenPerZeniq': tokensPerZeniq,
       'zeniqPerToken': zeniqPerToken,

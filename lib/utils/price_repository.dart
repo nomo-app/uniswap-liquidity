@@ -177,7 +177,13 @@ abstract class PriceRepository {
     if (token == avinocZSC) {
       token = avinocETH; // workaround for a price-service bug
     }
-    final endpoint = "$PRICE_ENDPOINT/currentprice/ZENIQ/${currency.name}";
+
+    String symbol = token.symbol;
+    if (token.symbol == "WZENIQ") {
+      symbol = "zeniq";
+    }
+
+    final endpoint = "$PRICE_ENDPOINT/currentprice/${symbol}/${currency.name}";
 
     try {
       final price = await (_fetchSingle(

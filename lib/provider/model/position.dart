@@ -9,6 +9,7 @@ class Position {
   final Amount share;
   final Amount reserveAmountZeniq;
   final Amount reserveAmountToken;
+  final double valueLocked;
 
   Position({
     // required this.pair,
@@ -19,6 +20,7 @@ class Position {
     required this.share,
     required this.reserveAmountZeniq,
     required this.reserveAmountToken,
+    required this.valueLocked,
   });
 
   @override

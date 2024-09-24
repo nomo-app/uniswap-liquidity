@@ -21,11 +21,14 @@ class PoolOverview extends ConsumerWidget {
     final image1 =
         ref.read(assetNotifierProvider).imageNotifierForToken(pair.token)!;
 
+    final currencyNotifier = ref.watch(assetNotifierProvider).currencyNotifier;
+
     return ListenableBuilder(
-      listenable: Listenable.merge([image0, image1]),
+      listenable: Listenable.merge([image0, image1, currencyNotifier]),
       builder: (context, child) {
         final imageToken0 = image0.value;
         final imageToken1 = image1.value;
+        final currency = currencyNotifier.value;
 
         return InkWell(
           onTap: () {
@@ -47,7 +50,7 @@ class PoolOverview extends ConsumerWidget {
             child: Column(
               children: [
                 Row(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
                       width: 74,
@@ -99,83 +102,89 @@ class PoolOverview extends ConsumerWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            NomoText(
-                              pair.tokeWZeniq.symbol,
-                              style: context.typography.b1,
-                            ),
-                            NomoText(
-                              " / ",
-                              style: context.typography.b1,
-                              opacity: 0.7,
-                            ),
-                            NomoText(
-                              pair.token.symbol,
-                              style: context.typography.b1,
-                            ),
-                          ],
+                        NomoText(
+                          pair.token.symbol,
+                          style: context.typography.b1,
                         ),
+
+                        // Row(
+                        //   children: [
+                        //     NomoText(
+                        //       "ZENIQ",
+                        //       style: context.typography.b1,
+                        //     ),
+                        //         NomoText(
+                        //           " : ",
+                        //           style: context.typography.b1,
+                        //           opacity: 0.7,
+                        //         ),
+                        //         NomoText(
+                        //           pair.token.symbol,
+                        //           style: context.typography.b1,
+                        //         ),
+                        //   ],
+                        // ),
                         const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Container(
-                              width: 42,
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: context.theme.colors.primary,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Center(
-                                child: NomoText(
-                                  "V2",
-                                  style: context.typography.b1,
-                                  fontSize: 12,
-                                ),
-                              ),
+                        // Row(
+                        //   children: [
+                        //     Container(
+                        //       width: 42,
+                        //       padding: const EdgeInsets.all(4),
+                        //       decoration: BoxDecoration(
+                        //         color: context.theme.colors.primary,
+                        //         borderRadius: BorderRadius.circular(12),
+                        //       ),
+                        //       child: Center(
+                        //         child: NomoText(
+                        //           "V2",
+                        //           style: context.typography.b1,
+                        //           fontSize: 12,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     6.hSpacing,
+
+                        //   ],
+                        // )
+                        Container(
+                          width: 64,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: context.theme.colors.background3,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: NomoText(
+                              "0.3% Fee",
+                              style: context.typography.b1,
+                              fontSize: 12,
                             ),
-                            6.hSpacing,
-                            Container(
-                              width: 46,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 4,
-                                horizontal: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: context.theme.colors.background3,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Center(
-                                child: NomoText(
-                                  "0.3%",
-                                  style: context.typography.b1,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
+                          ),
+                        ),
                       ],
                     ),
                     Spacer(),
-                    NomoText(
-                      pair.position == null ? "Enter" : "Mange\nPosition",
-                      style: context.typography.b1,
+                    SizedBox(
+                      width: 86,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          NomoText(
+                            pair.position == null ? "Enter" : "Mange\nPosition",
+                            style: context.typography.b1,
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            color: context.theme.colors.foreground1,
+                            size: 26,
+                          ),
+                        ],
+                      ),
                     ),
-                    12.vSpacing,
-                    // IconButton(
-                    //   splashRadius: 2,
-                    //   color: context.theme.colors.foreground1,
-                    //   onPressed: () {
-                    //     NomoNavigator.of(context)
-                    //         .push(DetailsScreenRoute(pair: pair));
-                    //   },
-                    //   icon:
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: context.theme.colors.foreground1,
-                      size: 26,
-                    ),
+
                     // ),
                   ],
                 ),
@@ -192,7 +201,7 @@ class PoolOverview extends ConsumerWidget {
                           ),
                           8.vSpacing,
                           NomoText(
-                            pair.tvl.toMaxPrecisionWithoutScientificNotation(4),
+                            "${pair.tvl.toMaxPrecisionWithoutScientificNotation(2)} ${currency.symbol}",
                             maxLines: 2,
                             fit: true,
                             style: context.typography.b1,
@@ -224,22 +233,18 @@ class PoolOverview extends ConsumerWidget {
                   ),
                 ] else ...[
                   16.vSpacing,
-                  16.vSpacing,
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
                         children: [
                           NomoText(
-                            "Liquidity",
+                            "Value Locked",
                             style: context.typography.b1,
                           ),
                           8.vSpacing,
                           NomoText(
-                            pair.position?.liquidity.displayDouble
-                                    .toMaxPrecisionWithoutScientificNotation(
-                                        4) ??
-                                "",
+                            "${pair.position?.valueLocked.toMaxPrecision(2)} ${currency.symbol}",
                             style: context.typography.b1,
                           ),
                         ],
@@ -247,7 +252,7 @@ class PoolOverview extends ConsumerWidget {
                       Column(
                         children: [
                           NomoText(
-                            "WZENIQ",
+                            "ZENIQ",
                             style: context.typography.b1,
                           ),
                           8.vSpacing,
