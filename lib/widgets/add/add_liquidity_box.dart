@@ -93,7 +93,6 @@ class AddLiquidityBox extends HookConsumerWidget {
             );
           },
         ),
-
         12.vSpacing,
         ListenableBuilder(
           listenable: Listenable.merge([
@@ -145,7 +144,6 @@ class AddLiquidityBox extends HookConsumerWidget {
             return SizedBox.shrink();
           },
         ),
-
         ValueListenableBuilder(
           valueListenable: formStateNotifier.canAddLiquidity,
           builder: (context, canAddLiquidity, child) {

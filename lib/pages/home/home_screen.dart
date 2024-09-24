@@ -9,41 +9,24 @@ import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/widgets/animated_currency_switch.dart';
 import 'package:uniswap_liquidity/widgets/pool_overview.dart';
 
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
 
+  get selectedPool => null;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pairsProvider = ref.watch(pairNotifierProvider);
     final showAllPools = useState(false);
-
     return NomoScaffold(
       appBar: NomoAppBar(
         title: NomoText(
           "Liquidity",
           style: context.typography.h1,
         ),
-        // trailling: PrimaryNomoButton(
-        //   borderRadius: BorderRadius.circular(8),
-        //   padding: EdgeInsets.symmetric(
-        //     horizontal: 16,
-        //     vertical: 8,
-        //   ),
-        //   onPressed: () async {
-        //     final pair = await showDialog(
-        //       context: context,
-        //       builder: (context) => SuccessDialog(
-        //           messageHex: "0x04358de9c80fa9e3e0185e25a513c08f97610720"),
-        //     );
-        //     if (pair == null) return;
-        //     // ignore: use_build_context_synchronously
-        //     // NomoNavigator.of(context).push(AddScreenRoute(pair: pair));
-        //   },
-        //   text: "Add Liquidity",
-        //   textStyle: context.typography.b1,
-        // ),
       ),
       child: NomoRouteBody(
         padding: const EdgeInsets.all(16),
@@ -52,6 +35,9 @@ class HomeScreen extends HookConsumerWidget {
           data: (pairs) {
             final positionPairs =
                 pairs.where((element) => element.position != null).toList();
+
+            positionPairs.sort((a, b) =>
+                b.position!.valueLocked.compareTo(a.position!.valueLocked));
 
             pairs.sort((a, b) => b.tvl.compareTo(a.tvl));
 
@@ -90,6 +76,8 @@ class HomeScreen extends HookConsumerWidget {
                       text: "All Pools",
                       textStyle: context.typography.b1,
                     ),
+                    Spacer(),
+                    AnimatedCurrencySwitch(),
                   ],
                 ),
                 16.vSpacing,
