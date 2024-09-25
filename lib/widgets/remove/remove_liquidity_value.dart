@@ -125,7 +125,7 @@ class RemoveLiquidityValue extends HookConsumerWidget {
               borderRadius: BorderRadius.circular(16),
               expandToConstraints: true,
               height: 52,
-              textStyle: context.typography.b1,
+              textStyle: context.typography.b2,
               text: sliderValue.value == 0 ? "Enter Value" : "Remove",
               enabled: needsApproval == ApprovalState.approved &&
                   (tokenAmount != "0.0" || tokenAmount.isEmpty) &&

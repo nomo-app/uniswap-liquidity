@@ -11,7 +11,7 @@ class DottedLine extends StatelessWidget {
     super.key,
     this.color = Colors.black,
     this.strokeWidth = 1.0,
-    this.dashWidth = 4.0,
+    this.dashWidth = 2.0,
     this.dashSpace = 4.0,
   });
 
