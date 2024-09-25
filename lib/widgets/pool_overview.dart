@@ -7,6 +7,8 @@ import 'package:nomo_ui_kit/components/loading/shimmer/loading_shimmer.dart';
 import 'package:nomo_ui_kit/components/loading/shimmer/shimmer.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
+import 'package:nomo_ui_kit/utils/layout_extensions.dart';
+import 'package:uniswap_liquidity/pages/home/home_screen.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/routes.dart';
@@ -134,24 +136,10 @@ class PoolOverview extends ConsumerWidget {
                         ],
                       ),
                       Spacer(),
-                      SizedBox(
-                        width: 86,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            NomoText(
-                              pair.position == null
-                                  ? "Enter"
-                                  : "Mange\nPosition",
-                              style: context.typography.b1,
-                            ),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              color: context.theme.colors.foreground1,
-                              size: 26,
-                            ),
-                          ],
-                        ),
+                      NomoText(
+                        pair.position == null ? "Enter" : "Mange Position",
+                        style: context.typography.b1,
+                        fontWeight: FontWeight.bold,
                       ),
 
                       // ),
@@ -160,36 +148,41 @@ class PoolOverview extends ConsumerWidget {
                   Column(
                     children: [
                       Expandable(
+                        splashRadius: 0,
                         titlePadding: EdgeInsets.zero,
                         padding: EdgeInsets.zero,
-                        margin: EdgeInsets.zero,
+                        margin: EdgeInsets.symmetric(vertical: 4),
                         iconColor: context.colors.foreground1,
                         iconSize: 22,
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            NomoText(
-                              "Total Value Locked ",
-                              style: context.typography.b1,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            pair.isUpdating
-                                ? ShimmerLoading(
-                                    isLoading: pair.isUpdating,
-                                    child: Container(
-                                      height: 16,
-                                      width: 62,
-                                      decoration: BoxDecoration(
-                                        color: context.colors.background1,
-                                        borderRadius: BorderRadius.circular(8),
+                        title: Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              NomoText(
+                                "Total Value Locked ",
+                                style: context.typography.b1,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              pair.isUpdating
+                                  ? ShimmerLoading(
+                                      isLoading: pair.isUpdating,
+                                      child: Container(
+                                        height: 16,
+                                        width: 62,
+                                        decoration: BoxDecoration(
+                                          color: context.colors.background1,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                       ),
+                                    )
+                                  : NomoText(
+                                      "${pair.tvl.formatDouble(2)} ${currency.symbol}",
+                                      style: context.typography.b1,
                                     ),
-                                  )
-                                : NomoText(
-                                    "${pair.tvl.formatDouble(2)} ${currency.symbol}",
-                                    style: context.typography.b1,
-                                  ),
-                          ],
+                            ],
+                          ),
                         ),
                         children: [
                           Row(
@@ -224,37 +217,41 @@ class PoolOverview extends ConsumerWidget {
                       ),
                       if (pair.position != null)
                         Expandable(
+                          splashRadius: 0,
                           titlePadding: EdgeInsets.zero,
                           padding: EdgeInsets.zero,
                           margin: EdgeInsets.zero,
                           iconColor: context.colors.foreground1,
                           iconSize: 22,
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              NomoText(
-                                "My Value Locked",
-                                style: context.typography.b1,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              pair.isUpdating
-                                  ? ShimmerLoading(
-                                      isLoading: pair.isUpdating,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: context.colors.background1,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                          title: Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                NomoText(
+                                  "My Value Locked",
+                                  style: context.typography.b1,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                pair.isUpdating
+                                    ? ShimmerLoading(
+                                        isLoading: pair.isUpdating,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: context.colors.background1,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          height: 16,
+                                          width: 62,
                                         ),
-                                        height: 16,
-                                        width: 62,
+                                      )
+                                    : NomoText(
+                                        "${pair.position?.valueLocked.formatDouble(2)} ${currency.symbol}",
+                                        style: context.typography.b1,
                                       ),
-                                    )
-                                  : NomoText(
-                                      "${pair.position?.valueLocked.formatDouble(2)} ${currency.symbol}",
-                                      style: context.typography.b1,
-                                    ),
-                            ],
+                              ],
+                            ),
                           ),
                           children: [
                             Row(
@@ -291,6 +288,7 @@ class PoolOverview extends ConsumerWidget {
                             ),
                           ],
                         ),
+                      4.vSpacing,
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
