@@ -52,7 +52,7 @@ class PoolInfromation extends ConsumerWidget {
                         DottedLine(),
                         8.hSpacing,
                         NomoText(
-                          "${pair.tvl.toMaxPrecisionWithoutScientificNotation(2)} ${currency.symbol}",
+                          "${pair.tvl.formatDouble(2)} ${currency.symbol}",
                           style: context.theme.typography.b1,
                         ),
                       ],

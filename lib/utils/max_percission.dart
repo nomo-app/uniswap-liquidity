@@ -12,6 +12,18 @@ extension FormatExtension on double {
     };
   }
 
+  String formatDouble(int maxPrecision) {
+    if (this == 0) {
+      return '0';
+    }
+
+    if (this < 0.01) {
+      return '<0.01';
+    } else {
+      return toStringAsFixed(maxPrecision);
+    }
+  }
+
   String toMaxPrecisionWithoutScientificNotation(int maxPrecision) {
     final double value = this;
     final exact = value.toExactString();

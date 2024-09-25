@@ -186,7 +186,7 @@ class PoolOverview extends ConsumerWidget {
                                     ),
                                   )
                                 : NomoText(
-                                    "${pair.tvl.toMaxPrecision(2)} ${currency.symbol}",
+                                    "${pair.tvl.formatDouble(2)} ${currency.symbol}",
                                     style: context.typography.b1,
                                   ),
                           ],
@@ -251,7 +251,7 @@ class PoolOverview extends ConsumerWidget {
                                       ),
                                     )
                                   : NomoText(
-                                      "${pair.position?.valueLocked.toMaxPrecision(2)} ${currency.symbol}",
+                                      "${pair.position?.valueLocked.formatDouble(2)} ${currency.symbol}",
                                       style: context.typography.b1,
                                     ),
                             ],
