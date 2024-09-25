@@ -5,11 +5,13 @@ import 'package:nomo_ui_kit/components/app/app_bar/nomo_app_bar.dart';
 import 'package:nomo_ui_kit/components/app/routebody/nomo_route_body.dart';
 import 'package:nomo_ui_kit/components/app/scaffold/nomo_scaffold.dart';
 import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
+import 'package:nomo_ui_kit/components/input/textInput/nomo_input.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'package:uniswap_liquidity/widgets/animated_currency_switch.dart';
+import 'package:uniswap_liquidity/widgets/animated_expandable.dart';
 import 'package:uniswap_liquidity/widgets/pool_overview.dart';
 
 class HomeScreen extends HookConsumerWidget {
@@ -21,6 +23,19 @@ class HomeScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pairsProvider = ref.watch(pairNotifierProvider);
     final showAllPools = useState(false);
+    final showLowTVLPools = useState(false);
+    final searchNotifier = useState('');
+    final searchTerm = useState('');
+
+    useEffect(() {
+      void listener() {
+        searchTerm.value = searchNotifier.value.toLowerCase();
+      }
+
+      searchNotifier.addListener(listener);
+      return () => searchNotifier.removeListener(listener);
+    }, [searchNotifier]);
+
     return NomoScaffold(
       appBar: NomoAppBar(
         title: NomoText(
@@ -33,13 +48,22 @@ class HomeScreen extends HookConsumerWidget {
         backgroundColor: context.theme.colors.background1,
         child: pairsProvider.when(
           data: (pairs) {
-            final positionPairs =
-                pairs.where((element) => element.position != null).toList();
+            final filteredPairs = pairs
+                .where((pair) =>
+                    pair.token.symbol.toLowerCase().contains(searchTerm.value))
+                .toList();
 
+            final positionPairs = filteredPairs
+                .where((element) => element.position != null)
+                .toList();
             positionPairs.sort((a, b) =>
                 b.position!.valueLocked.compareTo(a.position!.valueLocked));
+            filteredPairs.sort((a, b) => b.tvl.compareTo(a.tvl));
 
-            pairs.sort((a, b) => b.tvl.compareTo(a.tvl));
+            final highTVLPairs =
+                filteredPairs.where((p) => p.tvl >= 400).toList();
+            final lowTVLPairs =
+                filteredPairs.where((p) => p.tvl < 400).toList();
 
             return Column(
               children: [
@@ -47,15 +71,14 @@ class HomeScreen extends HookConsumerWidget {
                   children: [
                     PrimaryNomoButton(
                       borderRadius: BorderRadius.circular(8),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       backgroundColor: showAllPools.value
                           ? context.theme.colors.background2
                           : context.theme.colors.primary,
                       onPressed: () {
                         showAllPools.value = false;
+                        showLowTVLPools.value = false;
                       },
                       text: "My Pools",
                       textStyle: context.typography.b1,
@@ -63,10 +86,8 @@ class HomeScreen extends HookConsumerWidget {
                     16.hSpacing,
                     PrimaryNomoButton(
                       borderRadius: BorderRadius.circular(8),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       backgroundColor: showAllPools.value
                           ? context.theme.colors.primary
                           : context.theme.colors.background2,
@@ -79,14 +100,34 @@ class HomeScreen extends HookConsumerWidget {
                     Spacer(),
                     AnimatedCurrencySwitch(
                       onCurrencyChanged: () {
-                        // Use the new softUpdate method
                         ref.read(pairNotifierProvider.notifier).softUpdate();
                       },
                     ),
                   ],
                 ),
                 16.vSpacing,
-                if (positionPairs.isEmpty && showAllPools.value == false) ...[
+                NomoInput(
+                  // controller: searchController,
+                  valueNotifier: searchNotifier,
+                  placeHolder: "Search pools...",
+                  placeHolderStyle: context.typography.b1,
+                  borderRadius: BorderRadius.circular(8),
+                  leading: Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: Icon(
+                      Icons.search,
+                      color: context.theme.colors.foreground1,
+                    ),
+                  ),
+                  style: context.typography.b1,
+                ),
+                16.vSpacing,
+                if (filteredPairs.isEmpty) ...[
+                  NomoText(
+                    "No pools found",
+                    style: context.typography.b2,
+                  ),
+                ] else if (positionPairs.isEmpty && !showAllPools.value) ...[
                   NomoText(
                     "No positions found",
                     style: context.typography.b2,
@@ -98,19 +139,25 @@ class HomeScreen extends HookConsumerWidget {
                   ),
                 ] else ...[
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: showAllPools.value
-                          ? pairs.length
-                          : positionPairs.length,
-                      itemBuilder: (context, index) {
-                        final pair = showAllPools.value
-                            ? pairs[index]
-                            : positionPairs[index];
-                        return PoolOverview(
-                          pair: pair,
-                          showTVL: showAllPools.value ? true : false,
-                        );
-                      },
+                    child: ListView(
+                      children: [
+                        ...showAllPools.value
+                            ? highTVLPairs.map((pair) =>
+                                PoolOverview(pair: pair, showTVL: true))
+                            : positionPairs.map((pair) =>
+                                PoolOverview(pair: pair, showTVL: false)),
+                        if (showAllPools.value && lowTVLPairs.isNotEmpty)
+                          AnimatedExpandableRow(
+                            isExpanded: showLowTVLPools.value,
+                            lowTVLPoolsCount: lowTVLPairs.length,
+                            onTap: () {
+                              showLowTVLPools.value = !showLowTVLPools.value;
+                            },
+                          ),
+                        if (showAllPools.value && showLowTVLPools.value)
+                          ...lowTVLPairs.map((pair) =>
+                              PoolOverview(pair: pair, showTVL: true)),
+                      ],
                     ),
                   ),
                 ],
