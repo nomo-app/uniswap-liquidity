@@ -104,12 +104,13 @@ class HomeScreen extends HookConsumerWidget {
                     ),
                     Spacer(),
                     NomoDropDownMenu(
-                      width: 120,
+                      width: 124,
                       borderRadius: BorderRadius.circular(8),
                       dropdownColor: context.theme.colors.background2,
                       backgroundColor: context.theme.colors.background2,
                       iconColor: context.theme.colors.primary,
-                      itemPadding: EdgeInsets.symmetric(vertical: 6),
+                      itemPadding:
+                          EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                       initialValue: currentCurrency,
                       onChanged: (value) {
                         final newCurrency = currentCurrency == Currency.usd
@@ -123,17 +124,15 @@ class HomeScreen extends HookConsumerWidget {
                         NomoDropdownItemWidget(
                           value: Currency.eur,
                           widget: NomoText(
-                            Currency.eur.displayName,
+                            "${Currency.eur.displayName} ${Currency.eur.symbol}",
                             style: context.typography.b1,
-                            textAlign: TextAlign.center,
                           ),
                         ),
                         NomoDropdownItemWidget(
                           value: Currency.usd,
                           widget: NomoText(
-                            Currency.usd.displayName,
+                            "${Currency.usd.displayName}  ${Currency.eur.symbol}",
                             style: context.typography.b1,
-                            textAlign: TextAlign.center,
                           ),
                         ),
                       ],
