@@ -52,7 +52,9 @@ class AnimatedExpandableRow extends StatelessWidget {
               },
               child: NomoText(
                 key: ValueKey<bool>(isExpanded),
-                isExpanded ? "Hide pools" : "Show $lowTVLPoolsCount more pools",
+                isExpanded
+                    ? "Hide small pools"
+                    : "Show $lowTVLPoolsCount small pools",
                 style: context.typography.b2
                     .copyWith(color: context.theme.colors.primary),
               ),

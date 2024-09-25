@@ -5,12 +5,15 @@ import 'package:nomo_ui_kit/components/app/app_bar/nomo_app_bar.dart';
 import 'package:nomo_ui_kit/components/app/routebody/nomo_route_body.dart';
 import 'package:nomo_ui_kit/components/app/scaffold/nomo_scaffold.dart';
 import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
+import 'package:nomo_ui_kit/components/dropdownmenu/drop_down_item.dart';
+import 'package:nomo_ui_kit/components/dropdownmenu/dropdownmenu.dart';
 import 'package:nomo_ui_kit/components/input/textInput/nomo_input.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
+import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
-import 'package:uniswap_liquidity/widgets/animated_currency_switch.dart';
+import 'package:uniswap_liquidity/utils/price_repository.dart';
 import 'package:uniswap_liquidity/widgets/animated_expandable.dart';
 import 'package:uniswap_liquidity/widgets/pool_overview.dart';
 
@@ -26,6 +29,8 @@ class HomeScreen extends HookConsumerWidget {
     final showLowTVLPools = useState(false);
     final searchNotifier = useState('');
     final searchTerm = useState('');
+    final assetNotifier = ref.watch(assetNotifierProvider);
+    final currentCurrency = assetNotifier.currency;
 
     useEffect(() {
       void listener() {
@@ -61,9 +66,9 @@ class HomeScreen extends HookConsumerWidget {
             filteredPairs.sort((a, b) => b.tvl.compareTo(a.tvl));
 
             final highTVLPairs =
-                filteredPairs.where((p) => p.tvl >= 400).toList();
+                filteredPairs.where((p) => p.tvl >= 100).toList();
             final lowTVLPairs =
-                filteredPairs.where((p) => p.tvl < 400).toList();
+                filteredPairs.where((p) => p.tvl < 100).toList();
 
             return Column(
               children: [
@@ -98,10 +103,40 @@ class HomeScreen extends HookConsumerWidget {
                       textStyle: context.typography.b1,
                     ),
                     Spacer(),
-                    AnimatedCurrencySwitch(
-                      onCurrencyChanged: () {
+                    NomoDropDownMenu(
+                      width: 120,
+                      borderRadius: BorderRadius.circular(8),
+                      dropdownColor: context.theme.colors.background2,
+                      backgroundColor: context.theme.colors.background2,
+                      iconColor: context.theme.colors.primary,
+                      itemPadding: EdgeInsets.symmetric(vertical: 6),
+                      initialValue: currentCurrency,
+                      onChanged: (value) {
+                        final newCurrency = currentCurrency == Currency.usd
+                            ? Currency.eur
+                            : Currency.usd;
+                        assetNotifier.currencyNotifier.value = newCurrency;
                         ref.read(pairNotifierProvider.notifier).softUpdate();
                       },
+                      itemHeight: 28,
+                      items: [
+                        NomoDropdownItemWidget(
+                          value: Currency.eur,
+                          widget: NomoText(
+                            Currency.eur.displayName,
+                            style: context.typography.b1,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        NomoDropdownItemWidget(
+                          value: Currency.usd,
+                          widget: NomoText(
+                            Currency.usd.displayName,
+                            style: context.typography.b1,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -142,10 +177,12 @@ class HomeScreen extends HookConsumerWidget {
                     child: ListView(
                       children: [
                         ...showAllPools.value
-                            ? highTVLPairs.map((pair) =>
-                                PoolOverview(pair: pair, showTVL: true))
-                            : positionPairs.map((pair) =>
-                                PoolOverview(pair: pair, showTVL: false)),
+                            ? highTVLPairs.map((pair) => PoolOverview(
+                                  pair: pair,
+                                ))
+                            : positionPairs.map((pair) => PoolOverview(
+                                  pair: pair,
+                                )),
                         if (showAllPools.value && lowTVLPairs.isNotEmpty)
                           AnimatedExpandableRow(
                             isExpanded: showLowTVLPools.value,
@@ -155,8 +192,9 @@ class HomeScreen extends HookConsumerWidget {
                             },
                           ),
                         if (showAllPools.value && showLowTVLPools.value)
-                          ...lowTVLPairs.map((pair) =>
-                              PoolOverview(pair: pair, showTVL: true)),
+                          ...lowTVLPairs.map((pair) => PoolOverview(
+                                pair: pair,
+                              )),
                       ],
                     ),
                   ),

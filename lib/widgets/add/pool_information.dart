@@ -9,9 +9,9 @@ import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
 import 'package:uniswap_liquidity/widgets/dotted_line.dart';
 
-class PositionBox extends ConsumerWidget {
+class PoolInfromation extends ConsumerWidget {
   final Pair pair;
-  const PositionBox({required this.pair, super.key});
+  const PoolInfromation({required this.pair, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,7 +30,7 @@ class PositionBox extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 16, top: 16),
                 child: NomoText(
-                  "Your position",
+                  "Pool Information",
                   style: context.theme.typography.b1,
                 ),
               ),
@@ -87,70 +87,6 @@ class PositionBox extends ConsumerWidget {
                         NomoText(
                           pair.tokenValue
                               .toMaxPrecisionWithoutScientificNotation(5),
-                          style: context.theme.typography.b1,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        NomoText(
-                          "My Value Locked",
-                          style: context.theme.typography.b1,
-                        ),
-                        8.hSpacing,
-                        DottedLine(),
-                        8.hSpacing,
-                        NomoText(
-                          "${pair.position!.valueLocked.toMaxPrecisionWithoutScientificNotation(2)} ${currency.symbol}",
-                          style: context.theme.typography.b1,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        NomoText("My ZENIQ",
-                            style: context.theme.typography.b1),
-                        8.hSpacing,
-                        DottedLine(),
-                        8.hSpacing,
-                        NomoText(
-                          pair.position!.zeniqValue.displayDouble
-                              .toMaxPrecisionWithoutScientificNotation(5),
-                          style: context.theme.typography.b1,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        NomoText(
-                          "My ${pair.token.symbol}",
-                          style: context.theme.typography.b1,
-                        ),
-                        8.hSpacing,
-                        DottedLine(),
-                        8.hSpacing,
-                        NomoText(
-                          pair.position!.tokenValue.displayDouble
-                              .toMaxPrecisionWithoutScientificNotation(5),
-                          style: context.theme.typography.b1,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        NomoText(
-                          "Pool share",
-                          style: context.theme.typography.b1,
-                        ),
-                        8.hSpacing,
-                        DottedLine(),
-                        8.hSpacing,
-                        NomoText(
-                          "${pair.position!.share.displayDouble.formatPriceImpact().$1}%",
                           style: context.theme.typography.b1,
                         ),
                       ],

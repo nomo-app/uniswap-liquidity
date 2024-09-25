@@ -5,9 +5,11 @@ import 'package:nomo_ui_kit/components/app/routebody/nomo_route_body.dart';
 import 'package:nomo_ui_kit/components/app/scaffold/nomo_scaffold.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
+import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/provider/selected_pool_provider.dart';
 import 'package:uniswap_liquidity/widgets/add/add_liquidity_box.dart';
+import 'package:uniswap_liquidity/widgets/add/pool_information.dart';
 
 class AddScreen extends ConsumerWidget {
   final Pair? pair;
@@ -31,8 +33,14 @@ class AddScreen extends ConsumerWidget {
       child: NomoRouteBody(
         child: selectedPool.when(
           data: (pair) => Padding(
-            padding: const EdgeInsets.only(top: 64, left: 12, right: 12),
-            child: AddLiquidityBox(selectedPool: pair),
+            padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
+            child: Column(
+              children: [
+                PoolInfromation(pair: pair),
+                12.vSpacing,
+                AddLiquidityBox(selectedPool: pair),
+              ],
+            ),
           ),
           error: (error, stackTrace) => NomoText(error.toString()),
           loading: () => Center(
