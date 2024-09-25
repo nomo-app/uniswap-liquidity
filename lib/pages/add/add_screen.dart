@@ -34,12 +34,14 @@ class AddScreen extends ConsumerWidget {
         child: selectedPool.when(
           data: (pair) => Padding(
             padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
-            child: Column(
-              children: [
-                PoolInfromation(pair: pair),
-                12.vSpacing,
-                AddLiquidityBox(selectedPool: pair),
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  PoolInfromation(pair: pair),
+                  12.vSpacing,
+                  AddLiquidityBox(selectedPool: pair),
+                ],
+              ),
             ),
           ),
           error: (error, stackTrace) => NomoText(error.toString()),

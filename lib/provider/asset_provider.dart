@@ -63,9 +63,9 @@ class AssetNotifier {
 
     if (token.symbol == "WZENIQ") {
       final image = ImageEntity(
-        thumb: "assets/zeniq.png",
-        small: "assets/zeniq.png",
-        large: "assets/zeniq.png",
+        thumb: "assets/assets/zeniq.png",
+        small: "assets/assets/zeniq.png",
+        large: "assets/assets/zeniq.png",
       );
       _images[token]!.value = AsyncValue.data(image);
       return;
@@ -81,9 +81,9 @@ class AssetNotifier {
         s: s,
       );
       final image = ImageEntity(
-        thumb: "assets/blank-token.png",
-        small: "assets/blank-token.png",
-        large: "assets/blank-token.png",
+        thumb: "assets/assets/blank-token.png",
+        small: "assets/assets/blank-token.png",
+        large: "assets/assets/blank-token.png",
       );
       _images[token]!.value = AsyncValue.data(image);
     }
