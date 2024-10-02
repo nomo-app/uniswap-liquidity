@@ -1,6 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:uniswap_liquidity/utils/price_repository.dart';
+
+String formatValueWithCurrency(Currency currency, double value) {
+  return "${currency == Currency.usd ? '${currency.symbol} ' : ''}"
+      "${value.formatDouble(2)}"
+      "${currency == Currency.eur ? ' ${currency.symbol}' : ''}";
+}
 
 extension FormatExtension on double {
   (String, Color) formatPriceImpact() {
