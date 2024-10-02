@@ -36,8 +36,7 @@ class PoolView extends StatelessWidget {
             _buildTokenRow(
               context,
               "ZENIQ",
-              pair.zeniqValue.displayDouble
-                  .toMaxPrecisionWithoutScientificNotation(4),
+              pair.zeniqValue.displayDouble.formatTokenBalance(),
               pair.isUpdating
                   ? _buildShimmer(context)
                   : formatValueWithCurrency(currency, pair.zeniqFiatValue),
@@ -45,8 +44,7 @@ class PoolView extends StatelessWidget {
             _buildTokenRow(
               context,
               pair.token.symbol,
-              pair.tokenValue.displayDouble
-                  .toMaxPrecisionWithoutScientificNotation(4),
+              pair.tokenValue.displayDouble.formatTokenBalance(),
               pair.isUpdating
                   ? _buildShimmer(context)
                   : formatValueWithCurrency(currency, pair.tokenFiatValue),
@@ -68,8 +66,7 @@ class PoolView extends StatelessWidget {
               _buildTokenRow(
                 context,
                 "ZENIQ",
-                pair.position?.zeniqValue.displayDouble
-                        .toMaxPrecisionWithoutScientificNotation(4) ??
+                pair.position?.zeniqValue.displayDouble.formatTokenBalance() ??
                     "",
                 pair.isUpdating
                     ? _buildShimmer(context)
@@ -79,8 +76,7 @@ class PoolView extends StatelessWidget {
               _buildTokenRow(
                 context,
                 pair.token.symbol,
-                pair.position?.tokenValue.displayDouble
-                        .toMaxPrecisionWithoutScientificNotation(4) ??
+                pair.position?.tokenValue.displayDouble.formatTokenBalance() ??
                     "",
                 pair.isUpdating
                     ? _buildShimmer(context)

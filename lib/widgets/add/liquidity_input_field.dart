@@ -105,7 +105,7 @@ class LiquidityInputField extends HookConsumerWidget {
                       ),
                       4.hSpacing,
                       NomoText(
-                        balance?.displayDouble.toStringAsFixed(5) ?? "0.00",
+                        balance?.displayDouble.formatTokenBalance() ?? "0.00",
                         style: context.typography.b1,
                       ),
                       8.hSpacing,

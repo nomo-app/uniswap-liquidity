@@ -10,6 +10,60 @@ String formatValueWithCurrency(Currency currency, double value) {
 }
 
 extension FormatExtension on double {
+  String formatTokenBalance({int maxDecimals = 5, int minDecimals = 2}) {
+    if (this == 0) return '0';
+
+    final absValue = abs();
+
+    // For very large numbers (100000 and above)
+    if (absValue >= 100000) {
+      return round().toString();
+    }
+
+    // For numbers between 1 and 99999.99
+    if (absValue >= 1) {
+      return toStringAsFixed(2);
+    }
+
+    // For small numbers (less than 1)
+    final String formattedString = toStringAsFixed(maxDecimals);
+    final parts = formattedString.split('.');
+
+    if (parts.length == 1) return parts[0]; // No decimal part
+
+    String integerPart = parts[0];
+    String fractionalPart = parts[1];
+
+    // Trim trailing zeros, but keep at least minDecimals
+    while (
+        fractionalPart.length > minDecimals && fractionalPart.endsWith('0')) {
+      fractionalPart = fractionalPart.substring(0, fractionalPart.length - 1);
+    }
+
+    // If the number is very small, show significant digits
+    if (absValue < 0.00001) {
+      final scientificNotation = toStringAsExponential(maxDecimals - 1);
+      final scientificParts = scientificNotation.split('e');
+      final coefficient = double.parse(scientificParts[0]);
+      final exponent = int.parse(scientificParts[1]);
+
+      String significantDigits =
+          coefficient.abs().toStringAsFixed(maxDecimals - 1);
+      while (significantDigits.endsWith('0')) {
+        significantDigits =
+            significantDigits.substring(0, significantDigits.length - 1);
+      }
+      if (significantDigits.endsWith('.')) {
+        significantDigits =
+            significantDigits.substring(0, significantDigits.length - 1);
+      }
+
+      return '${this < 0 ? '-' : ''}0.${'0' * (-exponent - 1)}$significantDigits';
+    }
+
+    return '$integerPart${fractionalPart.isNotEmpty ? '.$fractionalPart' : ''}';
+  }
+
   (String, Color) formatPriceImpact() {
     return switch (this) {
       < 0.01 => ('<0.01', Colors.greenAccent),

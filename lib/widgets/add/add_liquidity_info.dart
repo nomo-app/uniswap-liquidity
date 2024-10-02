@@ -56,8 +56,7 @@ class ADDLiqiuidityInfo extends HookConsumerWidget {
                     token: pair.token,
                     zeniq: pair.tokeWZeniq,
                     isOther: true,
-                    value: pair.tokenPerZeniq
-                        .toMaxPrecisionWithoutScientificNotation(5),
+                    value: pair.tokenPerZeniq.formatTokenBalance(),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,8 +75,7 @@ class ADDLiqiuidityInfo extends HookConsumerWidget {
                     ],
                   ),
                   UnitDisplay(
-                    value: pair.zeniqPerToken
-                        .toMaxPrecisionWithoutScientificNotation(5),
+                    value: pair.zeniqPerToken.formatTokenBalance(),
                     token: pair.token,
                     zeniq: pair.tokeWZeniq,
                     isOther: false,
