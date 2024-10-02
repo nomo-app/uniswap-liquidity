@@ -208,7 +208,7 @@ final periodicUpdateProvider = Provider((ref) {
 
   void startPeriodicUpdates() {
     timer = Timer.periodic(Duration(seconds: 20), (_) {
-      ref.read(pairNotifierProvider.notifier).softUpdate();
+      ref.read(pairNotifierProvider.notifier).periodicUpdate();
     });
   }
 

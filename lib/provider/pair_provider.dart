@@ -18,6 +18,11 @@ class PairNotifier extends _$PairNotifier {
     return _getPairs();
   }
 
+  Future<void> periodicUpdate() async {
+    final updatedPairs = await _getPairs();
+    state = AsyncValue.data(updatedPairs);
+  }
+
   Future<void> softUpdate() async {
     state.whenData((List<Pair> currentPairs) {
       state = AsyncValue.data(currentPairs
