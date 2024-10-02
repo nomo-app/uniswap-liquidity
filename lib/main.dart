@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,7 @@ import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart'
 import 'package:nomo_ui_kit/components/card/nomo_card.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
+import 'package:uniswap_liquidity/provider/pair_provider.dart';
 import 'package:uniswap_liquidity/routes.dart';
 import 'package:uniswap_liquidity/theme.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';
@@ -183,10 +186,11 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.read(periodicUpdateProvider)();
     return NomoNavigator(
       delegate: appRouter.delegate,
       child: NomoApp(
@@ -198,3 +202,19 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+final periodicUpdateProvider = Provider((ref) {
+  Timer? timer;
+
+  void startPeriodicUpdates() {
+    timer = Timer.periodic(Duration(seconds: 20), (_) {
+      ref.read(pairNotifierProvider.notifier).softUpdate();
+    });
+  }
+
+  ref.onDispose(() {
+    timer?.cancel();
+  });
+
+  return startPeriodicUpdates;
+});
