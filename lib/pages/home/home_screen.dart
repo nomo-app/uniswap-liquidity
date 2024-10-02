@@ -131,7 +131,7 @@ class HomeScreen extends HookConsumerWidget {
                         NomoDropdownItemWidget(
                           value: Currency.usd,
                           widget: NomoText(
-                            "${Currency.usd.displayName}  ${Currency.eur.symbol}",
+                            "${Currency.usd.displayName} ${Currency.usd.symbol}",
                             style: context.typography.b1,
                           ),
                         ),

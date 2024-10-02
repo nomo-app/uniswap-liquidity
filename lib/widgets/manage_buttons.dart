@@ -18,9 +18,9 @@ class ManageButtons extends StatelessWidget {
 
         return ToggleButtons(
           borderColor: context.theme.colors.onDisabled,
-          borderWidth: 1,
+          borderWidth: 2,
           constraints: BoxConstraints.expand(
-            width: (width - 3) / 2,
+            width: (width - 6) / 2,
             height: 42,
           ),
           selectedBorderColor: context.theme.colors.primary,

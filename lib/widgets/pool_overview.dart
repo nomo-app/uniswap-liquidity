@@ -3,8 +3,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
 import 'package:nomo_ui_kit/components/card/nomo_card.dart';
-import 'package:nomo_ui_kit/components/expandable/expandable.dart';
-import 'package:nomo_ui_kit/components/loading/shimmer/loading_shimmer.dart';
 import 'package:nomo_ui_kit/components/loading/shimmer/shimmer.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
@@ -13,6 +11,7 @@ import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/routes.dart';
 import 'package:uniswap_liquidity/utils/max_percission.dart';
+import 'package:uniswap_liquidity/widgets/pool_view.dart';
 
 class PoolOverview extends ConsumerWidget {
   final Pair pair;
@@ -149,172 +148,29 @@ class PoolOverview extends ConsumerWidget {
                     )
                   ],
                 ),
-                Column(
+                PoolView(pair: pair, currency: currency),
+                4.vSpacing,
+                Row(
                   children: [
-                    Expandable(
-                      splashRadius: 0,
-                      titlePadding: EdgeInsets.zero,
-                      padding: EdgeInsets.zero,
-                      margin: EdgeInsets.symmetric(vertical: 4),
-                      iconColor: context.colors.foreground1,
-                      iconSize: 22,
-                      title: Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            NomoText(
-                              "Total Value Locked ",
-                              style: context.typography.b1,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            pair.isUpdating
-                                ? ShimmerLoading(
-                                    isLoading: pair.isUpdating,
-                                    child: Container(
-                                      height: 16,
-                                      width: 62,
-                                      decoration: BoxDecoration(
-                                        color: context.colors.background1,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  )
-                                : NomoText(
-                                    "${pair.tvl.formatDouble(2)} ${currency.symbol}",
-                                    style: context.typography.b1,
-                                  ),
-                          ],
-                        ),
-                      ),
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            NomoText(
-                              "ZENIQ",
-                              style: context.typography.b1,
-                            ),
-                            NomoText(
-                              pair.zeniqValue
-                                  .toMaxPrecisionWithoutScientificNotation(4),
-                              style: context.typography.b1,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            NomoText(
-                              pair.token.symbol,
-                              style: context.typography.b1,
-                            ),
-                            NomoText(
-                              pair.tokenValue
-                                  .toMaxPrecisionWithoutScientificNotation(4),
-                              style: context.typography.b1,
-                            ),
-                          ],
-                        ),
-                      ],
+                    NomoText(
+                      "${pair.token.symbol} Balance",
+                      style: context.typography.b1,
+                      fontWeight: FontWeight.w600,
                     ),
-                    if (pair.position != null)
-                      Expandable(
-                        splashRadius: 0,
-                        titlePadding: EdgeInsets.zero,
-                        padding: EdgeInsets.zero,
-                        margin: EdgeInsets.zero,
-                        iconColor: context.colors.foreground1,
-                        iconSize: 22,
-                        title: Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              NomoText(
-                                "My Value Locked",
-                                style: context.typography.b1,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              pair.isUpdating
-                                  ? ShimmerLoading(
-                                      isLoading: pair.isUpdating,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: context.colors.background1,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        height: 16,
-                                        width: 62,
-                                      ),
-                                    )
-                                  : NomoText(
-                                      "${pair.position?.valueLocked.formatDouble(2)} ${currency.symbol}",
-                                      style: context.typography.b1,
-                                    ),
-                            ],
-                          ),
-                        ),
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              NomoText(
-                                "ZENIQ",
-                                style: context.typography.b1,
-                              ),
-                              NomoText(
-                                pair.position?.zeniqValue.displayDouble
-                                        .toMaxPrecisionWithoutScientificNotation(
-                                            4) ??
-                                    "",
-                                style: context.typography.b1,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              NomoText(
-                                pair.token.symbol,
-                                style: context.typography.b1,
-                              ),
-                              NomoText(
-                                pair.position?.tokenValue.displayDouble
-                                        .toMaxPrecisionWithoutScientificNotation(
-                                            4) ??
-                                    "",
-                                style: context.typography.b1,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    4.vSpacing,
-                    Row(
-                      children: [
-                        NomoText(
-                          "${pair.token.symbol} Balance",
-                          style: context.typography.b1,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        Spacer(),
-                        Icon(
-                          Icons.wallet,
-                          color: context.colors.foreground1,
-                          size: 18,
-                        ),
-                        8.hSpacing,
-                        NomoText(
-                          pair.balanceToken?.displayDouble
-                                  .toMaxPrecisionWithoutScientificNotation(4) ??
-                              "",
-                          maxLines: 2,
-                          fit: true,
-                          style: context.typography.b1,
-                        ),
-                      ],
+                    Spacer(),
+                    Icon(
+                      Icons.wallet,
+                      color: context.colors.foreground1,
+                      size: 18,
+                    ),
+                    8.hSpacing,
+                    NomoText(
+                      pair.balanceToken?.displayDouble
+                              .toMaxPrecisionWithoutScientificNotation(4) ??
+                          "",
+                      maxLines: 2,
+                      fit: true,
+                      style: context.typography.b1,
                     ),
                   ],
                 ),

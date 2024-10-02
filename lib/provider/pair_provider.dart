@@ -214,6 +214,8 @@ class PairNotifier extends _$PairNotifier {
         tokenValue: tokenAmount,
         reserveAmountZeniq: reserveAmountZeniq,
         reserveAmountToken: reserveAmountToken,
+        tokenFiatValue: tokenPrice * tokenAmount.displayDouble,
+        zeniqFiatValue: zeniqPrice * zeniqAmount.displayDouble,
         share: share,
       );
     }
@@ -227,8 +229,8 @@ class PairNotifier extends _$PairNotifier {
       contract: pair,
       reserves: orderedReserves,
       tvl: tvlInfo["tvl"],
-      zeniqValue: tvlInfo["zeniqValue"],
-      tokenValue: tvlInfo["tokenValue"],
+      zeniqFiatValue: tvlInfo["zeniqFiatValue"],
+      tokenFiatValue: tvlInfo["tokenFiatValue"],
       tokenPrice: tokenPrice,
       zeniqPrice: zeniqPrice,
       tokenPerZeniq: tvlInfo["tokenPerZeniq"],
@@ -237,6 +239,8 @@ class PairNotifier extends _$PairNotifier {
       fiatBlanceToken: null,
       fiatZeniqBalance: null,
       position: position,
+      tokenValue: tvlInfo["tokenValue"],
+      zeniqValue: tvlInfo["zeniqValue"],
     );
   }
 
@@ -306,6 +310,8 @@ class PairNotifier extends _$PairNotifier {
         tokenValue: tokenAmount,
         reserveAmountZeniq: reserveAmountZeniq,
         reserveAmountToken: reserveAmountToken,
+        tokenFiatValue: tokenAmount.displayDouble * pair.tokenPrice,
+        zeniqFiatValue: zeniqAmount.displayDouble * pair.zeniqPrice,
         valueLocked: vl,
         share: share,
       );
@@ -343,32 +349,31 @@ class PairNotifier extends _$PairNotifier {
         await ref.read(assetNotifierProvider).fetchSingelPrice(wtoken, true);
     double? fetchedTokenPrice = await _fetchTokenPrice(token1);
     print('Fetched token price: $fetchedTokenPrice for ${token1.symbol}');
-    final amountWZENIQ =
-        Amount(value: reserveWZENIQ, decimals: wtoken.decimals);
-    final amountToken = Amount(value: reserveToken, decimals: token1.decimals);
+    final zeniqValue = Amount(value: reserveWZENIQ, decimals: wtoken.decimals);
+    final tokenValue = Amount(value: reserveToken, decimals: token1.decimals);
 
     if (fetchedTokenPrice == null) {
       fetchedTokenPrice =
-          zeniqPrice * (amountWZENIQ.displayDouble / amountToken.displayDouble);
+          zeniqPrice * (zeniqValue.displayDouble / tokenValue.displayDouble);
     }
 
-    final valueWZENIQ = amountWZENIQ.displayDouble * zeniqPrice;
-    final valueToken1 = amountToken.displayDouble * fetchedTokenPrice;
-    final tvl = valueToken1 + valueWZENIQ;
+    final zeniqFiatValue = zeniqValue.displayDouble * zeniqPrice;
+    final tokenFiatValue = tokenValue.displayDouble * fetchedTokenPrice;
+    final tvl = tokenFiatValue + zeniqFiatValue;
 
-    final tokensPerZeniq =
-        amountToken.displayDouble / amountWZENIQ.displayDouble;
-    final zeniqPerToken =
-        amountWZENIQ.displayDouble / amountToken.displayDouble;
+    final tokensPerZeniq = tokenValue.displayDouble / zeniqValue.displayDouble;
+    final zeniqPerToken = zeniqValue.displayDouble / tokenValue.displayDouble;
 
     final tvlInfo = {
       'tvl': tvl,
-      'zeniqValue': valueWZENIQ,
-      'tokenValue': valueToken1,
+      'zeniqFiatValue': zeniqFiatValue,
+      'tokenFiatValue': tokenFiatValue,
       'tokenPrice': fetchedTokenPrice,
       'zeniqPrice': zeniqPrice,
       'tokenPerZeniq': tokensPerZeniq,
       'zeniqPerToken': zeniqPerToken,
+      'zeniqValue': zeniqValue,
+      'tokenValue': tokenValue,
     };
 
     return tvlInfo;

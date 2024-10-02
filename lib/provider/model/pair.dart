@@ -18,8 +18,8 @@ class Pair extends PairInformation {
     required this.contract,
     required this.reserves,
     required super.tvl,
-    required super.zeniqValue,
-    required super.tokenValue,
+    required super.zeniqFiatValue,
+    required super.tokenFiatValue,
     required super.tokenPrice,
     required super.zeniqPrice,
     required super.balanceToken,
@@ -29,6 +29,8 @@ class Pair extends PairInformation {
     required super.zeniqPerToken,
     this.isUpdating = false,
     required this.position,
+    required super.zeniqValue,
+    required super.tokenValue,
   });
 
   copyWith({
@@ -40,8 +42,8 @@ class Pair extends PairInformation {
     double? volume24h,
     double? fees24h,
     double? apr,
-    double? zeniqValue,
-    double? tokenValue,
+    double? zeniqFiatValue,
+    double? tokenFiatValue,
     double? tokenPrice,
     double? zeniqPrice,
     Amount? balanceToken,
@@ -51,6 +53,8 @@ class Pair extends PairInformation {
     double? tokenPerZeniq,
     double? zeniqPerToken,
     Position? position,
+    Amount? zeniqValue,
+    Amount? tokenValue,
   }) {
     return Pair(
       tokeWZeniq: tokeWZeniq ?? this.tokeWZeniq,
@@ -61,8 +65,8 @@ class Pair extends PairInformation {
       volume24h: volume24h ?? this.volume24h,
       fees24h: fees24h ?? this.fees24h,
       apr: apr ?? this.apr,
-      zeniqValue: zeniqValue ?? this.zeniqValue,
-      tokenValue: tokenValue ?? this.tokenValue,
+      zeniqFiatValue: zeniqFiatValue ?? this.zeniqFiatValue,
+      tokenFiatValue: tokenFiatValue ?? this.tokenFiatValue,
       tokenPrice: tokenPrice ?? this.tokenPrice,
       isUpdating: isUpdating ?? this.isUpdating,
       zeniqPrice: zeniqPrice ?? this.zeniqPrice,
@@ -72,6 +76,8 @@ class Pair extends PairInformation {
       tokenPerZeniq: tokenPerZeniq ?? this.tokenPerZeniq,
       zeniqPerToken: zeniqPerToken ?? this.zeniqPerToken,
       position: position ?? this.position,
+      zeniqValue: zeniqValue ?? this.zeniqValue,
+      tokenValue: tokenValue ?? this.tokenValue,
     );
   }
 
@@ -95,8 +101,8 @@ class Pair extends PairInformation {
         volume24h.hashCode ^
         fees24h.hashCode ^
         apr.hashCode ^
-        zeniqValue.hashCode ^
-        tokenValue.hashCode ^
+        zeniqFiatValue.hashCode ^
+        tokenFiatValue.hashCode ^
         tokenPrice.hashCode ^
         zeniqPrice.hashCode ^
         balanceToken.hashCode ^
@@ -115,21 +121,23 @@ abstract class PairInformation {
   final double? apr;
   final double zeniqPrice;
   final double tokenPrice;
-  final double tokenValue;
-  final double zeniqValue;
+  final double tokenFiatValue;
+  final double zeniqFiatValue;
   final Amount? balanceToken;
   final double? fiatBlanceToken;
   final double? fiatZeniqBalance;
   final double tokenPerZeniq;
   final double zeniqPerToken;
+  final Amount zeniqValue;
+  final Amount tokenValue;
 
   PairInformation({
     required this.tvl,
     required this.volume24h,
     required this.fees24h,
     required this.apr,
-    required this.zeniqValue,
-    required this.tokenValue,
+    required this.zeniqFiatValue,
+    required this.tokenFiatValue,
     required this.tokenPrice,
     required this.zeniqPrice,
     required this.balanceToken,
@@ -137,5 +145,7 @@ abstract class PairInformation {
     required this.fiatZeniqBalance,
     required this.tokenPerZeniq,
     required this.zeniqPerToken,
+    required this.zeniqValue,
+    required this.tokenValue,
   });
 }
