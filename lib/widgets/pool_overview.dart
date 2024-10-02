@@ -165,8 +165,7 @@ class PoolOverview extends ConsumerWidget {
                     ),
                     8.hSpacing,
                     NomoText(
-                      pair.balanceToken?.displayDouble
-                              .toMaxPrecisionWithoutScientificNotation(4) ??
+                      pair.balanceToken?.displayDouble.formatTokenBalance() ??
                           "",
                       maxLines: 2,
                       fit: true,
