@@ -7,6 +7,7 @@ import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
+import 'package:uniswap_liquidity/utils/max_percission.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
 class LiquidityInputField extends HookConsumerWidget {
@@ -89,36 +90,45 @@ class LiquidityInputField extends HookConsumerWidget {
             bottom: Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ValueListenableBuilder(
-                    valueListenable: assetNotifier,
-                    builder: (context, value, child) => NomoText(
-                      "${value.symbol} ${fiatBlance?.toStringAsFixed(2) ?? "0.00"}",
-                      style: context.typography.b1,
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    Icons.wallet,
-                    color: context.theme.colors.foreground1,
-                  ),
-                  8.hSpacing,
                   NomoText(
-                    balance?.displayDouble.toStringAsFixed(5) ?? "0.00",
+                    "Balance",
                     style: context.typography.b1,
                   ),
-                  8.hSpacing,
-                  if (isZeniq)
-                    NomoTextButton(
-                      text: "Max",
-                      textStyle: context.typography.b1.copyWith(
-                        color: context.theme.colors.primary,
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.wallet,
+                        color: context.theme.colors.foreground1,
+                        size: 16,
                       ),
-                      onPressed: () {
-                        valueNotifier.value =
-                            balance?.displayDouble.toString() ?? "0.00";
-                      },
-                    ),
+                      4.hSpacing,
+                      NomoText(
+                        balance?.displayDouble.formatTokenBalance() ?? "0.00",
+                        style: context.typography.b1,
+                      ),
+                      8.hSpacing,
+                      ValueListenableBuilder(
+                        valueListenable: assetNotifier,
+                        builder: (context, value, child) => NomoText(
+                          "≈ ${formatValueWithCurrency(value, fiatBlance ?? 0)}",
+                          style: context.typography.b1,
+                        ),
+                      ),
+                      8.hSpacing,
+                      NomoTextButton(
+                        text: "Max",
+                        textStyle: context.typography.b1.copyWith(
+                          color: context.theme.colors.primary,
+                        ),
+                        onPressed: () {
+                          valueNotifier.value =
+                              balance?.displayDouble.toString() ?? "0.00";
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

@@ -10,6 +10,8 @@ class Position {
   final Amount reserveAmountZeniq;
   final Amount reserveAmountToken;
   final double valueLocked;
+  final double zeniqFiatValue;
+  final double tokenFiatValue;
 
   Position({
     // required this.pair,
@@ -21,6 +23,8 @@ class Position {
     required this.reserveAmountZeniq,
     required this.reserveAmountToken,
     required this.valueLocked,
+    required this.zeniqFiatValue,
+    required this.tokenFiatValue,
   });
 
   @override

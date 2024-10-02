@@ -13,6 +13,7 @@ import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/provider/show_all_pools_provider.dart';
 import 'package:uniswap_liquidity/utils/price_repository.dart';
 import 'package:uniswap_liquidity/widgets/animated_expandable.dart';
 import 'package:uniswap_liquidity/widgets/pool_overview.dart';
@@ -24,8 +25,8 @@ class HomeScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final showAllPools = ref.watch(showAllPoolsProvider);
     final pairsProvider = ref.watch(pairNotifierProvider);
-    final showAllPools = useState(false);
     final showLowTVLPools = useState(false);
     final searchNotifier = useState('');
     final searchTerm = useState('');
@@ -78,11 +79,14 @@ class HomeScreen extends HookConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                       padding:
                           EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      backgroundColor: showAllPools.value
+                      backgroundColor: showAllPools
                           ? context.theme.colors.background2
                           : context.theme.colors.primary,
                       onPressed: () {
-                        showAllPools.value = false;
+                        if (showAllPools) {
+                          ref.read(showAllPoolsProvider.notifier).toggle();
+                        }
+
                         showLowTVLPools.value = false;
                       },
                       text: "My Pools",
@@ -93,11 +97,13 @@ class HomeScreen extends HookConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                       padding:
                           EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      backgroundColor: showAllPools.value
+                      backgroundColor: showAllPools
                           ? context.theme.colors.primary
                           : context.theme.colors.background2,
                       onPressed: () {
-                        showAllPools.value = true;
+                        if (!showAllPools) {
+                          ref.read(showAllPoolsProvider.notifier).toggle();
+                        }
                       },
                       text: "All Pools",
                       textStyle: context.typography.b1,
@@ -131,7 +137,7 @@ class HomeScreen extends HookConsumerWidget {
                         NomoDropdownItemWidget(
                           value: Currency.usd,
                           widget: NomoText(
-                            "${Currency.usd.displayName}  ${Currency.eur.symbol}",
+                            "${Currency.usd.displayName} ${Currency.usd.symbol}",
                             style: context.typography.b1,
                           ),
                         ),
@@ -161,7 +167,7 @@ class HomeScreen extends HookConsumerWidget {
                     "No pools found",
                     style: context.typography.b2,
                   ),
-                ] else if (positionPairs.isEmpty && !showAllPools.value) ...[
+                ] else if (positionPairs.isEmpty && !showAllPools) ...[
                   NomoText(
                     "No positions found",
                     style: context.typography.b2,
@@ -175,14 +181,14 @@ class HomeScreen extends HookConsumerWidget {
                   Expanded(
                     child: ListView(
                       children: [
-                        ...showAllPools.value
+                        ...showAllPools
                             ? highTVLPairs.map((pair) => PoolOverview(
                                   pair: pair,
                                 ))
                             : positionPairs.map((pair) => PoolOverview(
                                   pair: pair,
                                 )),
-                        if (showAllPools.value && lowTVLPairs.isNotEmpty)
+                        if (showAllPools && lowTVLPairs.isNotEmpty)
                           AnimatedExpandableRow(
                             isExpanded: showLowTVLPools.value,
                             lowTVLPoolsCount: lowTVLPairs.length,
@@ -190,7 +196,7 @@ class HomeScreen extends HookConsumerWidget {
                               showLowTVLPools.value = !showLowTVLPools.value;
                             },
                           ),
-                        if (showAllPools.value && showLowTVLPools.value)
+                        if (showAllPools && showLowTVLPools.value)
                           ...lowTVLPairs.map((pair) => PoolOverview(
                                 pair: pair,
                               )),
