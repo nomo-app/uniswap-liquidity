@@ -20,9 +20,19 @@ extension FormatExtension on double {
       return round().toString();
     }
 
-    // For numbers between 1 and 99999.99
-    if (absValue >= 1) {
+    // For numbers between 1000 and 99999.99
+    if (absValue >= 1000) {
       return toStringAsFixed(2);
+    }
+
+    // For numbers between 100 and 999.99
+    if (absValue >= 100) {
+      return toStringAsFixed(3);
+    }
+
+    // For numbers between 1 and 999.99
+    if (absValue >= 1) {
+      return toStringAsFixed(4);
     }
 
     // For small numbers (less than 1)
