@@ -117,7 +117,7 @@ void main() async {
                                   child: GestureDetector(
                                     onTap: () async {
                                       await launchUrlString(
-                                        'https://nomo.app/webon/dex.zeniqswap.com',
+                                        'https://nomo.app/webon/liquidity.zeniqswap.com',
                                       );
                                     },
                                     child: BarcodeWidget(
