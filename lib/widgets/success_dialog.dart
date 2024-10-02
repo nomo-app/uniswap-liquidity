@@ -5,6 +5,7 @@ import 'package:nomo_ui_kit/components/dialog/nomo_dialog.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
+import 'package:uniswap_liquidity/provider/show_all_pools_provider.dart';
 
 class SuccessDialog extends ConsumerWidget {
   final String messageHex;
@@ -12,6 +13,7 @@ class SuccessDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final showAllPools = ref.read(showAllPoolsProvider);
     return NomoDialog(
       titleWidget: NomoText(
         "Success",
@@ -33,6 +35,10 @@ class SuccessDialog extends ConsumerWidget {
             expandToConstraints: true,
             height: 52,
             onPressed: () {
+              if (showAllPools) {
+                ref.read(showAllPoolsProvider.notifier).toggle();
+              }
+
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
             child: NomoText("View Positions", style: context.typography.b2),
