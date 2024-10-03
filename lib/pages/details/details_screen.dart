@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_ui_kit/components/app/app_bar/nomo_app_bar.dart';
 import 'package:nomo_ui_kit/components/app/routebody/nomo_route_body.dart';
 import 'package:nomo_ui_kit/components/app/scaffold/nomo_scaffold.dart';
@@ -16,6 +17,11 @@ class DetailsScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (pair == null) {
+      NomoNavigator.of(context).pop();
+      return SizedBox.shrink();
+    }
+
     final selectedPool = ref.watch(selectedPoolProvider(pair!));
 
     return NomoScaffold(

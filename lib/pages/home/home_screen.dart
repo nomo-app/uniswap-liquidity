@@ -21,8 +21,6 @@ import 'package:uniswap_liquidity/widgets/pool_overview.dart';
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
 
-  get selectedPool => null;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final showAllPools = ref.watch(showAllPoolsProvider);

@@ -26,8 +26,8 @@ Amount zeniqBalance = Amount.zero;
 const deeplink = 'https://nomo.app/webon/liquidity.zeniqswap.com';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
-
   try {
     if (WebonKitDart.isFallBackMode() && kDebugMode == false) {
       throw Exception("Not inside the NomoApp");
