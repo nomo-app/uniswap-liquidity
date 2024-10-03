@@ -17,7 +17,9 @@ import 'package:uniswap_liquidity/provider/newContract/zeniqswap_pair_provider.d
 import 'package:uniswap_liquidity/provider/oldContract/pair_provider.dart';
 import 'package:uniswap_liquidity/provider/show_all_pools_provider.dart';
 import 'package:uniswap_liquidity/routes.dart';
+import 'package:uniswap_liquidity/utils/logger.dart';
 import 'package:uniswap_liquidity/utils/price_repository.dart';
+import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:uniswap_liquidity/widgets/add/select_dialog.dart';
 import 'package:uniswap_liquidity/widgets/animated_expandable.dart';
 import 'package:uniswap_liquidity/widgets/pool_overview.dart';
@@ -59,8 +61,22 @@ class HomeScreen extends HookConsumerWidget {
             );
 
             if (token != null) {
+              final zeniqPrice = await ref
+                  .read(assetNotifierProvider)
+                  .fetchSingelPrice(zeniqWrapperToken, true);
+              double tokenPrice = 0;
+              try {
+                tokenPrice = await ref
+                    .read(assetNotifierProvider)
+                    .fetchSingelPrice(token, false);
+              } catch (e) {
+                Logger.log("Error fetching token price: $e");
+              }
               // ignore: use_build_context_synchronously
-              NomoNavigator.of(context).push(AddPairRoute(token: token));
+              NomoNavigator.of(context).push(AddPairRoute(
+                  token: token,
+                  tokenPrice: tokenPrice,
+                  zeniqPrice: zeniqPrice));
             }
           },
         ),

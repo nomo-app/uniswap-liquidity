@@ -9,9 +9,10 @@ import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/add_pool_form_hook.dart';
 import 'package:uniswap_liquidity/provider/liquidity_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
+import 'package:uniswap_liquidity/utils/rpc.dart';
+import 'package:uniswap_liquidity/widgets/add/add_liquidity_info.dart';
 import 'package:uniswap_liquidity/widgets/add/liquidity_input_field.dart';
 import 'package:uniswap_liquidity/widgets/success_dialog.dart';
-import 'package:walletkit_dart/walletkit_dart.dart';
 
 class AddPairBox extends HookConsumerWidget {
   final Pair selectedPool;
@@ -24,29 +25,15 @@ class AddPairBox extends HookConsumerWidget {
     final slippage = useState("0.5");
     final liquidityProvider = ref.watch(liquidityNotifierProvider);
 
-    final zeniqHasValue = useState(false);
-
-    useEffect(() {
-      void listener() {
-        zeniqHasValue.value =
-            formStateNotifier.zeniqNotifier.value.isNotEmpty &&
-                double.tryParse(formStateNotifier.zeniqNotifier.value) != 0;
-      }
-
-      formStateNotifier.zeniqNotifier.addListener(listener);
-      return () => formStateNotifier.zeniqNotifier.removeListener(listener);
-    }, [formStateNotifier]);
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         LiquidityInputField(
-          isZeniq: true,
           token: selectedPool.tokeWZeniq,
           balance: zeniqBalance,
           errorNotifier: formStateNotifier.zeniqErrorNotifier,
           valueNotifier: formStateNotifier.zeniqNotifier,
-          fiatBlance: selectedPool.fiatZeniqBalance,
+          fiatBlance: null,
         ),
         12.vSpacing,
         Icon(
@@ -54,84 +41,96 @@ class AddPairBox extends HookConsumerWidget {
           color: context.theme.colors.onDisabled,
           size: 24,
         ),
-        12.vSpacing,
         LiquidityInputField(
-          isZeniq: false,
           token: selectedPool.token,
-          balance: selectedPool.balanceToken ?? Amount.zero,
+          balance: selectedPool.balanceToken,
           errorNotifier: formStateNotifier.tokenErrorNotifier,
           valueNotifier: formStateNotifier.tokenNotifier,
-          fiatBlance: selectedPool.fiatBlanceToken,
+          fiatBlance: null,
+        ),
+        12.vSpacing,
+        ValueListenableBuilder(
+          valueListenable: formStateNotifier.informationPair,
+          builder: (context, value, child) {
+            return ADDLiqiuidityInfo(
+              pair: value,
+              shareOfPool: "100%",
+            );
+          },
         ),
         12.vSpacing,
         ListenableBuilder(
           listenable: Listenable.merge([
-            formStateNotifier.wzeniqApprovalState,
+            formStateNotifier.zeniqApprovalState,
             formStateNotifier.zeniqErrorNotifier,
-            formStateNotifier.zeniqNotifier,
+            formStateNotifier.tokenErrorNotifier,
+            formStateNotifier.showButtons,
           ]),
           builder: (context, child) {
-            final wzeniqApprovalState =
-                formStateNotifier.wzeniqApprovalState.value;
+            final zeniqApprovalState =
+                formStateNotifier.zeniqApprovalState.value;
             final zeniqError = formStateNotifier.zeniqErrorNotifier.value;
-            final zeniqValue = formStateNotifier.zeniqNotifier.value;
+            final tokenError = formStateNotifier.tokenErrorNotifier.value;
+            final showButtons = formStateNotifier.showButtons.value;
 
-            final showButton =
-                wzeniqApprovalState == ApprovalState.needsApproval &&
+            final showZeniqApproveButton =
+                zeniqApprovalState == ApprovalState.needsApproval &&
+                    zeniqApprovalState != ApprovalState.approved &&
+                    tokenError == null &&
                     zeniqError == null &&
-                    zeniqValue.isNotEmpty &&
-                    double.tryParse(zeniqValue) != 0;
-
-            if (showButton || wzeniqApprovalState == ApprovalState.loading) {
+                    showButtons;
+            if (showZeniqApproveButton ||
+                zeniqApprovalState == ApprovalState.loading) {
               return Column(
                 children: [
                   PrimaryNomoButton(
                     borderRadius: BorderRadius.circular(16),
-                    enabled: wzeniqApprovalState != ApprovalState.loading,
+                    enabled: zeniqApprovalState != ApprovalState.loading,
                     expandToConstraints: true,
                     height: 52,
-                    type: wzeniqApprovalState == ApprovalState.loading
+                    type: zeniqApprovalState == ApprovalState.loading
                         ? ActionType.loading
                         : ActionType.def,
-                    text: "Approve ZENIQ",
+                    text: "Approve ${selectedPool.tokeWZeniq.symbol}",
                     textStyle: context.typography.b2,
                     onPressed: () async {
-                      Amount zeniqAmount = Amount.convert(
-                        value: double.tryParse(zeniqValue) ?? 0,
-                        decimals: selectedPool.tokeWZeniq.decimals,
-                      );
                       await formStateNotifier.approveToken(
-                        selectedPool.tokeWZeniq.contractAddress,
-                        zeniqAmount.value,
+                        selectedPool.tokeWZeniq,
+                        maxUint256,
                       );
                     },
                   ),
                   12.vSpacing,
                 ],
               );
+            } else {
+              return SizedBox.shrink();
             }
-            return SizedBox.shrink();
           },
         ),
         ListenableBuilder(
           listenable: Listenable.merge([
             formStateNotifier.tokenApprovalState,
+            formStateNotifier.zeniqErrorNotifier,
             formStateNotifier.tokenErrorNotifier,
-            formStateNotifier.tokenNotifier,
+            formStateNotifier.showButtons,
           ]),
           builder: (context, child) {
             final tokenApprovalState =
                 formStateNotifier.tokenApprovalState.value;
+            final zeniqError = formStateNotifier.zeniqErrorNotifier.value;
             final tokenError = formStateNotifier.tokenErrorNotifier.value;
-            final tokenValue = formStateNotifier.tokenNotifier.value;
+            final showButtons = formStateNotifier.showButtons.value;
 
-            final showButton =
+            final showTokenApproveButton =
                 tokenApprovalState == ApprovalState.needsApproval &&
+                    tokenApprovalState != ApprovalState.approved &&
                     tokenError == null &&
-                    tokenValue.isNotEmpty &&
-                    double.tryParse(tokenValue) != 0;
+                    zeniqError == null &&
+                    showButtons;
 
-            if (showButton || tokenApprovalState == ApprovalState.loading) {
+            if (showTokenApproveButton ||
+                tokenApprovalState == ApprovalState.loading) {
               return Column(
                 children: [
                   PrimaryNomoButton(
@@ -145,44 +144,37 @@ class AddPairBox extends HookConsumerWidget {
                     text: "Approve ${selectedPool.token.symbol}",
                     textStyle: context.typography.b2,
                     onPressed: () async {
-                      Amount tokenAmount = Amount.convert(
-                        value: double.tryParse(tokenValue) ?? 0,
-                        decimals: selectedPool.token.decimals,
-                      );
                       await formStateNotifier.approveToken(
-                        selectedPool.token.contractAddress,
-                        tokenAmount.value,
+                        selectedPool.token,
+                        maxUint256,
                       );
                     },
                   ),
                   12.vSpacing,
                 ],
               );
+            } else {
+              return SizedBox.shrink();
             }
-            return SizedBox.shrink();
           },
         ),
         ListenableBuilder(
           listenable: Listenable.merge([
             formStateNotifier.canAddLiquidity,
-            formStateNotifier.wzeniqApprovalState,
-            formStateNotifier.tokenApprovalState,
+            formStateNotifier.zeniqNotifier,
+            formStateNotifier.tokenNotifier,
           ]),
           builder: (context, child) {
             final canAddLiquidity = formStateNotifier.canAddLiquidity.value;
-            final wzeniqApproved =
-                formStateNotifier.wzeniqApprovalState.value ==
-                    ApprovalState.approved;
-            final tokenApproved = formStateNotifier.tokenApprovalState.value ==
-                ApprovalState.approved;
-            final bothApproved = wzeniqApproved && tokenApproved;
+            final zeniqInput = formStateNotifier.zeniqNotifier.value;
+            final tokenInput = formStateNotifier.tokenNotifier.value;
 
             return Column(
               children: [
                 PrimaryNomoButton(
-                  enabled: (canAddLiquidity || bothApproved) &&
+                  enabled: canAddLiquidity &&
                       (liquidityProvider != LiquidityState.loading),
-                  type: (canAddLiquidity || bothApproved) &&
+                  type: canAddLiquidity &&
                           (liquidityProvider == LiquidityState.idel)
                       ? ActionType.def
                       : liquidityProvider == LiquidityState.loading
@@ -204,6 +196,7 @@ class AddPairBox extends HookConsumerWidget {
                     if (txHash != null) {
                       print("Liquidity added: $txHash");
                       showDialog(
+                        // ignore: use_build_context_synchronously
                         context: context,
                         builder: (context) {
                           return SuccessDialog(
@@ -213,8 +206,9 @@ class AddPairBox extends HookConsumerWidget {
                       );
                     }
                   },
-                  text:
-                      zeniqHasValue.value == false ? "Enter Amount" : "Supply",
+                  text: zeniqInput == "" || tokenInput == ""
+                      ? "Enter Amount"
+                      : "Supply",
                   textStyle: context.typography.b2,
                 ),
                 if (liquidityProvider == LiquidityState.error) ...[

@@ -31,6 +31,8 @@ class AppRouter extends NomoAppRouter {
               final typedArgs = a as AddPairArguments?;
               return AddPairRoute(
                 token: typedArgs?.token,
+                tokenPrice: typedArgs?.tokenPrice,
+                zeniqPrice: typedArgs?.zeniqPrice,
               );
             },
           },
@@ -109,20 +111,32 @@ class AddScreenRoute extends AppRoute implements AddScreenArguments {
 
 class AddPairArguments {
   final ERC20Entity? token;
+  final double? tokenPrice;
+  final double? zeniqPrice;
   const AddPairArguments({
     this.token,
+    this.tokenPrice,
+    this.zeniqPrice,
   });
 }
 
 class AddPairRoute extends AppRoute implements AddPairArguments {
   @override
   final ERC20Entity? token;
+  @override
+  final double? tokenPrice;
+  @override
+  final double? zeniqPrice;
   AddPairRoute({
     this.token,
+    this.tokenPrice,
+    this.zeniqPrice,
   }) : super(
           name: '/addPair',
           page: AddPair(
             token: token,
+            tokenPrice: tokenPrice,
+            zeniqPrice: zeniqPrice,
           ),
         );
   static String path = '/addPair';

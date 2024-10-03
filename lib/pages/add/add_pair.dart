@@ -15,8 +15,11 @@ import 'package:walletkit_dart/walletkit_dart.dart';
 
 class AddPair extends ConsumerWidget {
   final ERC20Entity? token;
+  final double? zeniqPrice;
+  final double? tokenPrice;
 
-  const AddPair({this.token, super.key}) : assert(token != null);
+  const AddPair({this.token, this.tokenPrice, this.zeniqPrice, super.key})
+      : assert(token != null && zeniqPrice != null && tokenPrice != null);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -54,8 +57,8 @@ class AddPair extends ConsumerWidget {
               tvl: 0,
               zeniqFiatValue: 0,
               tokenFiatValue: 0,
-              tokenPrice: 0,
-              zeniqPrice: 0,
+              tokenPrice: tokenPrice!,
+              zeniqPrice: zeniqPrice!,
               balanceToken: data,
               fiatBlanceToken: null,
               fiatZeniqBalance: null,

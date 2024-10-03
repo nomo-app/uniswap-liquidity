@@ -13,16 +13,20 @@ class AddPoolFormController {
   final ValueNotifier<String?> zeniqErrorNotifier;
   final ValueNotifier<String?> tokenErrorNotifier;
   final ValueNotifier<bool> canAddLiquidity;
+  final Pair pool;
   final ValueNotifier<ApprovalState> tokenApprovalState;
-  final ValueNotifier<ApprovalState> wzeniqApprovalState;
+  final ValueNotifier<ApprovalState> zeniqApprovalState;
   final int zeniqDecimals;
   final int tokenDecimals;
   final double zeniqBalance;
   final double tokenBalance;
   final String tokenContractAddress;
   final String wzeniqContractAddress;
+  final ValueNotifier<Pair> informationPair;
+  final ValueNotifier<bool> showButtons;
 
   AddPoolFormController(
+    this.pool,
     this.zeniqBalance,
     this.tokenBalance,
     this.zeniqDecimals,
@@ -33,100 +37,113 @@ class AddPoolFormController {
         tokenNotifier = ValueNotifier(""),
         canAddLiquidity = ValueNotifier(false),
         tokenApprovalState = ValueNotifier(ApprovalState.idel),
-        wzeniqApprovalState = ValueNotifier(ApprovalState.idel),
+        zeniqApprovalState = ValueNotifier(ApprovalState.idel),
+        informationPair = ValueNotifier(pool),
         zeniqErrorNotifier = ValueNotifier(null),
+        showButtons = ValueNotifier(true),
         tokenErrorNotifier = ValueNotifier(null) {
     zeniqNotifier.addListener(_validateInputs);
     tokenNotifier.addListener(_validateInputs);
   }
 
-  void _validateInputs() async {
-    bool isValid = true;
-    ApprovalState tokenApproval = ApprovalState.idel;
-    ApprovalState wzeniqApproval = ApprovalState.idel;
+  void _getValidationPair(double zeniqInput, double tokenInput) {
+    double tokensPerZeniq;
+    double zeniqPerToken;
 
-    if (zeniqNotifier.value.isEmpty || tokenNotifier.value.isEmpty) {
-      isValid = false;
+    if (zeniqInput == 0 || tokenInput == 0) {
+      tokensPerZeniq = 0;
+      zeniqPerToken = 0;
+    } else {
+      tokensPerZeniq = tokenInput / zeniqInput;
+      zeniqPerToken = zeniqInput / tokenInput;
     }
 
+    print("Before update: ${informationPair.value.tokenPerZeniq}");
+    informationPair.value = informationPair.value.copyWith(
+      tokenPerZeniq: tokensPerZeniq,
+      zeniqPerToken: zeniqPerToken,
+    );
+
+    print("After update: ${informationPair.value.tokenPerZeniq}");
+  }
+
+  void _validateInputs() async {
+    bool isValid = true;
     final zeniqInput = double.tryParse(zeniqNotifier.value) ?? 0;
     final tokenInput = double.tryParse(tokenNotifier.value) ?? 0;
-
+    _getValidationPair(zeniqInput, tokenInput);
     if (zeniqInput > zeniqBalance) {
-      zeniqErrorNotifier.value = "Insufficient ZENIQ balance";
+      zeniqErrorNotifier.value = "Insufficient balance";
       isValid = false;
     } else {
       zeniqErrorNotifier.value = null;
     }
 
     if (tokenInput > tokenBalance) {
-      tokenErrorNotifier.value = "Insufficient token balance";
+      tokenErrorNotifier.value = "Insufficient balance";
       isValid = false;
     } else {
       tokenErrorNotifier.value = null;
     }
 
+    if (tokenInput == 0 || zeniqInput == 0) {
+      isValid = false;
+      showButtons.value = false;
+      canAddLiquidity.value = false;
+    } else {
+      showButtons.value = true;
+    }
+
     if (isValid) {
-      final tokenAllowance = await checkAllowance(tokenContractAddress);
-      final wzeniqAllowance = await checkAllowance(wzeniqContractAddress);
+      final allowanceToken = await checkAllowance(tokenContractAddress);
+      final allowanceWzeniq = await checkAllowance(wzeniqContractAddress);
 
-      Amount tokenAmount =
-          Amount.convert(value: tokenInput, decimals: tokenDecimals);
-      Amount zeniqAmount =
-          Amount.convert(value: zeniqInput, decimals: zeniqDecimals);
-
-      if (tokenAllowance < tokenAmount.value) {
-        tokenApproval = ApprovalState.needsApproval;
-        isValid = false;
-      }
-
-      if (wzeniqAllowance < zeniqAmount.value) {
-        wzeniqApproval = ApprovalState.needsApproval;
-        isValid = false;
-      }
-    }
-
-    tokenApprovalState.value = tokenApproval;
-    wzeniqApprovalState.value = wzeniqApproval;
-    canAddLiquidity.value = isValid;
-  }
-
-  Future<BigInt> checkAllowance(String contractAddress) async {
-    BigInt allowance = BigInt.zero;
-    ERC20Contract contract = ERC20Contract(
-      contractAddress: contractAddress,
-      rpc: rpc,
-    );
-    try {
-      allowance = await contract.allowance(
-        owner: address,
-        spender: zeniqV2SwapRouter.contractAddress,
+      Amount tokenAmount = Amount.convert(
+        value: tokenInput,
+        decimals: tokenDecimals,
       );
-      print("Allowance for $contractAddress: $allowance");
-      return allowance;
-    } catch (e) {
-      print('Error fetching allowance for $contractAddress: $e');
+      Amount zeniqAmount = Amount.convert(
+        value: zeniqInput,
+        decimals: zeniqDecimals,
+      );
+
+      if (allowanceToken < tokenAmount.value) {
+        tokenApprovalState.value = ApprovalState.needsApproval;
+        isValid = false;
+      } else {
+        tokenApprovalState.value = ApprovalState.approved;
+      }
+      if (allowanceWzeniq < zeniqAmount.value) {
+        zeniqApprovalState.value = ApprovalState.needsApproval;
+        isValid = false;
+      } else {
+        zeniqApprovalState.value = ApprovalState.approved;
+      }
+
+      canAddLiquidity.value = isValid;
     }
-    return allowance;
   }
 
-  Future<void> approveToken(String contractAddress, BigInt amount) async {
-    final isWZENIQ = contractAddress == wzeniqContractAddress;
-    final approvalState = isWZENIQ ? wzeniqApprovalState : tokenApprovalState;
+  Future<void> approveToken(ERC20Entity token, BigInt amount) async {
+    final isZeniq = token.symbol == "ZENIQ";
 
-    approvalState.value = ApprovalState.loading;
+    if (isZeniq) {
+      zeniqApprovalState.value = ApprovalState.loading;
+    } else {
+      tokenApprovalState.value = ApprovalState.loading;
+    }
+
     ERC20Contract contract = ERC20Contract(
-      contractAddress: contractAddress,
+      contractAddress: token.contractAddress,
       rpc: rpc,
     );
-
     try {
       final rawTx = await contract.approveTx(
         sender: address,
-        spender: zeniqSwapRouter.contractAddress,
+        spender: zeniqV2SwapRouter.contractAddress,
         value: amount,
       ) as RawEVMTransactionType0;
-      print("Raw approve TX for ${isWZENIQ ? 'WZENIQ' : 'token'}: $rawTx");
+      print("Raw approve TX: ${rawTx}");
       final signedTx = await WebonKitDart.signTransaction(
           rawTx.serializedUnsigned(rpc.type.chainId).toHex);
       final txHash = await rpc.sendRawTransaction(signedTx);
@@ -134,25 +151,57 @@ class AddPoolFormController {
       final approved = await rpc.waitForTxConfirmation(txHash);
 
       if (approved) {
-        approvalState.value = ApprovalState.approved;
-        _validateInputs(); // Re-validate to check if we can now add liquidity
+        if (isZeniq) {
+          zeniqApprovalState.value = ApprovalState.approved;
+        } else {
+          tokenApprovalState.value = ApprovalState.approved;
+        }
+        canAddLiquidity.value = true;
       } else {
         throw Exception("Approval failed");
       }
 
-      print("messagehex of approve ${isWZENIQ ? 'WZENIQ' : 'token'}: $txHash");
+      print("messagehex of approve token: ${txHash}");
     } catch (e) {
-      approvalState.value = ApprovalState.error;
-      print('Error approving ${isWZENIQ ? 'WZENIQ' : 'token'} value: $e');
+      if (isZeniq) {
+        zeniqApprovalState.value = ApprovalState.error;
+      } else {
+        tokenApprovalState.value = ApprovalState.error;
+      }
+      print('Error approving token value: $e');
     }
+  }
+
+  Future<BigInt> checkAllowance(String contracAddress) async {
+    BigInt allowance = BigInt.zero;
+    ERC20Contract contract = ERC20Contract(
+      contractAddress: contracAddress,
+      rpc: rpc,
+    );
+    try {
+      allowance = await contract.allowance(
+        owner: address,
+        spender: zeniqSwapRouter.contractAddress,
+      );
+
+      print("Allowance: ${allowance}");
+      return allowance;
+    } catch (e) {
+      print('Error fetching allowance: $e');
+    }
+    return allowance;
   }
 }
 
-AddPoolFormController useAddPairFormHook(double zeniqBalance, Pair pool) {
+AddPoolFormController useAddPairFormHook(
+  double zeniqBalance,
+  Pair pool,
+) {
   final controller = useState<AddPoolFormController?>(null);
 
   useEffect(() {
     controller.value = AddPoolFormController(
+      pool,
       zeniqBalance,
       pool.balanceToken?.displayDouble ?? 0,
       pool.tokeWZeniq.decimals,

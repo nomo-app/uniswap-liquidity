@@ -83,7 +83,11 @@ class Pair extends PairInformation {
 
   @override
   bool operator ==(Object other) {
-    return contract.contractAddress == (other as Pair).contract.contractAddress;
+    if (identical(this, other)) return true;
+    return other is Pair &&
+        other.contract.contractAddress == contract.contractAddress &&
+        other.tokenPerZeniq == tokenPerZeniq &&
+        other.zeniqPerToken == zeniqPerToken;
   }
 
   @override

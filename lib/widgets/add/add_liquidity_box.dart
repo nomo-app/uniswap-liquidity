@@ -61,7 +61,6 @@ class AddLiquidityBox extends HookConsumerWidget {
           12.vSpacing,
         ],
         LiquidityInputField(
-          isZeniq: true,
           token: selectedPool.tokeWZeniq,
           balance: zeniqBalance,
           errorNotifier: formStateNotifier.zeniqErrorNotifier,
@@ -76,7 +75,6 @@ class AddLiquidityBox extends HookConsumerWidget {
         ),
         12.vSpacing,
         LiquidityInputField(
-          isZeniq: false,
           token: selectedPool.token,
           balance: selectedPool.balanceToken ?? Amount.zero,
           errorNotifier: formStateNotifier.tokenErrorNotifier,

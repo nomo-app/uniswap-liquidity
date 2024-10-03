@@ -31,3 +31,5 @@ final zeniqWrapperToken = ERC20Entity(
     decimals: 18,
     chainID: zeniqSmart.chainID,
     contractAddress: "0x5b52bfB8062Ce664D74bbCd4Cd6DC7Df53Fd7233");
+
+final maxUint256 = BigInt.from(2).pow(256) - BigInt.one;
