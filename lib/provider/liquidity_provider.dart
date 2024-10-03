@@ -97,15 +97,16 @@ class LiquidityNotifier extends _$LiquidityNotifier {
     required String token,
   }) async {
     try {
-      final rawTx = await zeniqSwapRouter.addLiquidityETHTx(
-        token: token,
-        amountTokenDesired: amountTokenDesired,
-        amountETHMin: amountETHMin,
-        amountTokenMin: amountTokenMin,
+      final rawTx = await zeniqV2SwapRouter.addLiquidityTx(
+        amountADesired: amountETHDesired,
+        amountBDesired: amountTokenDesired,
+        amountAMin: amountETHMin,
+        amountBMin: amountTokenMin,
+        tokenA: zeniqWrapperToken.contractAddress,
+        tokenB: token,
         to: address,
         deadline: deadline,
         sender: address,
-        amountETHDesired: amountETHDesired,
       ) as RawEVMTransactionType0;
 
       print("Raw liquidity TX: ${rawTx}");

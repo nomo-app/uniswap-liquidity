@@ -25,3 +25,9 @@ final zeniqV2SwapRouter = ZeniqswapV2Router(
   rpc: rpc,
   contractAddress: "0xEBb0C81b3450520f54282A9ca9996A1960Be7c7A",
 );
+final zeniqWrapperToken = ERC20Entity(
+    name: "ZENIQ",
+    symbol: "ZENIQ",
+    decimals: 18,
+    chainID: zeniqSmart.chainID,
+    contractAddress: "0x5b52bfB8062Ce664D74bbCd4Cd6DC7Df53Fd7233");

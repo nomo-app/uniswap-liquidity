@@ -1,26 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'liquidity_provider.dart';
+part of 'token_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$liquidityNotifierHash() => r'0c92730691d813dca40941bdadcbe6e93f08f880';
+String _$tokenNotifierHash() => r'09aa111673b633640466a85c2389fc7b4b5add16';
 
-/// See also [LiquidityNotifier].
-@ProviderFor(LiquidityNotifier)
-final liquidityNotifierProvider =
-    AutoDisposeNotifierProvider<LiquidityNotifier, LiquidityState>.internal(
-  LiquidityNotifier.new,
-  name: r'liquidityNotifierProvider',
+/// See also [TokenNotifier].
+@ProviderFor(TokenNotifier)
+final tokenNotifierProvider =
+    AutoDisposeAsyncNotifierProvider<TokenNotifier, List<ERC20Entity>>.internal(
+  TokenNotifier.new,
+  name: r'tokenNotifierProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$liquidityNotifierHash,
+      : _$tokenNotifierHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$LiquidityNotifier = AutoDisposeNotifier<LiquidityState>;
+typedef _$TokenNotifier = AutoDisposeAsyncNotifier<List<ERC20Entity>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

@@ -27,6 +27,12 @@ class AppRouter extends NomoAppRouter {
                 pair: typedArgs?.pair,
               );
             },
+            AddPairRoute.path: ([a]) {
+              final typedArgs = a as AddPairArguments?;
+              return AddPairRoute(
+                token: typedArgs?.token,
+              );
+            },
           },
           _routes.expanded.where((r) => r is! NestedNavigator).toList(),
           _routes.expanded.whereType<NestedNavigator>().toList(),
@@ -99,4 +105,25 @@ class AddScreenRoute extends AppRoute implements AddScreenArguments {
           ),
         );
   static String path = '/add';
+}
+
+class AddPairArguments {
+  final ERC20Entity? token;
+  const AddPairArguments({
+    this.token,
+  });
+}
+
+class AddPairRoute extends AppRoute implements AddPairArguments {
+  @override
+  final ERC20Entity? token;
+  AddPairRoute({
+    this.token,
+  }) : super(
+          name: '/addPair',
+          page: AddPair(
+            token: token,
+          ),
+        );
+  static String path = '/addPair';
 }

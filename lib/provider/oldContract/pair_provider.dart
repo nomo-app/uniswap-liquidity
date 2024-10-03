@@ -70,7 +70,7 @@ class PairNotifier extends _$PairNotifier {
     return contracts;
   }
 
-  Future<Pair> _getPairData(UniswapV2Pair pair) async {
+  Future<Pair?> _getPairData(UniswapV2Pair pair) async {
     final tokenZeroAddress = await pair.token0();
     final tokenOneAddress = await pair.token1();
     final reserves = await pair.getReserves();
@@ -223,43 +223,48 @@ class PairNotifier extends _$PairNotifier {
     final fiatBalanceZeniq = zeniqBalance.displayDouble * zeniqPrice;
     final fiatBalanceToken = tokenBalance.displayDouble * tokenPrice;
 
-    return Pair(
-      volume24h: null,
-      apr: null,
-      fees24h: null,
-      tokeWZeniq: wToken,
-      token: token,
-      contract: pair,
-      reserves: orderedReserves,
-      tvl: tvlInfo["tvl"],
-      zeniqFiatValue: tvlInfo["zeniqFiatValue"],
-      tokenFiatValue: tvlInfo["tokenFiatValue"],
-      tokenPrice: tokenPrice,
-      zeniqPrice: zeniqPrice,
-      tokenPerZeniq: tvlInfo["tokenPerZeniq"],
-      zeniqPerToken: tvlInfo["zeniqPerToken"],
-      balanceToken: tokenBalance,
-      fiatBlanceToken: fiatBalanceToken,
-      fiatZeniqBalance: fiatBalanceZeniq,
-      position: position,
-      tokenValue: tvlInfo["tokenValue"],
-      zeniqValue: tvlInfo["zeniqValue"],
-    );
+    if (position != null) {
+      return Pair(
+        volume24h: null,
+        apr: null,
+        fees24h: null,
+        tokeWZeniq: wToken,
+        token: token,
+        contract: pair,
+        reserves: orderedReserves,
+        tvl: tvlInfo["tvl"],
+        zeniqFiatValue: tvlInfo["zeniqFiatValue"],
+        tokenFiatValue: tvlInfo["tokenFiatValue"],
+        tokenPrice: tokenPrice,
+        zeniqPrice: zeniqPrice,
+        tokenPerZeniq: tvlInfo["tokenPerZeniq"],
+        zeniqPerToken: tvlInfo["zeniqPerToken"],
+        balanceToken: tokenBalance,
+        fiatBlanceToken: fiatBalanceToken,
+        fiatZeniqBalance: fiatBalanceZeniq,
+        position: position,
+        tokenValue: tvlInfo["tokenValue"],
+        zeniqValue: tvlInfo["zeniqValue"],
+      );
+    }
+
+    return null;
   }
 
   Future<List<Pair>> _getPairs() async {
     final contracts = await _pairContracts();
-
     List<Pair> pairsData = [];
 
     try {
-      pairsData = await Future.wait(contracts.map((pair) {
-        return _getPairData(pair);
-      }));
+      final futures = contracts.map((pair) => _getPairData(pair));
+      final results = await Future.wait(futures);
+
+      // Filter out null values and add non-null Pairs to pairsData
+      pairsData = results.whereType<Pair>().toList();
     } catch (e) {
       print('Error fetching pair data: $e');
-      return [];
     }
+
     return pairsData;
   }
 

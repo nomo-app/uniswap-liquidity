@@ -35,12 +35,12 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
 
   Future<List<String>> _allPairs() async {
     try {
-      final allPairsLength = await factory.allPairsLength();
+      final allPairsLength = await factoryZeniqSwap.allPairsLength();
       List<String> pairs = [];
 
       for (int i = 0; i < allPairsLength.toInt(); i++) {
         try {
-          final pair = await factory.allPairs(BigInt.from(i));
+          final pair = await factoryZeniqSwap.allPairs(BigInt.from(i));
           // if (allowedContracts.contains(pair)) {
           pairs.add(pair);
           // }

@@ -61,7 +61,7 @@ class AssetNotifier {
 
     if (currentImage.hasValue) return;
 
-    if (token.symbol == "WZENIQ") {
+    if (token.symbol == "WZENIQ" || token.symbol == "ZENIQ") {
       final image = ImageEntity(
         thumb: "assets/assets/zeniq.png",
         small: "assets/assets/zeniq.png",

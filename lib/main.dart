@@ -190,7 +190,7 @@ class MyApp extends ConsumerWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(periodicUpdateProvider)();
+    // ref.read(periodicUpdateProvider)();
     return NomoNavigator(
       delegate: appRouter.delegate,
       child: NomoApp(
@@ -203,18 +203,18 @@ class MyApp extends ConsumerWidget {
   }
 }
 
-final periodicUpdateProvider = Provider((ref) {
-  Timer? timer;
+// final periodicUpdateProvider = Provider((ref) {
+//   Timer? timer;
 
-  void startPeriodicUpdates() {
-    timer = Timer.periodic(Duration(seconds: 20), (_) {
-      ref.read(pairNotifierProvider.notifier).periodicUpdate();
-    });
-  }
+//   void startPeriodicUpdates() {
+//     timer = Timer.periodic(Duration(seconds: 20), (_) {
+//       ref.read(pairNotifierProvider.notifier).periodicUpdate();
+//     });
+//   }
 
-  ref.onDispose(() {
-    timer?.cancel();
-  });
+//   ref.onDispose(() {
+//     timer?.cancel();
+//   });
 
-  return startPeriodicUpdates;
-});
+//   return startPeriodicUpdates;
+// });

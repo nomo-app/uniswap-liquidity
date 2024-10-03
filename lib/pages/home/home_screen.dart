@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:nomo_router/router/nomo_navigator.dart';
 import 'package:nomo_ui_kit/components/app/app_bar/nomo_app_bar.dart';
 import 'package:nomo_ui_kit/components/app/routebody/nomo_route_body.dart';
 import 'package:nomo_ui_kit/components/app/scaffold/nomo_scaffold.dart';
@@ -12,9 +13,12 @@ import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
+import 'package:uniswap_liquidity/provider/newContract/zeniqswap_pair_provider.dart';
 import 'package:uniswap_liquidity/provider/oldContract/pair_provider.dart';
 import 'package:uniswap_liquidity/provider/show_all_pools_provider.dart';
+import 'package:uniswap_liquidity/routes.dart';
 import 'package:uniswap_liquidity/utils/price_repository.dart';
+import 'package:uniswap_liquidity/widgets/add/select_dialog.dart';
 import 'package:uniswap_liquidity/widgets/animated_expandable.dart';
 import 'package:uniswap_liquidity/widgets/pool_overview.dart';
 
@@ -24,12 +28,13 @@ class HomeScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final showAllPools = ref.watch(showAllPoolsProvider);
-    final pairsProvider = ref.watch(pairNotifierProvider);
+    // final pairsProvider = ref.watch(pairNotifierProvider);
     final showLowTVLPools = useState(false);
     final searchNotifier = useState('');
     final searchTerm = useState('');
     final assetNotifier = ref.watch(assetNotifierProvider);
     final currentCurrency = assetNotifier.currency;
+    final pairsNewContract = ref.watch(zeniqswapNotifierProvider);
 
     useEffect(() {
       void listener() {
@@ -42,6 +47,23 @@ class HomeScreen extends HookConsumerWidget {
 
     return NomoScaffold(
       appBar: NomoAppBar(
+        trailling: PrimaryNomoButton(
+          text: "Add Pool",
+          borderRadius: BorderRadius.circular(8),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          textStyle: context.typography.b1,
+          onPressed: () async {
+            final token = await showDialog(
+              context: context,
+              builder: (context) => SelectDialog(),
+            );
+
+            if (token != null) {
+              // ignore: use_build_context_synchronously
+              NomoNavigator.of(context).push(AddPairRoute(token: token));
+            }
+          },
+        ),
         title: NomoText(
           "Liquidity",
           style: context.typography.h1,
@@ -50,7 +72,7 @@ class HomeScreen extends HookConsumerWidget {
       child: NomoRouteBody(
         padding: const EdgeInsets.all(16),
         backgroundColor: context.theme.colors.background1,
-        child: pairsProvider.when(
+        child: pairsNewContract.when(
           data: (pairs) {
             final filteredPairs = pairs
                 .where((pair) =>
