@@ -123,6 +123,21 @@ class PoolOverview extends ConsumerWidget {
                       ],
                     ),
                     Spacer(),
+                    if (pair.position != null)
+                      PrimaryNomoButton(
+                        text: "Old Position",
+                        borderRadius: BorderRadius.circular(8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
+                        onPressed: () {
+                          NomoNavigator.of(context)
+                              .push(DetailsScreenRoute(pair: pair));
+                        },
+                        textStyle: context.typography.b1,
+                      ),
+                    8.hSpacing,
                     PrimaryNomoButton(
                       onPressed: pair.isUpdating
                           ? null
@@ -138,7 +153,7 @@ class PoolOverview extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
-                        vertical: 4,
+                        vertical: 8,
                       ),
                       child: NomoText(
                         pair.position == null ? "Enter" : "Mange Position",

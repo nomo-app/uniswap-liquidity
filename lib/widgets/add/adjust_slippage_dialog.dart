@@ -11,7 +11,6 @@ import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
-import 'package:uniswap_liquidity/provider/selected_pool_provider.dart';
 import 'package:uniswap_liquidity/utils/price_repository.dart';
 import 'package:uniswap_liquidity/widgets/add/liquidity_input_field.dart';
 
@@ -64,9 +63,7 @@ class SlippageDialog extends HookConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   iconColor: context.colors.foreground1,
                   height: 48,
-                  onChanged: (_) {
-                    ref.invalidate(selectedPoolProvider);
-                  },
+                  onChanged: (_) {},
                   items: [
                     for (final currency in Currency.values)
                       NomoDropDownItemString(

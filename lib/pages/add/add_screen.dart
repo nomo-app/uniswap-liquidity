@@ -8,7 +8,6 @@ import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
-import 'package:uniswap_liquidity/provider/selected_pool_provider.dart';
 import 'package:uniswap_liquidity/widgets/add/add_liquidity_box.dart';
 import 'package:uniswap_liquidity/widgets/add/pool_information.dart';
 
@@ -24,7 +23,6 @@ class AddScreen extends ConsumerWidget {
       NomoNavigator.of(context).pop();
       return SizedBox.shrink();
     }
-    final selectedPool = ref.watch(selectedPoolProvider(pair!));
     return NomoScaffold(
       appBar: NomoAppBar(
         leading: BackButton(
@@ -36,22 +34,17 @@ class AddScreen extends ConsumerWidget {
         ),
       ),
       child: NomoRouteBody(
-        child: selectedPool.when(
-          data: (pair) => Padding(
-            padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  PoolInfromation(pair: pair),
-                  12.vSpacing,
-                  AddLiquidityBox(selectedPool: pair),
-                ],
-              ),
+        maxContentWidth: 600,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                PoolInfromation(pair: pair!),
+                12.vSpacing,
+                AddLiquidityBox(selectedPool: pair!),
+              ],
             ),
-          ),
-          error: (error, stackTrace) => NomoText(error.toString()),
-          loading: () => Center(
-            child: CircularProgressIndicator(),
           ),
         ),
       ),

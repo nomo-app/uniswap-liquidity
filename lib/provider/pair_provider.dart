@@ -203,11 +203,6 @@ class PairNotifier extends _$PairNotifier {
     final double zeniqPrice = tvlInfo["zeniqPrice"];
 
     if (liquidityAmount > Amount.zero) {
-      // print("Zeniq Price is: $zeniqPrice");
-      // print("Token Price is: $tokenPrice of ${token.symbol}");
-      // print("Zeniq Value is: ${zeniqValue.displayDouble}");
-      // print("Token Value is: ${tokenValue.displayDouble} of ${token.symbol}");
-
       final vl = (zeniqAmount.displayDouble * zeniqPrice) +
           (tokenAmount.displayDouble * tokenPrice);
 
@@ -225,6 +220,9 @@ class PairNotifier extends _$PairNotifier {
       );
     }
 
+    final fiatBalanceZeniq = zeniqBalance.displayDouble * zeniqPrice;
+    final fiatBalanceToken = tokenBalance.displayDouble * tokenPrice;
+
     return Pair(
       volume24h: null,
       apr: null,
@@ -241,8 +239,8 @@ class PairNotifier extends _$PairNotifier {
       tokenPerZeniq: tvlInfo["tokenPerZeniq"],
       zeniqPerToken: tvlInfo["zeniqPerToken"],
       balanceToken: tokenBalance,
-      fiatBlanceToken: null,
-      fiatZeniqBalance: null,
+      fiatBlanceToken: fiatBalanceToken,
+      fiatZeniqBalance: fiatBalanceZeniq,
       position: position,
       tokenValue: tvlInfo["tokenValue"],
       zeniqValue: tvlInfo["zeniqValue"],
