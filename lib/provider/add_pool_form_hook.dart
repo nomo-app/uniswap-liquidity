@@ -75,6 +75,9 @@ class AddPoolFormController {
     if (zeniqInput > zeniqBalance) {
       zeniqErrorNotifier.value = "Insufficient balance";
       isValid = false;
+    } else if (zeniqInput < 5000 && zeniqInput != 0) {
+      zeniqErrorNotifier.value = "Minimum amount is 5000 ZENIQ";
+      isValid = false;
     } else {
       zeniqErrorNotifier.value = null;
     }

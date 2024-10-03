@@ -134,7 +134,7 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
 
     (BigInt, BigInt) orderedReserves;
 
-    if (token0.symbol == "WZENIQ") {
+    if (token0.symbol == "ZENIQ") {
       wToken = token0;
       token = token1;
       orderedReserves = (reserves.$1, reserves.$2);

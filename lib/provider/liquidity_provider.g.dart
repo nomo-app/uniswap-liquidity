@@ -6,7 +6,7 @@ part of 'liquidity_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$liquidityNotifierHash() => r'0c92730691d813dca40941bdadcbe6e93f08f880';
+String _$liquidityNotifierHash() => r'220b87f47f55d2bd6bd99ccd4cc81741617d24ec';
 
 /// See also [LiquidityNotifier].
 @ProviderFor(LiquidityNotifier)
