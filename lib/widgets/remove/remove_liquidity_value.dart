@@ -7,7 +7,7 @@ import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/liquidity_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/provider/oldContract/pair_provider.dart';
 import 'package:uniswap_liquidity/provider/remove_liquidity_form_hook.dart';
 import 'package:uniswap_liquidity/widgets/remove/remove_input.dart';
 import 'package:uniswap_liquidity/widgets/remove/remove_price_display.dart';

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
+import 'package:nomo_ui_kit/components/buttons/text/nomo_text_button.dart';
 import 'package:nomo_ui_kit/components/card/nomo_card.dart';
 import 'package:nomo_ui_kit/components/loading/shimmer/shimmer.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
@@ -123,21 +124,6 @@ class PoolOverview extends ConsumerWidget {
                       ],
                     ),
                     Spacer(),
-                    if (pair.position != null)
-                      PrimaryNomoButton(
-                        text: "Old Position",
-                        borderRadius: BorderRadius.circular(8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 8,
-                        ),
-                        onPressed: () {
-                          NomoNavigator.of(context)
-                              .push(DetailsScreenRoute(pair: pair));
-                        },
-                        textStyle: context.typography.b1,
-                      ),
-                    8.hSpacing,
                     PrimaryNomoButton(
                       onPressed: pair.isUpdating
                           ? null
@@ -188,6 +174,20 @@ class PoolOverview extends ConsumerWidget {
                     ),
                   ],
                 ),
+                if (pair.position != null) ...[
+                  8.vSpacing,
+                  NomoTextButton(
+                    text: "Remove Old Position",
+                    borderRadius: BorderRadius.circular(8),
+                    onPressed: () {
+                      NomoNavigator.of(context)
+                          .push(DetailsScreenRoute(pair: pair));
+                    },
+                    textStyle: context.typography.b1.copyWith(
+                      color: context.colors.primary,
+                    ),
+                  ),
+                ],
               ],
               // ],
             ),

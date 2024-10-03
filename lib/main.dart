@@ -12,7 +12,7 @@ import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart'
 import 'package:nomo_ui_kit/components/card/nomo_card.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/provider/oldContract/pair_provider.dart';
 import 'package:uniswap_liquidity/routes.dart';
 import 'package:uniswap_liquidity/theme.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';

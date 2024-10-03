@@ -13,7 +13,7 @@ const _fetchInterval = Duration(minutes: 1);
 
 class AssetNotifier {
   final String address;
-  final List<TokenEntity> tokens;
+  final List<CoinEntity> tokens;
   final EvmRpcInterface rpc = EvmRpcInterface(
     type: ZeniqSmartNetwork,
     clients: [
@@ -25,14 +25,14 @@ class AssetNotifier {
 
   Currency get currency => currencyNotifier.value;
 
-  final Map<TokenEntity, ValueNotifier<AsyncValue<ImageEntity>>> _images = {};
+  final Map<CoinEntity, ValueNotifier<AsyncValue<ImageEntity>>> _images = {};
 
-  void addPreviewToken(TokenEntity token) {
+  void addPreviewToken(CoinEntity token) {
     _images[token] = ValueNotifier(AsyncValue.loading());
     fetchImageForToken(token);
   }
 
-  void addToken(TokenEntity token) {
+  void addToken(CoinEntity token) {
     tokens.add(token);
 
     fetchImageForToken(token);
@@ -53,7 +53,7 @@ class AssetNotifier {
   Future<void> fetchAllImages() async =>
       await Future.wait(tokens.map(fetchImageForToken));
 
-  Future<void> fetchImageForToken(TokenEntity token) async {
+  Future<void> fetchImageForToken(CoinEntity token) async {
     if (!_images.containsKey(token)) {
       _images[token] = ValueNotifier(AsyncValue.loading());
     }
@@ -89,14 +89,13 @@ class AssetNotifier {
     }
   }
 
-  Future<double> fetchSingelPrice(
-      EthBasedTokenEntity token, bool isZeniq) async {
+  Future<double> fetchSingelPrice(ERC20Entity token, bool isZeniq) async {
     final result = await PriceRepository.fetchSingle(token, currency, isZeniq);
     return result;
   }
 
   ValueNotifier<AsyncValue<ImageEntity>>? imageNotifierForToken(
-          TokenEntity token) =>
+          CoinEntity token) =>
       _images[token];
 }
 

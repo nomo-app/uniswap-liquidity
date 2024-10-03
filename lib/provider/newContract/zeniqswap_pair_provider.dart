@@ -1,18 +1,17 @@
-import 'dart:async';
 import 'package:collection/collection.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/provider/model/position.dart';
 import 'package:uniswap_liquidity/utils/logger.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
-part "pair_provider.g.dart";
+part 'zeniqswap_pair_provider.g.dart';
 
 @Riverpod(keepAlive: true)
-class PairNotifier extends _$PairNotifier {
+class ZeniqswapNotifier extends _$ZeniqswapNotifier {
   @override
   Future<List<Pair>> build() async {
     return _getPairs();
@@ -86,12 +85,12 @@ class PairNotifier extends _$PairNotifier {
     }
 
     //TODO: Fetch token data from WEbonkit
-    final assets = <EthBasedTokenEntity>[];
+    final assets = <ERC20Entity>[];
 
-    EthBasedTokenEntity? token0 = assets.singleWhereOrNull(
+    ERC20Entity? token0 = assets.singleWhereOrNull(
       (asset) => asset.contractAddress == tokenZeroAddress,
     );
-    EthBasedTokenEntity? token1 = assets.singleWhereOrNull(
+    ERC20Entity? token1 = assets.singleWhereOrNull(
       (asset) => asset.contractAddress == tokenOneAddress,
     );
 
@@ -100,7 +99,7 @@ class PairNotifier extends _$PairNotifier {
       if (token == null) {
         return null;
       }
-      return EthBasedTokenEntity(
+      return ERC20Entity(
         name: token.name,
         symbol: token.symbol,
         decimals: token.decimals,
@@ -114,7 +113,7 @@ class PairNotifier extends _$PairNotifier {
       if (token == null) {
         return null;
       }
-      return EthBasedTokenEntity(
+      return ERC20Entity(
         name: token.name,
         symbol: token.symbol,
         decimals: token.decimals,
@@ -130,8 +129,8 @@ class PairNotifier extends _$PairNotifier {
     ref.read(assetNotifierProvider).addToken(token0);
     ref.read(assetNotifierProvider).addToken(token1);
 
-    EthBasedTokenEntity wToken;
-    EthBasedTokenEntity token;
+    ERC20Entity wToken;
+    ERC20Entity token;
 
     (BigInt, BigInt) orderedReserves;
 
@@ -328,7 +327,7 @@ class PairNotifier extends _$PairNotifier {
     }
   }
 
-  Future<double?> _fetchTokenPrice(EthBasedTokenEntity token) async {
+  Future<double?> _fetchTokenPrice(ERC20Entity token) async {
     print('Fetching token price for ${token.symbol}');
 
     try {
@@ -343,8 +342,8 @@ class PairNotifier extends _$PairNotifier {
   }
 
   Future<Map<String, dynamic>> _calculateTVL({
-    required EthBasedTokenEntity wtoken,
-    required EthBasedTokenEntity token1,
+    required ERC20Entity wtoken,
+    required ERC20Entity token1,
     required BigInt reserveWZENIQ,
     required BigInt reserveToken,
   }) async {
@@ -382,18 +381,3 @@ class PairNotifier extends _$PairNotifier {
     return tvlInfo;
   }
 }
-
-const allowedContracts = [
-  "0x04358de9c80fa9e3e0185e25a513c08f97610720",
-  "0x334fead1c662f1aca47313b284077be123a4e2ab",
-  "0x7a25ebe2927028d3f2638f181dade503cc45c318",
-  "0xb10740f9a0f07cb3541e6d811632a12a0c98898a",
-  "0x47341630801dadda02f28827675ad106b525285f",
-  "0xdc88ade4eea3c0638f18b0449695071807dbae7e",
-  "0xb7a0f230742a357a9f4657f818322bd7c917d35a",
-  "0xff7b9ed4785a3caea71a90039908bf4fb7f7dc49",
-  "0x103850b1b08a37466148ae816cf8dfbb812162a3",
-  "0x2cdc266698a9821718d504ba4a2652388454ae63",
-  "0xeda0df58ea3675da3b8d08a2ae91a0b876f2dfaf",
-  "0x9c66828a4d82f4b6e0a636fa6d142b82b5fdd523",
-];

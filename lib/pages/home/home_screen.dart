@@ -12,7 +12,7 @@ import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/provider/oldContract/pair_provider.dart';
 import 'package:uniswap_liquidity/provider/show_all_pools_provider.dart';
 import 'package:uniswap_liquidity/utils/price_repository.dart';
 import 'package:uniswap_liquidity/widgets/animated_expandable.dart';

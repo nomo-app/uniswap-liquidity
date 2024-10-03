@@ -2,8 +2,8 @@ import 'package:uniswap_liquidity/provider/model/position.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
 class Pair extends PairInformation {
-  EthBasedTokenEntity tokeWZeniq;
-  EthBasedTokenEntity token;
+  ERC20Entity tokeWZeniq;
+  ERC20Entity token;
   UniswapV2Pair contract;
   (BigInt, BigInt) reserves;
   Position? position;
@@ -34,8 +34,8 @@ class Pair extends PairInformation {
   });
 
   copyWith({
-    EthBasedTokenEntity? tokeWZeniq,
-    EthBasedTokenEntity? token,
+    ERC20Entity? tokeWZeniq,
+    ERC20Entity? token,
     UniswapV2Pair? contract,
     (BigInt, BigInt)? reserves,
     double? tvl,

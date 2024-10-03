@@ -3,7 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/components/dialog/nomo_dialog.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/provider/oldContract/pair_provider.dart';
 import 'package:uniswap_liquidity/widgets/add/pair_item.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 

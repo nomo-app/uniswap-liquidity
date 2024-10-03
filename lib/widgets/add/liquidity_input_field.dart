@@ -11,7 +11,7 @@ import 'package:uniswap_liquidity/utils/max_percission.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
 class LiquidityInputField extends HookConsumerWidget {
-  final EthBasedTokenEntity? token;
+  final ERC20Entity? token;
   final Amount? balance;
   final ValueNotifier<String?> errorNotifier;
   final ValueNotifier<String> valueNotifier;
