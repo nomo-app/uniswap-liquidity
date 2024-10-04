@@ -51,13 +51,20 @@ class HomeScreen extends HookConsumerWidget {
       appBar: NomoAppBar(
         trailling: PrimaryNomoButton(
           text: "Add Pool",
+          enabled: pairsNewContract.isLoading == false,
           borderRadius: BorderRadius.circular(8),
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           textStyle: context.typography.b1,
           onPressed: () async {
             final token = await showDialog(
               context: context,
-              builder: (context) => SelectDialog(),
+              builder: (context) => pairsNewContract.when(
+                data: (data) => SelectDialog(pools: data),
+                error: (error, stackTrace) => Text(error.toString()),
+                loading: () => CircularProgressIndicator(
+                  color: context.theme.colors.primary,
+                ),
+              ),
             );
 
             if (token != null) {

@@ -6,7 +6,7 @@ part of 'zeniqswap_pair_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$zeniqswapNotifierHash() => r'13a1951c5053d6205c106f7dbac29914c2b1e057';
+String _$zeniqswapNotifierHash() => r'bf60a3d586582a2ebba679d07c5a17a40fddda77';
 
 /// See also [ZeniqswapNotifier].
 @ProviderFor(ZeniqswapNotifier)

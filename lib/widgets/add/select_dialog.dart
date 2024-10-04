@@ -3,15 +3,17 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_ui_kit/components/dialog/nomo_dialog.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
+import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/provider/token_provider.dart';
 import 'package:uniswap_liquidity/widgets/add/pair_item.dart';
 
 class SelectDialog extends ConsumerWidget {
-  const SelectDialog({super.key});
+  final List<Pair> pools;
+  const SelectDialog({required this.pools, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tokens = ref.watch(tokenNotifierProvider);
+    final tokens = ref.watch(tokenNotifierProvider(pools));
 
     return NomoDialog(
       maxWidth: 600,
