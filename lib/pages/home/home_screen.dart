@@ -105,10 +105,13 @@ class HomeScreen extends HookConsumerWidget {
                 b.position!.valueLocked.compareTo(a.position!.valueLocked));
             filteredPairs.sort((a, b) => b.tvl.compareTo(a.tvl));
 
-            final highTVLPairs =
-                filteredPairs.where((p) => p.tvl >= 100).toList();
-            final lowTVLPairs =
-                filteredPairs.where((p) => p.tvl < 100).toList();
+            final shouldSeparateTVL = filteredPairs.length > 10;
+            final highTVLPairs = shouldSeparateTVL
+                ? filteredPairs.where((p) => p.tvl >= 100).toList()
+                : filteredPairs;
+            final lowTVLPairs = shouldSeparateTVL
+                ? filteredPairs.where((p) => p.tvl < 100).toList()
+                : [];
 
             return Column(
               children: [
@@ -227,7 +230,9 @@ class HomeScreen extends HookConsumerWidget {
                             : positionPairs.map((pair) => PoolOverview(
                                   pair: pair,
                                 )),
-                        if (showAllPools && lowTVLPairs.isNotEmpty)
+                        if (showAllPools &&
+                            lowTVLPairs.isNotEmpty &&
+                            shouldSeparateTVL)
                           AnimatedExpandableRow(
                             isExpanded: showLowTVLPools.value,
                             lowTVLPoolsCount: lowTVLPairs.length,
@@ -235,7 +240,9 @@ class HomeScreen extends HookConsumerWidget {
                               showLowTVLPools.value = !showLowTVLPools.value;
                             },
                           ),
-                        if (showAllPools && showLowTVLPools.value)
+                        if (showAllPools &&
+                            showLowTVLPools.value &&
+                            shouldSeparateTVL)
                           ...lowTVLPairs.map((pair) => PoolOverview(
                                 pair: pair,
                               )),

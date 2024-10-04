@@ -36,26 +36,6 @@ class AddLiquidityBox extends HookConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Align(
-        //   alignment: Alignment.centerRight,
-        //   child: SecondaryNomoButton(
-        //     border: Border.all(
-        //       color: context.theme.colors.onDisabled,
-        //       width: 1,
-        //     ),
-        //     borderRadius: BorderRadius.circular(8),
-        //     backgroundColor: Colors.transparent,
-        //     padding: EdgeInsets.all(8),
-        //     text: "Slippage tolerance",
-        //     onPressed: () {
-        //       NomoNavigator.of(context).showModal(
-        //           builder: (context) => SlippageDialog(
-        //               pair: selectedPool, slippageNotifier: slippage),
-        //           context: context);
-        //     },
-        //   ),
-        // ),
-        // 32.vSpacing,
         if (selectedPool.position != null) ...[
           PositionBox(pair: selectedPool),
           12.vSpacing,
@@ -94,12 +74,62 @@ class AddLiquidityBox extends HookConsumerWidget {
         12.vSpacing,
         ListenableBuilder(
           listenable: Listenable.merge([
-            formStateNotifier.needsApproval,
+            formStateNotifier.zeniqNeedsApproval,
             formStateNotifier.zeniqErrorNotifier,
             formStateNotifier.tokenErrorNotifier,
           ]),
           builder: (context, child) {
-            final needsApproval = formStateNotifier.needsApproval.value;
+            final needsApproval = formStateNotifier.zeniqNeedsApproval.value;
+            final zeniqError = formStateNotifier.zeniqErrorNotifier.value;
+            final tokenError = formStateNotifier.tokenErrorNotifier.value;
+
+            final showButton = needsApproval == ApprovalState.needsApproval &&
+                needsApproval != ApprovalState.approved &&
+                zeniqError == null &&
+                tokenError == null &&
+                zeniqHasValue.value;
+
+            if (showButton || needsApproval == ApprovalState.loading) {
+              return Column(
+                children: [
+                  PrimaryNomoButton(
+                    borderRadius: BorderRadius.circular(16),
+                    enabled: needsApproval != ApprovalState.loading,
+                    expandToConstraints: true,
+                    height: 52,
+                    type: needsApproval == ApprovalState.loading
+                        ? ActionType.loading
+                        : ActionType.def,
+                    text: "Approve ${selectedPool.tokeWZeniq.symbol}",
+                    textStyle: context.typography.b2,
+                    onPressed: () async {
+                      Amount tokenAmount = Amount.convert(
+                        value: double.tryParse(
+                                formStateNotifier.tokenNotifier.value) ??
+                            0,
+                        decimals: selectedPool.token.decimals,
+                      );
+                      await formStateNotifier.approveToken(
+                        selectedPool.token,
+                        tokenAmount.value,
+                      );
+                    },
+                  ),
+                  12.vSpacing,
+                ],
+              );
+            }
+            return SizedBox.shrink();
+          },
+        ),
+        ListenableBuilder(
+          listenable: Listenable.merge([
+            formStateNotifier.tokenNeedsApproval,
+            formStateNotifier.zeniqErrorNotifier,
+            formStateNotifier.tokenErrorNotifier,
+          ]),
+          builder: (context, child) {
+            final needsApproval = formStateNotifier.tokenNeedsApproval.value;
             final zeniqError = formStateNotifier.zeniqErrorNotifier.value;
             final tokenError = formStateNotifier.tokenErrorNotifier.value;
 
@@ -130,7 +160,7 @@ class AddLiquidityBox extends HookConsumerWidget {
                         decimals: selectedPool.token.decimals,
                       );
                       await formStateNotifier.approveToken(
-                        selectedPool.token.contractAddress,
+                        selectedPool.token,
                         tokenAmount.value,
                       );
                     },

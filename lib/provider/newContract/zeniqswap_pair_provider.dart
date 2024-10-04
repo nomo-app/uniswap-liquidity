@@ -355,6 +355,8 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
       final vl = (zeniqAmount.displayDouble * pair.zeniqPrice) +
           (tokenAmount.displayDouble * pair.tokenPrice);
 
+      print("Position before update: ${pair.position}");
+
       final updatedPosition = Position(
         liquidity: liquidityAmount,
         zeniqValue: zeniqAmount,
@@ -368,12 +370,27 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
         share: share,
         oldPosition: false,
       );
-      final index = pairs.indexOf(pair);
+      final index = pairs.indexWhere(
+          (p) => p.contract.contractAddress == pair.contract.contractAddress);
       print("This is the index of updated pair: $index");
-      pairs[index] = pair.copyWith(position: updatedPosition);
-      state = AsyncValue.data(pairs);
+
+      if (index != -1) {
+        // Update the pair if found
+        pairs[index] = pairs[index].copyWith(position: updatedPosition);
+
+        print("Position after update: ${pairs[index].position}");
+        state = AsyncValue.data(pairs);
+
+        print("Pair updated successfully");
+      } else {
+        // If the pair is not found, add it to the list
+        print("Pair not found in the list. Adding it.");
+        state = AsyncValue.data(
+            [...pairs, pair.copyWith(position: updatedPosition)]);
+      }
     } catch (e, s) {
-      print('Error fetching position at index $pair: $e');
+      print(
+          'Error updating position for pair ${pair.contract.contractAddress}: $e');
       state = AsyncValue.error(e, s);
     }
   }

@@ -184,7 +184,7 @@ class AddPoolFormController {
     try {
       allowance = await contract.allowance(
         owner: address,
-        spender: zeniqSwapRouter.contractAddress,
+        spender: zeniqV2SwapRouter.contractAddress,
       );
 
       print("Allowance: ${allowance}");

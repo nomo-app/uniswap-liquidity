@@ -26,9 +26,40 @@ class Position {
     required this.zeniqFiatValue,
     required this.tokenFiatValue,
   });
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Position &&
+        other.liquidity == liquidity &&
+        other.totalSupply == totalSupply &&
+        other.zeniqValue == zeniqValue &&
+        other.tokenValue == tokenValue &&
+        other.share == share &&
+        other.reserveAmountZeniq == reserveAmountZeniq &&
+        other.reserveAmountToken == reserveAmountToken &&
+        other.valueLocked == valueLocked &&
+        other.zeniqFiatValue == zeniqFiatValue &&
+        other.tokenFiatValue == tokenFiatValue &&
+        other.oldPosition == oldPosition;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        liquidity,
+        totalSupply,
+        zeniqValue,
+        tokenValue,
+        share,
+        reserveAmountZeniq,
+        reserveAmountToken,
+        valueLocked,
+        zeniqFiatValue,
+        tokenFiatValue,
+        oldPosition,
+      );
 
   @override
   String toString() {
-    return 'Position(share: ${share} liquidity: ${liquidity.displayDouble}, zeniqValue: $zeniqValue, tokenValue: $tokenValue)';
+    return 'Position(share: ${share} liquidity: ${liquidity.displayDouble}, zeniqValue: $zeniqValue, tokenValue: $tokenValue isOld: $oldPosition)';
   }
 }
