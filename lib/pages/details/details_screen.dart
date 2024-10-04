@@ -27,7 +27,9 @@ class DetailsScreen extends HookConsumerWidget {
           color: context.theme.colors.foreground1,
         ),
         title: NomoText(
-          "Manage position",
+          pair!.position?.oldPosition ?? false
+              ? "Remove Liquidity"
+              : "Manage Position",
           style: context.typography.h1,
         ),
       ),
