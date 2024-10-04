@@ -52,7 +52,9 @@ class AddPair extends ConsumerWidget {
               fees24h: null,
               apr: null,
               token: token!,
-              contract: UniswapV2Pair(contractAddress: "asdasd", rpc: rpc),
+              contract: UniswapV2PairOrZeniqSwapPair.zeniqSwap(
+                ZeniqswapV2Pair(contractAddress: "", rpc: rpc),
+              ),
               reserves: (BigInt.zero, BigInt.zero),
               tvl: 0,
               zeniqFiatValue: 0,

@@ -49,10 +49,17 @@ class RemoveLiquidityFormHook {
     BigInt allowance = BigInt.zero;
 
     try {
-      allowance = await selectedPool.contract.allowance(
-        owner: address,
-        spender: zeniqSwapRouter.contractAddress,
-      );
+      if (selectedPool.contract.isUniswap) {
+        allowance = await selectedPool.contract.asUniswap.allowance(
+          owner: address,
+          spender: zeniqSwapRouter.contractAddress,
+        );
+      } else {
+        allowance = await selectedPool.contract.asZeniqSwap.allowance(
+          owner: address,
+          spender: zeniqV2SwapRouter.contractAddress,
+        );
+      }
     } catch (e) {
       print("Error checking allowance");
     }
@@ -228,11 +235,23 @@ class RemoveLiquidityFormHook {
     approveError.value = "";
     needsApproval.value = ApprovalState.loading;
     try {
-      final rawTx = await selectedPool.contract.approveTx(
-        sender: address,
-        spender: zeniqSwapRouter.contractAddress,
-        value: position.liquidity.value,
-      ) as RawEVMTransactionType0;
+      final rawTx = selectedPool.contract.isUniswap
+          ? await selectedPool.contract.asUniswap.approveTx(
+              sender: address,
+              spender: zeniqSwapRouter.contractAddress,
+              value: position.liquidity.value,
+            ) as RawEVMTransactionType0
+          : await selectedPool.contract.asZeniqSwap.approveTx(
+              sender: address,
+              spender: zeniqV2SwapRouter.contractAddress,
+              value: position.liquidity.value,
+            ) as RawEVMTransactionType0;
+
+      // final rawTx = await selectedPool.contract.approveTx(
+      //   sender: address,
+      //   spender: zeniqSwapRouter.contractAddress,
+      //   value: position.liquidity.value,
+      // ) as RawEVMTransactionType0;
       final signedTxHash = await WebonKitDart.signTransaction(
           rawTx.serializedUnsigned(rpc.type.chainId).toHex);
 

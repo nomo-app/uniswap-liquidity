@@ -92,7 +92,10 @@ class HomeScreen extends HookConsumerWidget {
           data: (pairs) {
             final filteredPairs = pairs
                 .where((pair) =>
-                    pair.token.symbol.toLowerCase().contains(searchTerm.value))
+                    pair.token.symbol
+                        .toLowerCase()
+                        .contains(searchTerm.value) &&
+                    (!showAllPools || pair.position?.oldPosition != true))
                 .toList();
 
             final positionPairs = filteredPairs

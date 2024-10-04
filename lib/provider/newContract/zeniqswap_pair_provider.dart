@@ -4,6 +4,7 @@ import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/provider/model/position.dart';
+import 'package:uniswap_liquidity/provider/oldContract/pair_provider.dart';
 import 'package:uniswap_liquidity/utils/logger.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
@@ -14,12 +15,21 @@ part 'zeniqswap_pair_provider.g.dart';
 class ZeniqswapNotifier extends _$ZeniqswapNotifier {
   @override
   Future<List<Pair>> build() async {
-    return _getPairs();
+    final oldPairsWithPosition = await ref.watch(pairNotifierProvider.future);
+    final newPairs = await _getPairs();
+
+    // Combine old and new pairs, ensuring no duplicates
+    final allPairs = [...oldPairsWithPosition, ...newPairs];
+
+    return allPairs;
   }
 
   Future<void> periodicUpdate() async {
     final updatedPairs = await _getPairs();
-    state = AsyncValue.data(updatedPairs);
+    state.whenData((currentPairs) {
+      final mergedPairs = _mergePairsPreservingOld(currentPairs, updatedPairs);
+      state = AsyncValue.data(mergedPairs);
+    });
   }
 
   Future<void> softUpdate() async {
@@ -28,9 +38,48 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
           .map<Pair>((Pair pair) => pair.copyWith(isUpdating: true))
           .toList());
     });
-
     final updatedPairs = await _getPairs();
-    state = AsyncValue.data(updatedPairs);
+    state.whenData((currentPairs) {
+      final mergedPairs = _mergePairsPreservingOld(currentPairs, updatedPairs);
+      state = AsyncValue.data(mergedPairs);
+    });
+  }
+
+  List<Pair> _mergePairsPreservingOld(
+      List<Pair> currentPairs, List<Pair> updatedPairs) {
+    final mergedPairs = <Pair>[];
+    final updatedPairMap = {
+      for (var pair in updatedPairs) pair.contract.contractAddress: pair
+    };
+    final processedContracts = <String>{};
+
+    for (var currentPair in currentPairs) {
+      final contractAddress = currentPair.contract.contractAddress;
+      if (processedContracts.contains(contractAddress)) continue;
+
+      if (currentPair.position?.oldPosition == true) {
+        // Preserve pairs with oldPosition true
+        mergedPairs.add(currentPair);
+      } else {
+        final updatedPair = updatedPairMap[contractAddress];
+        if (updatedPair != null) {
+          // Update pairs without oldPosition
+          mergedPairs.add(updatedPair.copyWith(
+            position: currentPair.position ?? updatedPair.position,
+          ));
+        } else {
+          // Keep current pair if not in updated list
+          mergedPairs.add(currentPair);
+        }
+      }
+      processedContracts.add(contractAddress);
+      updatedPairMap.remove(contractAddress);
+    }
+
+    // Add any new pairs from the updated list
+    mergedPairs.addAll(updatedPairMap.values);
+
+    return mergedPairs;
   }
 
   Future<List<String>> _allPairs() async {
@@ -57,10 +106,10 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
     }
   }
 
-  Future<List<UniswapV2Pair>> _pairContracts() async {
+  Future<List<ZeniqswapV2Pair>> _pairContracts() async {
     final pairs = await _allPairs();
     final contracts = pairs.map((pair) {
-      return UniswapV2Pair(
+      return ZeniqswapV2Pair(
         rpc: rpc,
         contractAddress: pair,
       );
@@ -69,7 +118,7 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
     return contracts;
   }
 
-  Future<Pair> _getPairData(UniswapV2Pair pair) async {
+  Future<Pair> _getPairData(ZeniqswapV2Pair pair) async {
     final tokenZeroAddress = await pair.token0();
     final tokenOneAddress = await pair.token1();
     final reserves = await pair.getReserves();
@@ -216,6 +265,7 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
         tokenFiatValue: tokenPrice * tokenAmount.displayDouble,
         zeniqFiatValue: zeniqPrice * zeniqAmount.displayDouble,
         share: share,
+        oldPosition: false,
       );
     }
 
@@ -228,7 +278,7 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
       fees24h: null,
       tokeWZeniq: wToken,
       token: token,
-      contract: pair,
+      contract: UniswapV2PairOrZeniqSwapPair.zeniqSwap(pair),
       reserves: orderedReserves,
       tvl: tvlInfo["tvl"],
       zeniqFiatValue: tvlInfo["zeniqFiatValue"],
@@ -266,8 +316,8 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
     final pairs = state.value;
     if (pairs == null) return;
     try {
-      final liquidity = await pair.contract.balanceOf(address);
-      final totalSupply = await pair.contract.totalSupply();
+      final liquidity = await pair.contract.asZeniqSwap.balanceOf(address);
+      final totalSupply = await pair.contract.asZeniqSwap.totalSupply();
 
       final totalSupplyAmount = Amount(
         value: totalSupply,
@@ -316,6 +366,7 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
         zeniqFiatValue: zeniqAmount.displayDouble * pair.zeniqPrice,
         valueLocked: vl,
         share: share,
+        oldPosition: false,
       );
       final index = pairs.indexOf(pair);
       print("This is the index of updated pair: $index");

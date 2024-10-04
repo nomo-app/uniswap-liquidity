@@ -207,17 +207,17 @@ class PairNotifier extends _$PairNotifier {
           (tokenAmount.displayDouble * tokenPrice);
 
       position = Position(
-        valueLocked: vl,
-        liquidity: liquidityAmount,
-        zeniqValue: zeniqAmount,
-        totalSupply: totalSupplyAmount,
-        tokenValue: tokenAmount,
-        reserveAmountZeniq: reserveAmountZeniq,
-        reserveAmountToken: reserveAmountToken,
-        tokenFiatValue: tokenPrice * tokenAmount.displayDouble,
-        zeniqFiatValue: zeniqPrice * zeniqAmount.displayDouble,
-        share: share,
-      );
+          valueLocked: vl,
+          liquidity: liquidityAmount,
+          zeniqValue: zeniqAmount,
+          totalSupply: totalSupplyAmount,
+          tokenValue: tokenAmount,
+          reserveAmountZeniq: reserveAmountZeniq,
+          reserveAmountToken: reserveAmountToken,
+          tokenFiatValue: tokenPrice * tokenAmount.displayDouble,
+          zeniqFiatValue: zeniqPrice * zeniqAmount.displayDouble,
+          share: share,
+          oldPosition: true);
     }
 
     final fiatBalanceZeniq = zeniqBalance.displayDouble * zeniqPrice;
@@ -230,7 +230,7 @@ class PairNotifier extends _$PairNotifier {
         fees24h: null,
         tokeWZeniq: wToken,
         token: token,
-        contract: pair,
+        contract: UniswapV2PairOrZeniqSwapPair.uniswap(pair),
         reserves: orderedReserves,
         tvl: tvlInfo["tvl"],
         zeniqFiatValue: tvlInfo["zeniqFiatValue"],
@@ -272,8 +272,8 @@ class PairNotifier extends _$PairNotifier {
     final pairs = state.value;
     if (pairs == null) return;
     try {
-      final liquidity = await pair.contract.balanceOf(address);
-      final totalSupply = await pair.contract.totalSupply();
+      final liquidity = await pair.contract.asUniswap.balanceOf(address);
+      final totalSupply = await pair.contract.asUniswap.totalSupply();
 
       final totalSupplyAmount = Amount(
         value: totalSupply,
@@ -313,6 +313,7 @@ class PairNotifier extends _$PairNotifier {
 
       final updatedPosition = Position(
         liquidity: liquidityAmount,
+        oldPosition: true,
         zeniqValue: zeniqAmount,
         totalSupply: totalSupplyAmount,
         tokenValue: tokenAmount,

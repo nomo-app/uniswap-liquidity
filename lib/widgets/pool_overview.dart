@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:nomo_router/nomo_router.dart';
 import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart';
-import 'package:nomo_ui_kit/components/buttons/text/nomo_text_button.dart';
 import 'package:nomo_ui_kit/components/card/nomo_card.dart';
 import 'package:nomo_ui_kit/components/loading/shimmer/shimmer.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
@@ -97,29 +96,55 @@ class PoolOverview extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         NomoText(
                           pair.token.symbol,
                           style: context.typography.b1,
                         ),
                         const SizedBox(height: 4),
-                        Container(
-                          width: 64,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: context.theme.colors.background3,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: NomoText(
-                              "0.3% Fee",
-                              style: context.typography.b1,
-                              fontSize: 12,
+                        Row(
+                          children: [
+                            if (pair.position?.oldPosition ?? false) ...[
+                              Container(
+                                width: 38,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4,
+                                  horizontal: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: context.theme.colors.primary,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Center(
+                                  child: NomoText(
+                                    "Old",
+                                    style: context.typography.b1,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              4.hSpacing,
+                            ],
+                            Container(
+                              width: 64,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4,
+                                horizontal: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: context.theme.colors.background3,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: NomoText(
+                                  "0.3% Fee",
+                                  style: context.typography.b1,
+                                  fontSize: 12,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
@@ -174,20 +199,6 @@ class PoolOverview extends ConsumerWidget {
                     ),
                   ],
                 ),
-                if (pair.position != null) ...[
-                  8.vSpacing,
-                  NomoTextButton(
-                    text: "Remove Old Position",
-                    borderRadius: BorderRadius.circular(8),
-                    onPressed: () {
-                      NomoNavigator.of(context)
-                          .push(DetailsScreenRoute(pair: pair));
-                    },
-                    textStyle: context.typography.b1.copyWith(
-                      color: context.colors.primary,
-                    ),
-                  ),
-                ],
               ],
               // ],
             ),
