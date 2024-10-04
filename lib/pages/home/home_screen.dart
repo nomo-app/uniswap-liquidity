@@ -14,7 +14,6 @@ import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
 import 'package:uniswap_liquidity/provider/asset_provider.dart';
 import 'package:uniswap_liquidity/provider/newContract/zeniqswap_pair_provider.dart';
-import 'package:uniswap_liquidity/provider/oldContract/pair_provider.dart';
 import 'package:uniswap_liquidity/provider/show_all_pools_provider.dart';
 import 'package:uniswap_liquidity/routes.dart';
 import 'package:uniswap_liquidity/utils/logger.dart';
@@ -170,7 +169,9 @@ class HomeScreen extends HookConsumerWidget {
                             ? Currency.eur
                             : Currency.usd;
                         assetNotifier.currencyNotifier.value = newCurrency;
-                        ref.read(pairNotifierProvider.notifier).softUpdate();
+                        ref
+                            .read(zeniqswapNotifierProvider.notifier)
+                            .softUpdate();
                       },
                       itemHeight: 28,
                       items: [
