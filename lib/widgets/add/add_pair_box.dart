@@ -65,6 +65,7 @@ class AddPairBox extends HookConsumerWidget {
             formStateNotifier.zeniqErrorNotifier,
             formStateNotifier.tokenErrorNotifier,
             formStateNotifier.showButtons,
+            formStateNotifier.tokenApprovalState,
           ]),
           builder: (context, child) {
             final zeniqApprovalState =
@@ -72,6 +73,8 @@ class AddPairBox extends HookConsumerWidget {
             final zeniqError = formStateNotifier.zeniqErrorNotifier.value;
             final tokenError = formStateNotifier.tokenErrorNotifier.value;
             final showButtons = formStateNotifier.showButtons.value;
+            final tokenApprovalState =
+                formStateNotifier.tokenApprovalState.value;
 
             final showZeniqApproveButton =
                 zeniqApprovalState == ApprovalState.needsApproval &&
@@ -85,7 +88,8 @@ class AddPairBox extends HookConsumerWidget {
                 children: [
                   PrimaryNomoButton(
                     borderRadius: BorderRadius.circular(16),
-                    enabled: zeniqApprovalState != ApprovalState.loading,
+                    enabled: zeniqApprovalState != ApprovalState.loading &&
+                        tokenApprovalState != ApprovalState.loading,
                     expandToConstraints: true,
                     height: 52,
                     type: zeniqApprovalState == ApprovalState.loading
@@ -114,6 +118,7 @@ class AddPairBox extends HookConsumerWidget {
             formStateNotifier.zeniqErrorNotifier,
             formStateNotifier.tokenErrorNotifier,
             formStateNotifier.showButtons,
+            formStateNotifier.zeniqApprovalState,
           ]),
           builder: (context, child) {
             final tokenApprovalState =
@@ -121,6 +126,8 @@ class AddPairBox extends HookConsumerWidget {
             final zeniqError = formStateNotifier.zeniqErrorNotifier.value;
             final tokenError = formStateNotifier.tokenErrorNotifier.value;
             final showButtons = formStateNotifier.showButtons.value;
+            final zeniqApprovalState =
+                formStateNotifier.zeniqApprovalState.value;
 
             final showTokenApproveButton =
                 tokenApprovalState == ApprovalState.needsApproval &&
@@ -135,7 +142,8 @@ class AddPairBox extends HookConsumerWidget {
                 children: [
                   PrimaryNomoButton(
                     borderRadius: BorderRadius.circular(16),
-                    enabled: tokenApprovalState != ApprovalState.loading,
+                    enabled: tokenApprovalState != ApprovalState.loading &&
+                        zeniqApprovalState != ApprovalState.loading,
                     expandToConstraints: true,
                     height: 52,
                     type: tokenApprovalState == ApprovalState.loading
@@ -163,19 +171,29 @@ class AddPairBox extends HookConsumerWidget {
             formStateNotifier.canAddLiquidity,
             formStateNotifier.zeniqNotifier,
             formStateNotifier.tokenNotifier,
+            formStateNotifier.tokenApprovalState,
+            formStateNotifier.zeniqApprovalState,
           ]),
           builder: (context, child) {
             final canAddLiquidity = formStateNotifier.canAddLiquidity.value;
             final zeniqInput = formStateNotifier.zeniqNotifier.value;
             final tokenInput = formStateNotifier.tokenNotifier.value;
+            final tokenApprovalState =
+                formStateNotifier.tokenApprovalState.value;
+            final zeniqApprovalState =
+                formStateNotifier.zeniqApprovalState.value;
+
+            final enabeld = canAddLiquidity &&
+                (liquidityProvider != LiquidityState.loading) &&
+                tokenApprovalState == ApprovalState.approved &&
+                zeniqApprovalState == ApprovalState.approved;
 
             return Column(
               children: [
                 PrimaryNomoButton(
-                  enabled: canAddLiquidity &&
-                      (liquidityProvider != LiquidityState.loading),
-                  type: canAddLiquidity &&
-                          (liquidityProvider == LiquidityState.idel)
+                  enabled:
+                      enabeld && (liquidityProvider != LiquidityState.loading),
+                  type: enabeld && (liquidityProvider == LiquidityState.idel)
                       ? ActionType.def
                       : liquidityProvider == LiquidityState.loading
                           ? ActionType.loading

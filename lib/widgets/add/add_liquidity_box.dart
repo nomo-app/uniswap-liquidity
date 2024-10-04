@@ -190,15 +190,16 @@ class AddLiquidityBox extends HookConsumerWidget {
             final zeniqApproval = formStateNotifier.zeniqNeedsApproval.value;
             final canAddLiquidity = formStateNotifier.canAddLiquidity.value;
 
+            final enabeld = canAddLiquidity &&
+                (liquidityProvider != LiquidityState.loading) &&
+                tokenApproval == ApprovalState.approved &&
+                zeniqApproval == ApprovalState.approved;
+
             return Column(
               children: [
                 PrimaryNomoButton(
-                  enabled: canAddLiquidity &&
-                      (liquidityProvider != LiquidityState.loading) &&
-                      tokenApproval == ApprovalState.approved &&
-                      zeniqApproval == ApprovalState.approved,
-                  type: canAddLiquidity &&
-                          (liquidityProvider == LiquidityState.idel)
+                  enabled: enabeld,
+                  type: enabeld && (liquidityProvider == LiquidityState.idel)
                       ? ActionType.def
                       : liquidityProvider == LiquidityState.loading
                           ? ActionType.loading
