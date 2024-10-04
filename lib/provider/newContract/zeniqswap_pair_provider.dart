@@ -316,8 +316,12 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
     final pairs = state.value;
     if (pairs == null) return;
     try {
-      final liquidity = await pair.contract.asZeniqSwap.balanceOf(address);
-      final totalSupply = await pair.contract.asZeniqSwap.totalSupply();
+      final liquidity = pair.contract.isUniswap
+          ? await pair.contract.asUniswap.balanceOf(address)
+          : await pair.contract.asZeniqSwap.balanceOf(address);
+      final totalSupply = pair.contract.isUniswap
+          ? await pair.contract.asUniswap.totalSupply()
+          : await pair.contract.asZeniqSwap.totalSupply();
 
       final totalSupplyAmount = Amount(
         value: totalSupply,
