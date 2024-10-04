@@ -96,29 +96,55 @@ class PoolOverview extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         NomoText(
                           pair.token.symbol,
                           style: context.typography.b1,
                         ),
                         const SizedBox(height: 4),
-                        Container(
-                          width: 64,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: context.theme.colors.background3,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: NomoText(
-                              "0.3% Fee",
-                              style: context.typography.b1,
-                              fontSize: 12,
+                        Row(
+                          children: [
+                            if (pair.position?.oldPosition ?? false) ...[
+                              Container(
+                                width: 38,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4,
+                                  horizontal: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: context.theme.colors.primary,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Center(
+                                  child: NomoText(
+                                    "Old",
+                                    style: context.typography.b1,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              4.hSpacing,
+                            ],
+                            Container(
+                              width: 64,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4,
+                                horizontal: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: context.theme.colors.background3,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: NomoText(
+                                  "0.3% Fee",
+                                  style: context.typography.b1,
+                                  fontSize: 12,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
@@ -138,7 +164,7 @@ class PoolOverview extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
-                        vertical: 4,
+                        vertical: 8,
                       ),
                       child: NomoText(
                         pair.position == null ? "Enter" : "Mange Position",

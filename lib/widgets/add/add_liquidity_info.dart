@@ -121,8 +121,8 @@ class ADDLiqiuidityInfo extends HookConsumerWidget {
 }
 
 class UnitDisplay extends ConsumerWidget {
-  final EthBasedTokenEntity token;
-  final EthBasedTokenEntity zeniq;
+  final ERC20Entity token;
+  final ERC20Entity zeniq;
   final bool isOther;
   final String value;
 

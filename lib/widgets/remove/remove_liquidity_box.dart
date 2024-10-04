@@ -22,10 +22,9 @@ class RemoveLiquidityBox extends HookConsumerWidget {
         PositionBox(pair: selectedPool),
         12.vSpacing,
         RemoveLiquiditySlider(
-          liquidityToRemove: liquidityToRemove,
-          sliderValue: sliderValue,
-          pair: selectedPool,
-        ),
+            sliderValue: sliderValue,
+            pair: selectedPool,
+            liquidityToRemove: liquidityToRemove),
         12.vSpacing,
         Icon(
           Icons.arrow_downward,

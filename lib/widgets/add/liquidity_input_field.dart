@@ -11,12 +11,11 @@ import 'package:uniswap_liquidity/utils/max_percission.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
 class LiquidityInputField extends HookConsumerWidget {
-  final EthBasedTokenEntity? token;
+  final ERC20Entity? token;
   final Amount? balance;
   final ValueNotifier<String?> errorNotifier;
   final ValueNotifier<String> valueNotifier;
   final double? fiatBlance;
-  final bool isZeniq;
   const LiquidityInputField({
     super.key,
     required this.token,
@@ -24,7 +23,6 @@ class LiquidityInputField extends HookConsumerWidget {
     required this.errorNotifier,
     required this.valueNotifier,
     required this.fiatBlance,
-    required this.isZeniq,
   });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -108,14 +106,16 @@ class LiquidityInputField extends HookConsumerWidget {
                         balance?.displayDouble.formatTokenBalance() ?? "0.00",
                         style: context.typography.b1,
                       ),
-                      8.hSpacing,
-                      ValueListenableBuilder(
-                        valueListenable: assetNotifier,
-                        builder: (context, value, child) => NomoText(
-                          "≈ ${formatValueWithCurrency(value, fiatBlance ?? 0)}",
-                          style: context.typography.b1,
+                      if (fiatBlance != null) ...[
+                        8.hSpacing,
+                        ValueListenableBuilder(
+                          valueListenable: assetNotifier,
+                          builder: (context, value, child) => NomoText(
+                            "≈ ${formatValueWithCurrency(value, fiatBlance ?? 0)}",
+                            style: context.typography.b1,
+                          ),
                         ),
-                      ),
+                      ],
                       8.hSpacing,
                       NomoTextButton(
                         text: "Max",

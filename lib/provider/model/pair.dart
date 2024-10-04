@@ -1,10 +1,43 @@
+import 'package:flutter/foundation.dart';
 import 'package:uniswap_liquidity/provider/model/position.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
+@immutable
+class UniswapV2PairOrZeniqSwapPair {
+  final dynamic _contract;
+
+  const UniswapV2PairOrZeniqSwapPair.uniswap(UniswapV2Pair contract)
+      : _contract = contract;
+  const UniswapV2PairOrZeniqSwapPair.zeniqSwap(ZeniqswapV2Pair contract)
+      : _contract = contract;
+
+  bool get isUniswap => _contract is UniswapV2Pair;
+  bool get isZeniqswap => _contract is ZeniqswapV2Pair;
+
+  UniswapV2Pair get asUniswap => _contract as UniswapV2Pair;
+  ZeniqswapV2Pair get asZeniqSwap => _contract as ZeniqswapV2Pair;
+
+  get contractAddress => when(
+        uniswap: (contract) => contract.contractAddress,
+        zeniqSwap: (contract) => contract.contractAddress,
+      );
+
+  T when<T>({
+    required T Function(UniswapV2Pair) uniswap,
+    required T Function(ZeniqswapV2Pair) zeniqSwap,
+  }) {
+    if (_contract is UniswapV2Pair) {
+      return uniswap(_contract);
+    } else {
+      return zeniqSwap(_contract as ZeniqswapV2Pair);
+    }
+  }
+}
+
 class Pair extends PairInformation {
-  EthBasedTokenEntity tokeWZeniq;
-  EthBasedTokenEntity token;
-  UniswapV2Pair contract;
+  ERC20Entity tokeWZeniq;
+  ERC20Entity token;
+  final UniswapV2PairOrZeniqSwapPair contract;
   (BigInt, BigInt) reserves;
   Position? position;
   final bool isUpdating;
@@ -34,9 +67,9 @@ class Pair extends PairInformation {
   });
 
   copyWith({
-    EthBasedTokenEntity? tokeWZeniq,
-    EthBasedTokenEntity? token,
-    UniswapV2Pair? contract,
+    ERC20Entity? tokeWZeniq,
+    ERC20Entity? token,
+    UniswapV2PairOrZeniqSwapPair? contract,
     (BigInt, BigInt)? reserves,
     double? tvl,
     double? volume24h,
@@ -83,12 +116,21 @@ class Pair extends PairInformation {
 
   @override
   bool operator ==(Object other) {
-    return contract.contractAddress == (other as Pair).contract.contractAddress;
+    if (identical(this, other)) return true;
+    return other is Pair &&
+        other.contract == contract &&
+        other.tokenPerZeniq == tokenPerZeniq &&
+        other.zeniqPerToken == zeniqPerToken &&
+        other.tokeWZeniq == tokeWZeniq &&
+        other.token == token &&
+        other.reserves == reserves &&
+        other.position == position &&
+        other.isUpdating == isUpdating;
   }
 
   @override
   String toString() {
-    return "Pair ${tokeWZeniq.symbol}/${token.symbol} contract ${contract.contractAddress}";
+    return "Pair ${tokeWZeniq.symbol}/${token.symbol}";
   }
 
   @override

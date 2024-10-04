@@ -70,7 +70,7 @@ class PairNotifier extends _$PairNotifier {
     return contracts;
   }
 
-  Future<Pair> _getPairData(UniswapV2Pair pair) async {
+  Future<Pair?> _getPairData(UniswapV2Pair pair) async {
     final tokenZeroAddress = await pair.token0();
     final tokenOneAddress = await pair.token1();
     final reserves = await pair.getReserves();
@@ -86,12 +86,12 @@ class PairNotifier extends _$PairNotifier {
     }
 
     //TODO: Fetch token data from WEbonkit
-    final assets = <EthBasedTokenEntity>[];
+    final assets = <ERC20Entity>[];
 
-    EthBasedTokenEntity? token0 = assets.singleWhereOrNull(
+    ERC20Entity? token0 = assets.singleWhereOrNull(
       (asset) => asset.contractAddress == tokenZeroAddress,
     );
-    EthBasedTokenEntity? token1 = assets.singleWhereOrNull(
+    ERC20Entity? token1 = assets.singleWhereOrNull(
       (asset) => asset.contractAddress == tokenOneAddress,
     );
 
@@ -100,7 +100,7 @@ class PairNotifier extends _$PairNotifier {
       if (token == null) {
         return null;
       }
-      return EthBasedTokenEntity(
+      return ERC20Entity(
         name: token.name,
         symbol: token.symbol,
         decimals: token.decimals,
@@ -114,7 +114,7 @@ class PairNotifier extends _$PairNotifier {
       if (token == null) {
         return null;
       }
-      return EthBasedTokenEntity(
+      return ERC20Entity(
         name: token.name,
         symbol: token.symbol,
         decimals: token.decimals,
@@ -130,8 +130,8 @@ class PairNotifier extends _$PairNotifier {
     ref.read(assetNotifierProvider).addToken(token0);
     ref.read(assetNotifierProvider).addToken(token1);
 
-    EthBasedTokenEntity wToken;
-    EthBasedTokenEntity token;
+    ERC20Entity wToken;
+    ERC20Entity token;
 
     (BigInt, BigInt) orderedReserves;
 
@@ -203,65 +203,68 @@ class PairNotifier extends _$PairNotifier {
     final double zeniqPrice = tvlInfo["zeniqPrice"];
 
     if (liquidityAmount > Amount.zero) {
-      // print("Zeniq Price is: $zeniqPrice");
-      // print("Token Price is: $tokenPrice of ${token.symbol}");
-      // print("Zeniq Value is: ${zeniqValue.displayDouble}");
-      // print("Token Value is: ${tokenValue.displayDouble} of ${token.symbol}");
-
       final vl = (zeniqAmount.displayDouble * zeniqPrice) +
           (tokenAmount.displayDouble * tokenPrice);
 
       position = Position(
-        valueLocked: vl,
-        liquidity: liquidityAmount,
-        zeniqValue: zeniqAmount,
-        totalSupply: totalSupplyAmount,
-        tokenValue: tokenAmount,
-        reserveAmountZeniq: reserveAmountZeniq,
-        reserveAmountToken: reserveAmountToken,
-        tokenFiatValue: tokenPrice * tokenAmount.displayDouble,
-        zeniqFiatValue: zeniqPrice * zeniqAmount.displayDouble,
-        share: share,
+          valueLocked: vl,
+          liquidity: liquidityAmount,
+          zeniqValue: zeniqAmount,
+          totalSupply: totalSupplyAmount,
+          tokenValue: tokenAmount,
+          reserveAmountZeniq: reserveAmountZeniq,
+          reserveAmountToken: reserveAmountToken,
+          tokenFiatValue: tokenPrice * tokenAmount.displayDouble,
+          zeniqFiatValue: zeniqPrice * zeniqAmount.displayDouble,
+          share: share,
+          oldPosition: true);
+    }
+
+    final fiatBalanceZeniq = zeniqBalance.displayDouble * zeniqPrice;
+    final fiatBalanceToken = tokenBalance.displayDouble * tokenPrice;
+
+    if (position != null) {
+      return Pair(
+        volume24h: null,
+        apr: null,
+        fees24h: null,
+        tokeWZeniq: wToken,
+        token: token,
+        contract: UniswapV2PairOrZeniqSwapPair.uniswap(pair),
+        reserves: orderedReserves,
+        tvl: tvlInfo["tvl"],
+        zeniqFiatValue: tvlInfo["zeniqFiatValue"],
+        tokenFiatValue: tvlInfo["tokenFiatValue"],
+        tokenPrice: tokenPrice,
+        zeniqPrice: zeniqPrice,
+        tokenPerZeniq: tvlInfo["tokenPerZeniq"],
+        zeniqPerToken: tvlInfo["zeniqPerToken"],
+        balanceToken: tokenBalance,
+        fiatBlanceToken: fiatBalanceToken,
+        fiatZeniqBalance: fiatBalanceZeniq,
+        position: position,
+        tokenValue: tvlInfo["tokenValue"],
+        zeniqValue: tvlInfo["zeniqValue"],
       );
     }
 
-    return Pair(
-      volume24h: null,
-      apr: null,
-      fees24h: null,
-      tokeWZeniq: wToken,
-      token: token,
-      contract: pair,
-      reserves: orderedReserves,
-      tvl: tvlInfo["tvl"],
-      zeniqFiatValue: tvlInfo["zeniqFiatValue"],
-      tokenFiatValue: tvlInfo["tokenFiatValue"],
-      tokenPrice: tokenPrice,
-      zeniqPrice: zeniqPrice,
-      tokenPerZeniq: tvlInfo["tokenPerZeniq"],
-      zeniqPerToken: tvlInfo["zeniqPerToken"],
-      balanceToken: tokenBalance,
-      fiatBlanceToken: null,
-      fiatZeniqBalance: null,
-      position: position,
-      tokenValue: tvlInfo["tokenValue"],
-      zeniqValue: tvlInfo["zeniqValue"],
-    );
+    return null;
   }
 
   Future<List<Pair>> _getPairs() async {
     final contracts = await _pairContracts();
-
     List<Pair> pairsData = [];
 
     try {
-      pairsData = await Future.wait(contracts.map((pair) {
-        return _getPairData(pair);
-      }));
+      final futures = contracts.map((pair) => _getPairData(pair));
+      final results = await Future.wait(futures);
+
+      // Filter out null values and add non-null Pairs to pairsData
+      pairsData = results.whereType<Pair>().toList();
     } catch (e) {
       print('Error fetching pair data: $e');
-      return [];
     }
+
     return pairsData;
   }
 
@@ -269,8 +272,8 @@ class PairNotifier extends _$PairNotifier {
     final pairs = state.value;
     if (pairs == null) return;
     try {
-      final liquidity = await pair.contract.balanceOf(address);
-      final totalSupply = await pair.contract.totalSupply();
+      final liquidity = await pair.contract.asUniswap.balanceOf(address);
+      final totalSupply = await pair.contract.asUniswap.totalSupply();
 
       final totalSupplyAmount = Amount(
         value: totalSupply,
@@ -310,6 +313,7 @@ class PairNotifier extends _$PairNotifier {
 
       final updatedPosition = Position(
         liquidity: liquidityAmount,
+        oldPosition: true,
         zeniqValue: zeniqAmount,
         totalSupply: totalSupplyAmount,
         tokenValue: tokenAmount,
@@ -330,7 +334,7 @@ class PairNotifier extends _$PairNotifier {
     }
   }
 
-  Future<double?> _fetchTokenPrice(EthBasedTokenEntity token) async {
+  Future<double?> _fetchTokenPrice(ERC20Entity token) async {
     print('Fetching token price for ${token.symbol}');
 
     try {
@@ -345,8 +349,8 @@ class PairNotifier extends _$PairNotifier {
   }
 
   Future<Map<String, dynamic>> _calculateTVL({
-    required EthBasedTokenEntity wtoken,
-    required EthBasedTokenEntity token1,
+    required ERC20Entity wtoken,
+    required ERC20Entity token1,
     required BigInt reserveWZENIQ,
     required BigInt reserveToken,
   }) async {

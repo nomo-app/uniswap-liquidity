@@ -49,10 +49,17 @@ class RemoveLiquidityFormHook {
     BigInt allowance = BigInt.zero;
 
     try {
-      allowance = await selectedPool.contract.allowance(
-        owner: address,
-        spender: zeniqSwapRouter.contractAddress,
-      );
+      if (selectedPool.contract.isUniswap) {
+        allowance = await selectedPool.contract.asUniswap.allowance(
+          owner: address,
+          spender: zeniqSwapRouter.contractAddress,
+        );
+      } else {
+        allowance = await selectedPool.contract.asZeniqSwap.allowance(
+          owner: address,
+          spender: zeniqV2SwapRouter.contractAddress,
+        );
+      }
     } catch (e) {
       print("Error checking allowance");
     }
@@ -141,20 +148,6 @@ class RemoveLiquidityFormHook {
     totalLiquidityToRemove.value = liquidityToRemove.displayValue;
   }
 
-  // bool _isValidZeniqAmount() {
-  //   final zeniqAmountBigInt =
-  //       parseFromString(zeniqAmount.value, selectedPool.tokeWZeniq.decimals);
-  //   return zeniqAmountBigInt != null &&
-  //       zeniqAmountBigInt <= position.zeniqValue.value;
-  // }
-
-  // bool _isValidTokenAmount() {
-  //   final tokenAmountBigInt =
-  //       parseFromString(tokenAmount.value, selectedPool.token.decimals);
-  //   return tokenAmountBigInt != null &&
-  //       tokenAmountBigInt <= position.tokenValue.value;
-  // }
-
   void _clearErrors() {
     zeniqErrorNotifier.value = null;
     tokenErrorNotifier.value = null;
@@ -228,11 +221,23 @@ class RemoveLiquidityFormHook {
     approveError.value = "";
     needsApproval.value = ApprovalState.loading;
     try {
-      final rawTx = await selectedPool.contract.approveTx(
-        sender: address,
-        spender: zeniqSwapRouter.contractAddress,
-        value: position.liquidity.value,
-      ) as RawEVMTransactionType0;
+      final rawTx = selectedPool.contract.isUniswap
+          ? await selectedPool.contract.asUniswap.approveTx(
+              sender: address,
+              spender: zeniqSwapRouter.contractAddress,
+              value: position.liquidity.value,
+            ) as RawEVMTransactionType0
+          : await selectedPool.contract.asZeniqSwap.approveTx(
+              sender: address,
+              spender: zeniqV2SwapRouter.contractAddress,
+              value: position.liquidity.value,
+            ) as RawEVMTransactionType0;
+
+      // final rawTx = await selectedPool.contract.approveTx(
+      //   sender: address,
+      //   spender: zeniqSwapRouter.contractAddress,
+      //   value: position.liquidity.value,
+      // ) as RawEVMTransactionType0;
       final signedTxHash = await WebonKitDart.signTransaction(
           rawTx.serializedUnsigned(rpc.type.chainId).toHex);
 
@@ -291,23 +296,38 @@ class RemoveLiquidityFormHook {
     print("Liquidity to remove: ${liquidityToRemove}");
 
     try {
-      final rawTx = await zeniqSwapRouter.removeLiquidityETHTx(
-        sender: address,
-        liquidity: liquidityToRemove,
-        amountTokenMin: calculateMinAmount(
-            tokenAmountToRemove, "0.5", selectedPool.token.decimals),
-        amountETHMin: calculateMinAmount(
-            zeniqAmountToRemove, "0.5", selectedPool.tokeWZeniq.decimals),
-        deadline: BigInt.from(deadline.millisecondsSinceEpoch ~/ 1000),
-        to: address,
-        token: selectedPool.token.contractAddress,
-      ) as RawEVMTransactionType0;
+      final rawTx = selectedPool.contract.isZeniqswap
+          ? await zeniqV2SwapRouter.removeLiquidityTx(
+              sender: address,
+              liquidity: liquidityToRemove,
+              tokenA: selectedPool.tokeWZeniq.contractAddress,
+              tokenB: selectedPool.token.contractAddress,
+              amountBMin: calculateMinAmount(
+                  tokenAmountToRemove, "0.5", selectedPool.token.decimals),
+              amountAMin: calculateMinAmount(
+                  zeniqAmountToRemove, "0.5", selectedPool.tokeWZeniq.decimals),
+              deadline: BigInt.from(deadline.millisecondsSinceEpoch ~/ 1000),
+              to: address,
+            ) as RawEVMTransactionType0
+          : await zeniqSwapRouter.removeLiquidityETHTx(
+              sender: address,
+              liquidity: liquidityToRemove,
+              token: selectedPool.token.contractAddress,
+              amountTokenMin: calculateMinAmount(
+                  tokenAmountToRemove, "0.5", selectedPool.token.decimals),
+              amountETHMin: calculateMinAmount(
+                  zeniqAmountToRemove, "0.5", selectedPool.tokeWZeniq.decimals),
+              deadline: BigInt.from(deadline.millisecondsSinceEpoch ~/ 1000),
+              to: address,
+            ) as RawEVMTransactionType0;
 
       final signedTxHash = await WebonKitDart.signTransaction(
         rawTx.serializedUnsigned(rpc.type.chainId).toHex,
       );
 
       final txHash = await rpc.sendRawTransaction(signedTxHash);
+
+      print("messagehex of remove liquidity: ${txHash}");
 
       final approved = await rpc.waitForTxConfirmation(txHash);
 

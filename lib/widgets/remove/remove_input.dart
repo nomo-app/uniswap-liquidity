@@ -9,7 +9,7 @@ import 'package:uniswap_liquidity/widgets/add/liquidity_input_field.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 
 class RemoveInput extends HookConsumerWidget {
-  final EthBasedTokenEntity? token;
+  final ERC20Entity? token;
   final ValueNotifier<String> valueNotifier;
   final ValueNotifier<String?> errorNotifier;
   const RemoveInput({

@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
-import 'package:uniswap_liquidity/provider/pair_provider.dart';
+import 'package:uniswap_liquidity/provider/newContract/zeniqswap_pair_provider.dart';
 import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
 import 'package:webon_kit_dart/webon_kit_dart.dart';
@@ -64,7 +64,7 @@ class LiquidityNotifier extends _$LiquidityNotifier {
       return null;
     }
 
-    await ref.read(pairNotifierProvider.notifier).updatePosition(
+    await ref.read(zeniqswapNotifierProvider.notifier).updatePosition(
           liquidity.pair,
         );
 
@@ -97,15 +97,16 @@ class LiquidityNotifier extends _$LiquidityNotifier {
     required String token,
   }) async {
     try {
-      final rawTx = await zeniqSwapRouter.addLiquidityETHTx(
-        token: token,
-        amountTokenDesired: amountTokenDesired,
-        amountETHMin: amountETHMin,
-        amountTokenMin: amountTokenMin,
+      final rawTx = await zeniqV2SwapRouter.addLiquidityTx(
+        amountADesired: amountETHDesired,
+        amountBDesired: amountTokenDesired,
+        amountAMin: amountETHMin,
+        amountBMin: amountTokenMin,
+        tokenA: zeniqWrapperToken.contractAddress,
+        tokenB: token,
         to: address,
         deadline: deadline,
         sender: address,
-        amountETHDesired: amountETHDesired,
       ) as RawEVMTransactionType0;
 
       print("Raw liquidity TX: ${rawTx}");

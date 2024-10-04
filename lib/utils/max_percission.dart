@@ -12,12 +12,16 @@ String formatValueWithCurrency(Currency currency, double value) {
 extension FormatExtension on double {
   String formatTokenBalance({int maxDecimals = 5, int minDecimals = 2}) {
     if (this == 0) return '0';
-
     final absValue = abs();
 
     // For very large numbers (100000 and above)
     if (absValue >= 100000) {
       return round().toString();
+    }
+
+    // For whole numbers
+    if (absValue == absValue.roundToDouble()) {
+      return toStringAsFixed(0);
     }
 
     // For numbers between 1000 and 99999.99
@@ -30,7 +34,7 @@ extension FormatExtension on double {
       return toStringAsFixed(3);
     }
 
-    // For numbers between 1 and 999.99
+    // For numbers between 1 and 99.99
     if (absValue >= 1) {
       return toStringAsFixed(4);
     }
@@ -38,9 +42,7 @@ extension FormatExtension on double {
     // For small numbers (less than 1)
     final String formattedString = toStringAsFixed(maxDecimals);
     final parts = formattedString.split('.');
-
     if (parts.length == 1) return parts[0]; // No decimal part
-
     String integerPart = parts[0];
     String fractionalPart = parts[1];
 
@@ -56,7 +58,6 @@ extension FormatExtension on double {
       final scientificParts = scientificNotation.split('e');
       final coefficient = double.parse(scientificParts[0]);
       final exponent = int.parse(scientificParts[1]);
-
       String significantDigits =
           coefficient.abs().toStringAsFixed(maxDecimals - 1);
       while (significantDigits.endsWith('0')) {
@@ -67,7 +68,6 @@ extension FormatExtension on double {
         significantDigits =
             significantDigits.substring(0, significantDigits.length - 1);
       }
-
       return '${this < 0 ? '-' : ''}0.${'0' * (-exponent - 1)}$significantDigits';
     }
 

@@ -19,23 +19,25 @@ class ManageCard extends HookConsumerWidget {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            ManageButtons(
-              initialValue: position.value,
-              onChanged: (value) {
-                position.value = value;
-              },
-            ),
-            16.vSpacing,
-            position.value == "Add"
-                ? AddLiquidityBox(selectedPool: selectedPool)
-                : RemoveLiquidityBox(selectedPool: selectedPool),
-          ],
-        ),
+        child: selectedPool.position?.oldPosition ?? false
+            ? RemoveLiquidityBox(selectedPool: selectedPool)
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+               children: [
+                  ManageButtons(
+                    initialValue: position.value,
+                    onChanged: (value) {
+                      position.value = value;
+                    },
+                  ),
+                  16.vSpacing,
+                  position.value == "Add"
+                      ? AddLiquidityBox(selectedPool: selectedPool)
+                      : RemoveLiquidityBox(selectedPool: selectedPool),
+                ],
+              ),
       ),
     );
   }

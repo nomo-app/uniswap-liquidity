@@ -27,7 +27,8 @@ class AddLiquidityFormController {
   final ValueNotifier<String?> tokenErrorNotifier;
   final ValueNotifier<bool> canAddLiquidity;
   final ValueNotifier<String> shareOfPool;
-  final ValueNotifier<ApprovalState> needsApproval;
+  final ValueNotifier<ApprovalState> tokenNeedsApproval;
+  final ValueNotifier<ApprovalState> zeniqNeedsApproval;
   final BigInt reserveA;
   final BigInt reserveB;
   final int zeniqDecimals;
@@ -49,7 +50,8 @@ class AddLiquidityFormController {
   )   : zeniqNotifier = ValueNotifier(""),
         tokenNotifier = ValueNotifier(""),
         canAddLiquidity = ValueNotifier(false),
-        needsApproval = ValueNotifier(ApprovalState.idel),
+        tokenNeedsApproval = ValueNotifier(ApprovalState.idel),
+        zeniqNeedsApproval = ValueNotifier(ApprovalState.idel),
         zeniqErrorNotifier = ValueNotifier(null),
         shareOfPool = ValueNotifier(""),
         tokenErrorNotifier = ValueNotifier(null) {
@@ -124,7 +126,7 @@ class AddLiquidityFormController {
 
   void _validateInputs() async {
     bool isValid = true;
-    ApprovalState approvalState = ApprovalState.idel;
+    // ApprovalState approvalState = ApprovalState.idel;
 
     if (zeniqNotifier.value.isEmpty || tokenNotifier.value.isEmpty) {
       isValid = false;
@@ -150,18 +152,30 @@ class AddLiquidityFormController {
     }
 
     if (isValid) {
-      final allowence = await checkAllowance(tokenContractAddress);
+      final allowenceToken = await checkAllowance(tokenContractAddress);
+      final allowenceZeniq = await checkAllowance(zeniqWrapperToken.contractAddress);
 
       Amount tokenAmount =
           Amount.convert(value: tokenInput, decimals: tokenDecimals);
 
-      if (allowence < tokenAmount.value) {
-        approvalState = ApprovalState.needsApproval;
-        isValid = false;
-      }
-    }
+      Amount zeniqAmount =
+          Amount.convert(value: zeniqInput, decimals: zeniqDecimals);
 
-    needsApproval.value = approvalState;
+      if (allowenceToken < tokenAmount.value) {
+        tokenNeedsApproval.value = ApprovalState.needsApproval;
+        isValid = false;
+      }else{
+        tokenNeedsApproval.value = ApprovalState.approved;
+      }
+
+      if (allowenceZeniq < zeniqAmount.value) {
+        zeniqNeedsApproval.value = ApprovalState.needsApproval;
+        isValid = false;
+      }else{
+        zeniqNeedsApproval.value = ApprovalState.approved;
+      }
+
+    }
     canAddLiquidity.value = isValid;
   }
 
@@ -174,7 +188,7 @@ class AddLiquidityFormController {
     try {
       allowance = await contract.allowance(
         owner: address,
-        spender: zeniqSwapRouter.contractAddress,
+        spender: zeniqV2SwapRouter.contractAddress,
       );
 
       print("Allowance: ${allowance}");
@@ -185,17 +199,23 @@ class AddLiquidityFormController {
     return allowance;
   }
 
-  Future<void> approveToken(String contracAddress, BigInt amount) async {
-    needsApproval.value = ApprovalState.loading;
+  Future<void> approveToken(ERC20Entity token, BigInt amount) async {
+    final isZeniq = token.symbol == "ZENIQ";
+
+    if (isZeniq) {
+      zeniqNeedsApproval.value = ApprovalState.loading;
+    } else {
+      tokenNeedsApproval.value = ApprovalState.loading;
+    }
+
     ERC20Contract contract = ERC20Contract(
-      contractAddress: contracAddress,
+      contractAddress: token.contractAddress,
       rpc: rpc,
     );
-
     try {
       final rawTx = await contract.approveTx(
         sender: address,
-        spender: zeniqSwapRouter.contractAddress,
+        spender: zeniqV2SwapRouter.contractAddress,
         value: amount,
       ) as RawEVMTransactionType0;
       print("Raw approve TX: ${rawTx}");
@@ -206,7 +226,11 @@ class AddLiquidityFormController {
       final approved = await rpc.waitForTxConfirmation(txHash);
 
       if (approved) {
-        needsApproval.value = ApprovalState.approved;
+        if (isZeniq) {
+          zeniqNeedsApproval.value = ApprovalState.approved;
+        } else {
+          tokenNeedsApproval.value = ApprovalState.approved;
+        }
         canAddLiquidity.value = true;
       } else {
         throw Exception("Approval failed");
@@ -214,7 +238,11 @@ class AddLiquidityFormController {
 
       print("messagehex of approve token: ${txHash}");
     } catch (e) {
-      needsApproval.value = ApprovalState.error;
+      if (isZeniq) {
+        zeniqNeedsApproval.value = ApprovalState.error;
+      } else {
+        tokenNeedsApproval.value = ApprovalState.error;
+      }
       print('Error approving token value: $e');
     }
   }

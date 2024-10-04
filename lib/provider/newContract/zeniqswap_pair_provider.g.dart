@@ -1,26 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'liquidity_provider.dart';
+part of 'zeniqswap_pair_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$liquidityNotifierHash() => r'220b87f47f55d2bd6bd99ccd4cc81741617d24ec';
+String _$zeniqswapNotifierHash() => r'35e9ae5c17430c34b7d7538b0061b2f187fe9aac';
 
-/// See also [LiquidityNotifier].
-@ProviderFor(LiquidityNotifier)
-final liquidityNotifierProvider =
-    AutoDisposeNotifierProvider<LiquidityNotifier, LiquidityState>.internal(
-  LiquidityNotifier.new,
-  name: r'liquidityNotifierProvider',
+/// See also [ZeniqswapNotifier].
+@ProviderFor(ZeniqswapNotifier)
+final zeniqswapNotifierProvider =
+    AsyncNotifierProvider<ZeniqswapNotifier, List<Pair>>.internal(
+  ZeniqswapNotifier.new,
+  name: r'zeniqswapNotifierProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$liquidityNotifierHash,
+      : _$zeniqswapNotifierHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$LiquidityNotifier = AutoDisposeNotifier<LiquidityState>;
+typedef _$ZeniqswapNotifier = AsyncNotifier<List<Pair>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

@@ -7,7 +7,6 @@ import 'package:nomo_ui_kit/components/app/scaffold/nomo_scaffold.dart';
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
-import 'package:uniswap_liquidity/provider/selected_pool_provider.dart';
 import 'package:uniswap_liquidity/widgets/manage_card.dart';
 
 class DetailsScreen extends HookConsumerWidget {
@@ -22,27 +21,21 @@ class DetailsScreen extends HookConsumerWidget {
       return SizedBox.shrink();
     }
 
-    final selectedPool = ref.watch(selectedPoolProvider(pair!));
-
     return NomoScaffold(
       appBar: NomoAppBar(
         leading: BackButton(
           color: context.theme.colors.foreground1,
         ),
         title: NomoText(
-          "Manage position",
+          pair!.position?.oldPosition ?? false
+              ? "Remove Liquidity"
+              : "Manage Position",
           style: context.typography.h1,
         ),
       ),
       child: NomoRouteBody(
         maxContentWidth: 600,
-        child: selectedPool.when(
-          data: (pair) => ManageCard(selectedPool: pair),
-          error: (error, stackTrace) => NomoText(error.toString()),
-          loading: () => Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
+        child: ManageCard(selectedPool: pair!),
       ),
     );
   }
