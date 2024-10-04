@@ -63,7 +63,7 @@ class RemovePriceDisplay extends HookConsumerWidget {
                     DottedLine(),
                     8.hSpacing,
                     NomoText(
-                      "${pair.tokenPrice.formatDouble(2)} ${currency.value.symbol}",
+                      "${pair.tokenPrice.toMaxPrecisionWithoutScientificNotation(2)} ${currency.value.symbol}",
                       style: context.theme.typography.b1,
                     ),
                   ],
@@ -85,7 +85,7 @@ class RemovePriceDisplay extends HookConsumerWidget {
                     DottedLine(),
                     8.hSpacing,
                     NomoText(
-                      "${pair.zeniqPrice.formatDouble(2)} ${currency.value.symbol}",
+                      "${pair.zeniqPrice.toMaxPrecisionWithoutScientificNotation(2)} ${currency.value.symbol}",
                       style: context.theme.typography.b1,
                     ),
                   ],

@@ -77,11 +77,13 @@ class AddLiquidityBox extends HookConsumerWidget {
             formStateNotifier.zeniqNeedsApproval,
             formStateNotifier.zeniqErrorNotifier,
             formStateNotifier.tokenErrorNotifier,
+            formStateNotifier.tokenNeedsApproval,
           ]),
           builder: (context, child) {
             final needsApproval = formStateNotifier.zeniqNeedsApproval.value;
             final zeniqError = formStateNotifier.zeniqErrorNotifier.value;
             final tokenError = formStateNotifier.tokenErrorNotifier.value;
+            final tokenApproval = formStateNotifier.tokenNeedsApproval.value;
 
             final showButton = needsApproval == ApprovalState.needsApproval &&
                 needsApproval != ApprovalState.approved &&
@@ -94,7 +96,8 @@ class AddLiquidityBox extends HookConsumerWidget {
                 children: [
                   PrimaryNomoButton(
                     borderRadius: BorderRadius.circular(16),
-                    enabled: needsApproval != ApprovalState.loading,
+                    enabled: needsApproval != ApprovalState.loading &&
+                        tokenApproval != ApprovalState.loading,
                     expandToConstraints: true,
                     height: 52,
                     type: needsApproval == ApprovalState.loading
@@ -110,7 +113,7 @@ class AddLiquidityBox extends HookConsumerWidget {
                         decimals: selectedPool.token.decimals,
                       );
                       await formStateNotifier.approveToken(
-                        selectedPool.token,
+                        selectedPool.tokeWZeniq,
                         tokenAmount.value,
                       );
                     },
@@ -125,6 +128,7 @@ class AddLiquidityBox extends HookConsumerWidget {
         ListenableBuilder(
           listenable: Listenable.merge([
             formStateNotifier.tokenNeedsApproval,
+            formStateNotifier.zeniqNeedsApproval,
             formStateNotifier.zeniqErrorNotifier,
             formStateNotifier.tokenErrorNotifier,
           ]),
@@ -132,6 +136,8 @@ class AddLiquidityBox extends HookConsumerWidget {
             final needsApproval = formStateNotifier.tokenNeedsApproval.value;
             final zeniqError = formStateNotifier.zeniqErrorNotifier.value;
             final tokenError = formStateNotifier.tokenErrorNotifier.value;
+            final zeniqNeedsApproval =
+                formStateNotifier.zeniqNeedsApproval.value;
 
             final showButton = needsApproval == ApprovalState.needsApproval &&
                 needsApproval != ApprovalState.approved &&
@@ -144,7 +150,8 @@ class AddLiquidityBox extends HookConsumerWidget {
                 children: [
                   PrimaryNomoButton(
                     borderRadius: BorderRadius.circular(16),
-                    enabled: needsApproval != ApprovalState.loading,
+                    enabled: needsApproval != ApprovalState.loading &&
+                        zeniqNeedsApproval != ApprovalState.loading,
                     expandToConstraints: true,
                     height: 52,
                     type: needsApproval == ApprovalState.loading
@@ -172,14 +179,24 @@ class AddLiquidityBox extends HookConsumerWidget {
             return SizedBox.shrink();
           },
         ),
-        ValueListenableBuilder(
-          valueListenable: formStateNotifier.canAddLiquidity,
-          builder: (context, canAddLiquidity, child) {
+        ListenableBuilder(
+          listenable: Listenable.merge([
+            formStateNotifier.canAddLiquidity,
+            formStateNotifier.tokenNeedsApproval,
+            formStateNotifier.zeniqNeedsApproval,
+          ]),
+          builder: (context, child) {
+            final tokenApproval = formStateNotifier.tokenNeedsApproval.value;
+            final zeniqApproval = formStateNotifier.zeniqNeedsApproval.value;
+            final canAddLiquidity = formStateNotifier.canAddLiquidity.value;
+
             return Column(
               children: [
                 PrimaryNomoButton(
                   enabled: canAddLiquidity &&
-                      (liquidityProvider != LiquidityState.loading),
+                      (liquidityProvider != LiquidityState.loading) &&
+                      tokenApproval == ApprovalState.approved &&
+                      zeniqApproval == ApprovalState.approved,
                   type: canAddLiquidity &&
                           (liquidityProvider == LiquidityState.idel)
                       ? ActionType.def
@@ -198,7 +215,7 @@ class AddLiquidityBox extends HookConsumerWidget {
                     );
                     final txHash = await ref
                         .read(liquidityNotifierProvider.notifier)
-                        .addLiquidity(liquidity);
+                        .addLiquidity(liquidity, null);
                     if (txHash != null) {
                       print("Liquidity added: $txHash");
                       showDialog(

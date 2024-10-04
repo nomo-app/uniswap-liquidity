@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
 import 'package:uniswap_liquidity/utils/token_repository.dart';
 import 'package:walletkit_dart/walletkit_dart.dart';
+import 'package:webon_kit_dart/webon_kit_dart.dart';
 
 part 'token_provider.g.dart';
 
@@ -9,7 +10,35 @@ part 'token_provider.g.dart';
 class TokenNotifier extends _$TokenNotifier {
   @override
   Future<List<ERC20Entity>> build(List<Pair> pairs) async {
-    final allTokens = await TokenRepository.fetchFixedTokens();
+    final List<ERC20Entity> listAssets = [];
+
+    try {
+      listAssets.addAll(
+        await WebonKitDart.getAllAssets().then(
+          (assets) => assets
+              .where((asset) {
+                return asset.chainId == ZeniqSmartNetwork.chainId;
+              })
+              .map((asset) {
+                if (asset.contractAddress != null) {
+                  return ERC20Entity(
+                    name: asset.name,
+                    symbol: asset.symbol,
+                    decimals: asset.decimals,
+                    contractAddress: asset.contractAddress!,
+                    chainID: asset.chainId!,
+                  );
+                }
+
+                return null;
+              })
+              .whereType<ERC20Entity>()
+              .toList(),
+        ),
+      );
+    } catch (e) {
+      listAssets.addAll(await TokenRepository.fetchFixedTokens());
+    }
 
     // Filter out pairs with oldPosition set to true
     final relevantPairs =
@@ -34,7 +63,7 @@ class TokenNotifier extends _$TokenNotifier {
     }.toSet();
 
     // Filter out tokens that already have non-old pairs, comparing cleaned symbols
-    final tokensWithNoPool = allTokens.where((token) {
+    final tokensWithNoPool = listAssets.where((token) {
       final cleanedSymbol = cleanSymbol(token.symbol);
       return !existingTokenSymbols.contains(cleanedSymbol);
     }).toList();

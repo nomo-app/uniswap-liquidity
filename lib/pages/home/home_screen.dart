@@ -49,43 +49,41 @@ class HomeScreen extends HookConsumerWidget {
 
     return NomoScaffold(
       appBar: NomoAppBar(
-        trailling: PrimaryNomoButton(
-          text: "Add Pool",
-          enabled: pairsNewContract.isLoading == false,
-          borderRadius: BorderRadius.circular(8),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          textStyle: context.typography.b1,
-          onPressed: () async {
-            final token = await showDialog(
-              context: context,
-              builder: (context) => pairsNewContract.when(
-                data: (data) => SelectDialog(pools: data),
-                error: (error, stackTrace) => Text(error.toString()),
-                loading: () => CircularProgressIndicator(
-                  color: context.theme.colors.primary,
-                ),
-              ),
-            );
+        trailling: pairsNewContract.when(
+          data: (data) => PrimaryNomoButton(
+            text: "Add Pool",
+            enabled: pairsNewContract.isLoading == false,
+            borderRadius: BorderRadius.circular(8),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            textStyle: context.typography.b1,
+            onPressed: () async {
+              final token = await showDialog(
+                context: context,
+                builder: (context) => SelectDialog(pools: data),
+              );
 
-            if (token != null) {
-              final zeniqPrice = await ref
-                  .read(assetNotifierProvider)
-                  .fetchSingelPrice(zeniqWrapperToken, true);
-              double tokenPrice = 0;
-              try {
-                tokenPrice = await ref
+              if (token != null) {
+                final zeniqPrice = await ref
                     .read(assetNotifierProvider)
-                    .fetchSingelPrice(token, false);
-              } catch (e) {
-                Logger.log("Error fetching token price: $e");
+                    .fetchSingelPrice(zeniqWrapperToken, true);
+                double tokenPrice = 0;
+                try {
+                  tokenPrice = await ref
+                      .read(assetNotifierProvider)
+                      .fetchSingelPrice(token, false);
+                } catch (e) {
+                  Logger.log("Error fetching token price: $e");
+                }
+                // ignore: use_build_context_synchronously
+                NomoNavigator.of(context).push(AddPairRoute(
+                    token: token,
+                    tokenPrice: tokenPrice,
+                    zeniqPrice: zeniqPrice));
               }
-              // ignore: use_build_context_synchronously
-              NomoNavigator.of(context).push(AddPairRoute(
-                  token: token,
-                  tokenPrice: tokenPrice,
-                  zeniqPrice: zeniqPrice));
-            }
-          },
+            },
+          ),
+          error: (error, stackTrace) => Text(error.toString()),
+          loading: () => SizedBox.shrink(),
         ),
         title: NomoText(
           "Liquidity",

@@ -15,7 +15,7 @@ class LiquidityNotifier extends _$LiquidityNotifier {
     return LiquidityState.idel;
   }
 
-  Future<String?> addLiquidity(Liquidity liquidity) async {
+  Future<String?> addLiquidity(Liquidity liquidity, bool? shouldupdate) async {
     state = LiquidityState.loading;
     final now = DateTime.now();
     final deadline = now.add(Duration(minutes: 20));
@@ -64,9 +64,11 @@ class LiquidityNotifier extends _$LiquidityNotifier {
       return null;
     }
 
-    await ref.read(zeniqswapNotifierProvider.notifier).updatePosition(
-          liquidity.pair,
-        );
+    if (shouldupdate == null) {
+      await ref.read(zeniqswapNotifierProvider.notifier).updatePosition(
+            liquidity.pair,
+          );
+    }
 
     state = LiquidityState.idel;
 

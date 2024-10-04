@@ -225,19 +225,14 @@ class RemoveLiquidityFormHook {
           ? await selectedPool.contract.asUniswap.approveTx(
               sender: address,
               spender: zeniqSwapRouter.contractAddress,
-              value: position.liquidity.value,
+              value: maxUint256,
             ) as RawEVMTransactionType0
           : await selectedPool.contract.asZeniqSwap.approveTx(
               sender: address,
               spender: zeniqV2SwapRouter.contractAddress,
-              value: position.liquidity.value,
+              value: maxUint256,
             ) as RawEVMTransactionType0;
 
-      // final rawTx = await selectedPool.contract.approveTx(
-      //   sender: address,
-      //   spender: zeniqSwapRouter.contractAddress,
-      //   value: position.liquidity.value,
-      // ) as RawEVMTransactionType0;
       final signedTxHash = await WebonKitDart.signTransaction(
           rawTx.serializedUnsigned(rpc.type.chainId).toHex);
 

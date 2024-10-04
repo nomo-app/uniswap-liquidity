@@ -79,7 +79,7 @@ class AddLiquidityFormController {
       final calculatedToken =
           calculatedTokenBigInt.toDouble() / pow(10, tokenDecimals);
       tokenNotifier.removeListener(_calculateZeniqFromToken);
-      tokenNotifier.value = calculatedToken.toStringAsFixed(7);
+      tokenNotifier.value = calculatedToken.toString();
       tokenNotifier.addListener(_calculateZeniqFromToken);
     } else {
       tokenNotifier.removeListener(_calculateZeniqFromToken);
@@ -153,7 +153,8 @@ class AddLiquidityFormController {
 
     if (isValid) {
       final allowenceToken = await checkAllowance(tokenContractAddress);
-      final allowenceZeniq = await checkAllowance(zeniqWrapperToken.contractAddress);
+      final allowenceZeniq =
+          await checkAllowance(zeniqWrapperToken.contractAddress);
 
       Amount tokenAmount =
           Amount.convert(value: tokenInput, decimals: tokenDecimals);
@@ -164,17 +165,16 @@ class AddLiquidityFormController {
       if (allowenceToken < tokenAmount.value) {
         tokenNeedsApproval.value = ApprovalState.needsApproval;
         isValid = false;
-      }else{
+      } else {
         tokenNeedsApproval.value = ApprovalState.approved;
       }
 
       if (allowenceZeniq < zeniqAmount.value) {
         zeniqNeedsApproval.value = ApprovalState.needsApproval;
         isValid = false;
-      }else{
+      } else {
         zeniqNeedsApproval.value = ApprovalState.approved;
       }
-
     }
     canAddLiquidity.value = isValid;
   }
@@ -216,7 +216,7 @@ class AddLiquidityFormController {
       final rawTx = await contract.approveTx(
         sender: address,
         spender: zeniqV2SwapRouter.contractAddress,
-        value: amount,
+        value: maxUint256,
       ) as RawEVMTransactionType0;
       print("Raw approve TX: ${rawTx}");
       final signedTx = await WebonKitDart.signTransaction(

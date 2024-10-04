@@ -192,7 +192,7 @@ class AddPairBox extends HookConsumerWidget {
                     );
                     final txHash = await ref
                         .read(liquidityNotifierProvider.notifier)
-                        .addLiquidity(liquidity);
+                        .addLiquidity(liquidity, false);
                     if (txHash != null) {
                       print("Liquidity added: $txHash");
                       showDialog(
