@@ -146,7 +146,7 @@ class RemoveLiquidityValue extends HookConsumerWidget {
 
                   ref
                       .read(zeniqswapNotifierProvider.notifier)
-                      .updatePosition(selectedPool);
+                      .updatePair(selectedPool);
                 }
               },
             ),

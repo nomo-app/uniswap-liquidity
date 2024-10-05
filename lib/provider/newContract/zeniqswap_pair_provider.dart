@@ -45,6 +45,30 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
     });
   }
 
+  Future<void> hardUpdate(Pair pair) async {
+    state = AsyncValue.loading();
+    final updatedPairs = await _getPairs();
+    state = AsyncValue.data(updatedPairs);
+  }
+
+  Future<void> updatePair(Pair pair) async {
+    final pairs = state.value ?? [];
+    final index = pairs.indexWhere(
+      (p) => p.contract.contractAddress == pair.contract.contractAddress,
+    );
+    final zeniqBalance = await rpc.fetchTokenBalance(address, zeniqETHToken);
+    final updatedPair = await _getPairData(
+        pair.contract.isUniswap
+            ? UniswapV2PairOrZeniqSwapPair.uniswap(pair.contract.asUniswap)
+            : UniswapV2PairOrZeniqSwapPair.zeniqSwap(pair.contract.asZeniqSwap),
+        zeniqBalance);
+    if (index != -1) {
+      pairs[index] = updatedPair;
+      state = AsyncValue.data(pairs);
+    }
+    return;
+  }
+
   List<Pair> _mergePairsPreservingOld(
       List<Pair> currentPairs, List<Pair> updatedPairs) {
     final mergedPairs = <Pair>[];
@@ -118,17 +142,29 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
     return contracts;
   }
 
-  Future<Pair> _getPairData(ZeniqswapV2Pair pair) async {
-    final tokenZeroAddress = await pair.token0();
-    final tokenOneAddress = await pair.token1();
-    final reserves = await pair.getReserves();
+  Future<Pair> _getPairData(
+      UniswapV2PairOrZeniqSwapPair uniswapOrZeniq, Amount zeniqBalance) async {
+    final tokenZeroAddress = uniswapOrZeniq.isUniswap
+        ? await uniswapOrZeniq.asUniswap.token0()
+        : await uniswapOrZeniq.asZeniqSwap.token0();
+
+    final tokenOneAddress = uniswapOrZeniq.isUniswap
+        ? await uniswapOrZeniq.asUniswap.token1()
+        : await uniswapOrZeniq.asZeniqSwap.token1();
+    final reserves = uniswapOrZeniq.isUniswap
+        ? await uniswapOrZeniq.asUniswap.getReserves()
+        : await uniswapOrZeniq.asZeniqSwap.getReserves();
     BigInt? liquidity = BigInt.zero;
     BigInt? totalSupply = BigInt.zero;
     Amount tokenBalance = Amount.zero;
 
     try {
-      liquidity = await pair.balanceOf(address);
-      totalSupply = await pair.totalSupply();
+      liquidity = uniswapOrZeniq.isUniswap
+          ? await uniswapOrZeniq.asUniswap.balanceOf(address)
+          : await uniswapOrZeniq.asZeniqSwap.balanceOf(address);
+      totalSupply = uniswapOrZeniq.isUniswap
+          ? await uniswapOrZeniq.asUniswap.totalSupply()
+          : await uniswapOrZeniq.asZeniqSwap.totalSupply();
     } catch (e) {
       throw Exception('Error fetching position data');
     }
@@ -150,7 +186,7 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
       }
       return ERC20Entity(
         name: token.name,
-        symbol: token.symbol,
+        symbol: token.symbol == "WZENIQ" ? "ZENIQ" : token.symbol,
         decimals: token.decimals,
         contractAddress: token.contractAddress,
         chainID: rpc.type.chainId,
@@ -164,7 +200,7 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
       }
       return ERC20Entity(
         name: token.name,
-        symbol: token.symbol,
+        symbol: token.symbol == "WZENIQ" ? "ZENIQ" : token.symbol,
         decimals: token.decimals,
         contractAddress: token.contractAddress,
         chainID: rpc.type.chainId,
@@ -265,7 +301,7 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
         tokenFiatValue: tokenPrice * tokenAmount.displayDouble,
         zeniqFiatValue: zeniqPrice * zeniqAmount.displayDouble,
         share: share,
-        oldPosition: false,
+        oldPosition: uniswapOrZeniq.isUniswap,
       );
     }
 
@@ -278,7 +314,9 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
       fees24h: null,
       tokeWZeniq: wToken,
       token: token,
-      contract: UniswapV2PairOrZeniqSwapPair.zeniqSwap(pair),
+      contract: uniswapOrZeniq.isUniswap
+          ? UniswapV2PairOrZeniqSwapPair.uniswap(uniswapOrZeniq.asUniswap)
+          : UniswapV2PairOrZeniqSwapPair.zeniqSwap(uniswapOrZeniq.asZeniqSwap),
       reserves: orderedReserves,
       tvl: tvlInfo["tvl"],
       zeniqFiatValue: tvlInfo["zeniqFiatValue"],
@@ -289,6 +327,7 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
       zeniqPerToken: tvlInfo["zeniqPerToken"],
       balanceToken: tokenBalance,
       fiatBlanceToken: fiatBalanceToken,
+      zeniqBalance: zeniqBalance,
       fiatZeniqBalance: fiatBalanceZeniq,
       position: position,
       tokenValue: tvlInfo["tokenValue"],
@@ -299,11 +338,14 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
   Future<List<Pair>> _getPairs() async {
     final contracts = await _pairContracts();
 
+    final zeniqBalance = await rpc.fetchTokenBalance(address, zeniqETHToken);
+
     List<Pair> pairsData = [];
 
     try {
       pairsData = await Future.wait(contracts.map((pair) {
-        return _getPairData(pair);
+        return _getPairData(
+            UniswapV2PairOrZeniqSwapPair.zeniqSwap(pair), zeniqBalance);
       }));
     } catch (e) {
       print('Error fetching pair data: $e');
@@ -312,92 +354,92 @@ class ZeniqswapNotifier extends _$ZeniqswapNotifier {
     return pairsData;
   }
 
-  Future<void> updatePosition(Pair pair) async {
-    final pairs = state.value;
-    if (pairs == null) return;
-    try {
-      final liquidity = pair.contract.isUniswap
-          ? await pair.contract.asUniswap.balanceOf(address)
-          : await pair.contract.asZeniqSwap.balanceOf(address);
-      final totalSupply = pair.contract.isUniswap
-          ? await pair.contract.asUniswap.totalSupply()
-          : await pair.contract.asZeniqSwap.totalSupply();
+  // Future<void> updatePosition(Pair pair) async {
+  //   final pairs = state.value;
+  //   if (pairs == null) return;
+  //   try {
+  //     final liquidity = pair.contract.isUniswap
+  //         ? await pair.contract.asUniswap.balanceOf(address)
+  //         : await pair.contract.asZeniqSwap.balanceOf(address);
+  //     final totalSupply = pair.contract.isUniswap
+  //         ? await pair.contract.asUniswap.totalSupply()
+  //         : await pair.contract.asZeniqSwap.totalSupply();
 
-      final totalSupplyAmount = Amount(
-        value: totalSupply,
-        decimals: 18,
-      );
+  //     final totalSupplyAmount = Amount(
+  //       value: totalSupply,
+  //       decimals: 18,
+  //     );
 
-      final reserveAmountZeniq = Amount(
-        value: pair.reserves.$1,
-        decimals: pair.tokeWZeniq.decimals,
-      );
-      final reserveAmountToken = Amount(
-        value: pair.reserves.$2,
-        decimals: pair.token.decimals,
-      );
+  //     final reserveAmountZeniq = Amount(
+  //       value: pair.reserves.$1,
+  //       decimals: pair.tokeWZeniq.decimals,
+  //     );
+  //     final reserveAmountToken = Amount(
+  //       value: pair.reserves.$2,
+  //       decimals: pair.token.decimals,
+  //     );
 
-      final liquidityAmount = Amount(
-        value: liquidity,
-        decimals: 18,
-      );
+  //     final liquidityAmount = Amount(
+  //       value: liquidity,
+  //       decimals: 18,
+  //     );
 
-      final share = liquidityAmount / totalSupplyAmount;
+  //     final share = liquidityAmount / totalSupplyAmount;
 
-      final zeniqValue = share * reserveAmountZeniq;
-      final zeniqAmount = Amount(
-        value: discardRightBigInt(zeniqValue.value, 18),
-        decimals: 18,
-      );
+  //     final zeniqValue = share * reserveAmountZeniq;
+  //     final zeniqAmount = Amount(
+  //       value: discardRightBigInt(zeniqValue.value, 18),
+  //       decimals: 18,
+  //     );
 
-      final tokenValue = share * reserveAmountToken;
-      final tokenAmount = Amount(
-        value: discardRightBigInt(tokenValue.value, pair.token.decimals),
-        decimals: pair.token.decimals,
-      );
+  //     final tokenValue = share * reserveAmountToken;
+  //     final tokenAmount = Amount(
+  //       value: discardRightBigInt(tokenValue.value, pair.token.decimals),
+  //       decimals: pair.token.decimals,
+  //     );
 
-      final vl = (zeniqAmount.displayDouble * pair.zeniqPrice) +
-          (tokenAmount.displayDouble * pair.tokenPrice);
+  //     final vl = (zeniqAmount.displayDouble * pair.zeniqPrice) +
+  //         (tokenAmount.displayDouble * pair.tokenPrice);
 
-      print("Position before update: ${pair.position}");
+  //     print("Position before update: ${pair.position}");
 
-      final updatedPosition = Position(
-        liquidity: liquidityAmount,
-        zeniqValue: zeniqAmount,
-        totalSupply: totalSupplyAmount,
-        tokenValue: tokenAmount,
-        reserveAmountZeniq: reserveAmountZeniq,
-        reserveAmountToken: reserveAmountToken,
-        tokenFiatValue: tokenAmount.displayDouble * pair.tokenPrice,
-        zeniqFiatValue: zeniqAmount.displayDouble * pair.zeniqPrice,
-        valueLocked: vl,
-        share: share,
-        oldPosition: false,
-      );
-      final index = pairs.indexWhere(
-          (p) => p.contract.contractAddress == pair.contract.contractAddress);
-      print("This is the index of updated pair: $index");
+  //     final updatedPosition = Position(
+  //       liquidity: liquidityAmount,
+  //       zeniqValue: zeniqAmount,
+  //       totalSupply: totalSupplyAmount,
+  //       tokenValue: tokenAmount,
+  //       reserveAmountZeniq: reserveAmountZeniq,
+  //       reserveAmountToken: reserveAmountToken,
+  //       tokenFiatValue: tokenAmount.displayDouble * pair.tokenPrice,
+  //       zeniqFiatValue: zeniqAmount.displayDouble * pair.zeniqPrice,
+  //       valueLocked: vl,
+  //       share: share,
+  //       oldPosition: false,
+  //     );
+  //     final index = pairs.indexWhere(
+  //         (p) => p.contract.contractAddress == pair.contract.contractAddress);
+  //     print("This is the index of updated pair: $index");
 
-      if (index != -1) {
-        // Update the pair if found
-        pairs[index] = pairs[index].copyWith(position: updatedPosition);
+  //     if (index != -1) {
+  //       // Update the pair if found
+  //       pairs[index] = pairs[index].copyWith(position: updatedPosition);
 
-        print("Position after update: ${pairs[index].position}");
-        state = AsyncValue.data(pairs);
+  //       print("Position after update: ${pairs[index].position}");
+  //       state = AsyncValue.data(pairs);
 
-        print("Pair updated successfully");
-      } else {
-        // If the pair is not found, add it to the list
-        print("Pair not found in the list. Adding it.");
-        state = AsyncValue.data(
-            [...pairs, pair.copyWith(position: updatedPosition)]);
-      }
-    } catch (e, s) {
-      print(
-          'Error updating position for pair ${pair.contract.contractAddress}: $e');
-      state = AsyncValue.error(e, s);
-    }
-  }
+  //       print("Pair updated successfully");
+  //     } else {
+  //       // If the pair is not found, add it to the list
+  //       print("Pair not found in the list. Adding it.");
+  //       state = AsyncValue.data(
+  //           [...pairs, pair.copyWith(position: updatedPosition)]);
+  //     }
+  //   } catch (e, s) {
+  //     print(
+  //         'Error updating position for pair ${pair.contract.contractAddress}: $e');
+  //     state = AsyncValue.error(e, s);
+  //   }
+  // }
 
   Future<double?> _fetchTokenPrice(ERC20Entity token) async {
     print('Fetching token price for ${token.symbol}');

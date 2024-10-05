@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,14 +14,11 @@ import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:uniswap_liquidity/provider/newContract/zeniqswap_pair_provider.dart';
 import 'package:uniswap_liquidity/routes.dart';
 import 'package:uniswap_liquidity/theme.dart';
-import 'package:uniswap_liquidity/utils/rpc.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:walletkit_dart/walletkit_dart.dart';
 import 'package:webon_kit_dart/webon_kit_dart.dart';
 
 final appRouter = AppRouter();
 var address = "";
-Amount zeniqBalance = Amount.zero;
 const deeplink = 'https://nomo.app/webon/liquidity.zeniqswap.com';
 
 void main() async {
@@ -34,7 +30,6 @@ void main() async {
     }
 
     address = await WebonKitDart.getEvmAddress();
-    zeniqBalance = await rpc.fetchTokenBalance(address, zeniqETHToken);
     print('EVM address: $address');
   } catch (e) {
     final textStyle = GoogleFonts.roboto(

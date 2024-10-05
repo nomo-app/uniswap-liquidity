@@ -25,6 +25,8 @@ class AddPair extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final balanceToken = ref.watch(tokenBalanceNotifierProvider(token!));
 
+    final zeniqBalance = ref.watch(tokenBalanceNotifierProvider(zeniqETHToken));
+
     if (token == null) {
       NomoNavigator.of(context).pop();
       return SizedBox.shrink();
@@ -45,46 +47,46 @@ class AddPair extends ConsumerWidget {
       child: NomoRouteBody(
         maxContentWidth: 600,
         child: balanceToken.when(
-          data: (data) {
-            final Pair createPair = Pair(
-              tokeWZeniq: zeniqWrapperToken,
-              volume24h: null,
-              fees24h: null,
-              apr: null,
-              token: token!,
-              contract: UniswapV2PairOrZeniqSwapPair.zeniqSwap(
-                ZeniqswapV2Pair(contractAddress: "", rpc: rpc),
-              ),
-              reserves: (BigInt.zero, BigInt.zero),
-              tvl: 0,
-              zeniqFiatValue: 0,
-              tokenFiatValue: 0,
-              tokenPrice: tokenPrice!,
-              zeniqPrice: zeniqPrice!,
-              balanceToken: data,
-              fiatBlanceToken: null,
-              fiatZeniqBalance: null,
-              tokenPerZeniq: 0,
-              zeniqPerToken: 0,
-              position: null,
-              zeniqValue: Amount.zero,
-              tokenValue: Amount.zero,
-            );
-
-            return Padding(
-              padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
-              child: SingleChildScrollView(
-                child: AddPairBox(selectedPool: createPair),
-              ),
-            );
-          },
+          data: (tokenBalance) => zeniqBalance.when(
+            data: (zeniqBalance) {
+              final Pair createPair = Pair(
+                tokeWZeniq: zeniqWrapperToken,
+                volume24h: null,
+                fees24h: null,
+                apr: null,
+                token: token!,
+                contract: UniswapV2PairOrZeniqSwapPair.zeniqSwap(
+                  ZeniqswapV2Pair(contractAddress: "", rpc: rpc),
+                ),
+                reserves: (BigInt.zero, BigInt.zero),
+                tvl: 0,
+                zeniqFiatValue: 0,
+                tokenFiatValue: 0,
+                tokenPrice: tokenPrice!,
+                zeniqPrice: zeniqPrice!,
+                zeniqBalance: zeniqBalance,
+                balanceToken: tokenBalance,
+                fiatBlanceToken: null,
+                fiatZeniqBalance: null,
+                tokenPerZeniq: 0,
+                zeniqPerToken: 0,
+                position: null,
+                zeniqValue: Amount.zero,
+                tokenValue: Amount.zero,
+              );
+              return Padding(
+                padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
+                child: SingleChildScrollView(
+                  child: AddPairBox(selectedPool: createPair),
+                ),
+              );
+            },
+            error: (error, stackTrace) => NomoText(error.toString()),
+            loading: () => CircularProgressIndicator(),
+          ),
           error: (error, stackTrace) => NomoText(error.toString()),
           loading: () => CircularProgressIndicator(),
         ),
-        // child: AddLiquidityBox(
-        //   selectedPool: createPair,
-        //   showPositionBox: false,
-        // ),
       ),
     );
   }

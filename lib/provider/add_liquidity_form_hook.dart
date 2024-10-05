@@ -33,7 +33,7 @@ class AddLiquidityFormController {
   final BigInt reserveB;
   final int zeniqDecimals;
   final int tokenDecimals;
-  final double zeniqBalance;
+  final Amount zeniqBalance;
   final double tokenBalance;
   final String tokenContractAddress;
   final double zeniqPerToken;
@@ -135,7 +135,7 @@ class AddLiquidityFormController {
     final zeniqInput = double.tryParse(zeniqNotifier.value) ?? 0;
     final tokenInput = double.tryParse(tokenNotifier.value) ?? 0;
 
-    if (zeniqInput > zeniqBalance) {
+    if (zeniqInput > zeniqBalance.displayDouble) {
       zeniqErrorNotifier.value =
           LiquidityInputFieldError.insufficientBalance.displayName;
       isValid = false;
@@ -279,12 +279,12 @@ class AddLiquidityFormController {
   }
 }
 
-AddLiquidityFormController useAddLiquidityForm(double zeniqBalance, Pair pool) {
+AddLiquidityFormController useAddLiquidityForm(Pair pool) {
   final controller = useState<AddLiquidityFormController?>(null);
 
   useEffect(() {
     controller.value = AddLiquidityFormController(
-      zeniqBalance,
+      pool.zeniqBalance,
       pool.balanceToken?.displayDouble ?? 0,
       pool.reserves.$1,
       pool.reserves.$2,
@@ -294,7 +294,7 @@ AddLiquidityFormController useAddLiquidityForm(double zeniqBalance, Pair pool) {
       pool.zeniqPerToken,
     );
     return null;
-  }, [zeniqBalance, pool]);
+  }, [pool]);
 
   return controller.value!;
 }
