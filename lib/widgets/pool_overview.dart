@@ -113,13 +113,14 @@ class PoolOverview extends ConsumerWidget {
                                   horizontal: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: context.theme.colors.primary,
+                                  color: context.theme.colors.error,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Center(
                                   child: NomoText(
                                     "Old",
                                     style: context.typography.b1,
+                                    fontWeight: FontWeight.bold,
                                     fontSize: 12,
                                   ),
                                 ),
