@@ -5,7 +5,6 @@ import 'package:nomo_ui_kit/components/buttons/primary/nomo_primary_button.dart'
 import 'package:nomo_ui_kit/components/text/nomo_text.dart';
 import 'package:nomo_ui_kit/theme/nomo_theme.dart';
 import 'package:nomo_ui_kit/utils/layout_extensions.dart';
-import 'package:uniswap_liquidity/main.dart';
 import 'package:uniswap_liquidity/provider/add_pool_form_hook.dart';
 import 'package:uniswap_liquidity/provider/liquidity_provider.dart';
 import 'package:uniswap_liquidity/provider/model/pair.dart';
@@ -20,8 +19,7 @@ class AddPairBox extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final formStateNotifier =
-        useAddPairFormHook(zeniqBalance.displayDouble, selectedPool);
+    final formStateNotifier = useAddPairFormHook(selectedPool);
     final slippage = useState("0.5");
     final liquidityProvider = ref.watch(liquidityNotifierProvider);
 
@@ -30,7 +28,7 @@ class AddPairBox extends HookConsumerWidget {
       children: [
         LiquidityInputField(
           token: selectedPool.tokeWZeniq,
-          balance: zeniqBalance,
+          balance: selectedPool.zeniqBalance,
           errorNotifier: formStateNotifier.zeniqErrorNotifier,
           valueNotifier: formStateNotifier.zeniqNotifier,
           fiatBlance: null,
@@ -210,7 +208,7 @@ class AddPairBox extends HookConsumerWidget {
                     );
                     final txHash = await ref
                         .read(liquidityNotifierProvider.notifier)
-                        .addLiquidity(liquidity, false);
+                        .addLiquidity(liquidity, false, selectedPool);
                     if (txHash != null) {
                       print("Liquidity added: $txHash");
                       showDialog(

@@ -58,6 +58,7 @@ class Pair extends PairInformation {
     required super.balanceToken,
     required super.fiatBlanceToken,
     required super.fiatZeniqBalance,
+    required super.zeniqBalance,
     required super.tokenPerZeniq,
     required super.zeniqPerToken,
     this.isUpdating = false,
@@ -82,6 +83,7 @@ class Pair extends PairInformation {
     Amount? balanceToken,
     double? fiatBlanceToken,
     double? fiatZeniqBalance,
+    Amount? zeniqBalance,
     bool? isUpdating,
     double? tokenPerZeniq,
     double? zeniqPerToken,
@@ -106,6 +108,7 @@ class Pair extends PairInformation {
       balanceToken: balanceToken ?? this.balanceToken,
       fiatBlanceToken: fiatBlanceToken ?? this.fiatBlanceToken,
       fiatZeniqBalance: fiatZeniqBalance ?? this.fiatZeniqBalance,
+      zeniqBalance: zeniqBalance ?? this.zeniqBalance,
       tokenPerZeniq: tokenPerZeniq ?? this.tokenPerZeniq,
       zeniqPerToken: zeniqPerToken ?? this.zeniqPerToken,
       position: position ?? this.position,
@@ -168,6 +171,7 @@ abstract class PairInformation {
   final Amount? balanceToken;
   final double? fiatBlanceToken;
   final double? fiatZeniqBalance;
+  final Amount zeniqBalance;
   final double tokenPerZeniq;
   final double zeniqPerToken;
   final Amount zeniqValue;
@@ -185,6 +189,7 @@ abstract class PairInformation {
     required this.balanceToken,
     required this.fiatBlanceToken,
     required this.fiatZeniqBalance,
+    required this.zeniqBalance,
     required this.tokenPerZeniq,
     required this.zeniqPerToken,
     required this.zeniqValue,

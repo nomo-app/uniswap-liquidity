@@ -15,7 +15,8 @@ class LiquidityNotifier extends _$LiquidityNotifier {
     return LiquidityState.idel;
   }
 
-  Future<String?> addLiquidity(Liquidity liquidity, bool? shouldupdate) async {
+  Future<String?> addLiquidity(
+      Liquidity liquidity, bool? shouldupdate, Pair pair) async {
     state = LiquidityState.loading;
     final now = DateTime.now();
     final deadline = now.add(Duration(minutes: 20));
@@ -57,18 +58,22 @@ class LiquidityNotifier extends _$LiquidityNotifier {
       return null;
     }
 
+    print("Waiting for confirmation");
+
     final successfully = await rpc.waitForTxConfirmation(txHash);
+
+    print("Successfully: ${successfully}");
 
     if (!successfully) {
       state = LiquidityState.error;
       return null;
     }
 
-    if (shouldupdate == null) {
-      await ref.read(zeniqswapNotifierProvider.notifier).updatePosition(
-            liquidity.pair,
-          );
-    }
+    // if (shouldupdate == null) {
+    //   await ref.read(zeniqswapNotifierProvider.notifier).hardUpdate();
+    // }
+
+    ref.read(zeniqswapNotifierProvider.notifier).updatePair(pair);
 
     state = LiquidityState.idel;
 

@@ -18,7 +18,7 @@ class AddPoolFormController {
   final ValueNotifier<ApprovalState> zeniqApprovalState;
   final int zeniqDecimals;
   final int tokenDecimals;
-  final double zeniqBalance;
+  final Amount zeniqBalance;
   final double tokenBalance;
   final String tokenContractAddress;
   final String wzeniqContractAddress;
@@ -72,10 +72,10 @@ class AddPoolFormController {
     final zeniqInput = double.tryParse(zeniqNotifier.value) ?? 0;
     final tokenInput = double.tryParse(tokenNotifier.value) ?? 0;
     _getValidationPair(zeniqInput, tokenInput);
-    if (zeniqInput > zeniqBalance) {
+    if (zeniqInput > zeniqBalance.displayDouble) {
       zeniqErrorNotifier.value = "Insufficient balance";
       isValid = false;
-    } else if (zeniqInput < 5000 && zeniqInput != 0) {
+    } else if (zeniqInput < 10 && zeniqInput != 0) {
       zeniqErrorNotifier.value = "Minimum amount is 5000 ZENIQ";
       isValid = false;
     } else {
@@ -197,7 +197,6 @@ class AddPoolFormController {
 }
 
 AddPoolFormController useAddPairFormHook(
-  double zeniqBalance,
   Pair pool,
 ) {
   final controller = useState<AddPoolFormController?>(null);
@@ -205,7 +204,7 @@ AddPoolFormController useAddPairFormHook(
   useEffect(() {
     controller.value = AddPoolFormController(
       pool,
-      zeniqBalance,
+      pool.zeniqBalance,
       pool.balanceToken?.displayDouble ?? 0,
       pool.tokeWZeniq.decimals,
       pool.token.decimals,
@@ -213,7 +212,7 @@ AddPoolFormController useAddPairFormHook(
       pool.tokeWZeniq.contractAddress,
     );
     return null;
-  }, [zeniqBalance, pool]);
+  }, [pool]);
 
   return controller.value!;
 }
